@@ -17,15 +17,15 @@
   "capability": "records",
   "source": "Lovable Cloud DB of source project",
   "outcome": "migrate",
-  "status": "pending",
-  "next_action": "request CSV exports"
+  "status": "done",
+  "next_action": ""
  },
  {
   "capability": "auth identities",
   "source": "email/password + Google",
   "outcome": "migrate",
-  "status": "pending",
-  "next_action": "request users export"
+  "status": "partial",
+  "next_action": "only 2 accounts recreated; other users must register again"
  },
  {
   "capability": "authorization",
@@ -59,7 +59,7 @@
   "capability": "verification",
   "source": "",
   "outcome": "migrate",
-  "status": "partial",
-  "next_action": "signed-in flows not yet exercised"
+  "status": "done",
+  "next_action": ""
  }
 ]
