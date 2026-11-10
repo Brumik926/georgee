@@ -1,0 +1,27 @@
+# Roadmap
+
+- [x] Overiť asistenta cez Lovable AI a odstrániť nepoužívaný ANTHROPIC_API_KEY; odpoveď overená v prihlásenom chate.
+
+- [x] Zjednotiť meno majiteľa podľa uloženého profilu; testy synchronizácie a neúspešného uloženia prešli.
+- [ ] Overiť zmenu mena cez prihlásený náhľad — čaká na prihlásenie používateľa, automatické prihlásenie nie je dostupné.
+
+- [x] Dizajn podľa predlohy (tmavý štýl, bordová hlavička)
+- [x] Prehľad: zostatok, príjmy/výdavky za mesiac
+- [x] Nová platba (prevod) s IBAN, sumou, správou
+- [x] História platieb zoskupená po mesiacoch + detail
+- [x] Prijaté prevody
+- [x] Sporenie: ciele a vklady
+- [x] Rozpočet: kategórie, limity, príjmy vs výdavky
+- [x] Uloženie dát v prehliadači
+- [x] Ikona George a pridanie aplikácie na plochu iPhonu
+- [x] Prihlásenie (e-mail + Google) a ukladanie údajov do Lovable Cloud
+- [x] Upozornenia: prijatý prevod, odoslaná platba, prekročenie rozpočtu + zvuk
+- [x] Trvalo viditeľná spodná navigácia + denný a nočný režim
+
+- [x] Odomykanie aplikácie odtlačkom prsta / tvárou (zámka obrazovky)
+- [x] Ochrana prihlásených obrazoviek pred prázdnym zobrazením pri chybe načítania
+- [x] Upraviť detail odoslanej platby podľa priloženej fotografie
+- [x] Vytvoriť a overiť nové APK s logom S s bodkou
+- [ ] Upraviť FIT / Rozpočet: mesačné výdavky, príjmy, limity a overenie
+- [x] Dokončiť Google Search Console: pripojenie, overenie publikovanej stránky a odoslanie sitemap
+- [x] Opraviť opakované zobrazenie prihlásenia a overiť otvorenie Prehľadu a platieb

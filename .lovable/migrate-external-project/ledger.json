@@ -1,0 +1,65 @@
+[
+ {
+  "capability": "code",
+  "source": "TanStack Start app (George-style internet banking)",
+  "outcome": "migrate",
+  "status": "done",
+  "next_action": ""
+ },
+ {
+  "capability": "schema",
+  "source": "drizzle migrations (8 tables, RLS, signup trigger)",
+  "outcome": "migrate",
+  "status": "done",
+  "next_action": ""
+ },
+ {
+  "capability": "records",
+  "source": "Lovable Cloud DB of source project",
+  "outcome": "migrate",
+  "status": "pending",
+  "next_action": "request CSV exports"
+ },
+ {
+  "capability": "auth identities",
+  "source": "email/password + Google",
+  "outcome": "migrate",
+  "status": "pending",
+  "next_action": "request users export"
+ },
+ {
+  "capability": "authorization",
+  "source": "per-user RLS",
+  "outcome": "migrate",
+  "status": "done",
+  "next_action": ""
+ },
+ {
+  "capability": "AI assistant",
+  "source": "Lovable AI Gateway",
+  "outcome": "preserve",
+  "status": "done",
+  "next_action": "test in app"
+ },
+ {
+  "capability": "MCP server / OAuth",
+  "source": "/mcp, .well-known",
+  "outcome": "preserve",
+  "status": "done",
+  "next_action": "OAuth server activated"
+ },
+ {
+  "capability": "secrets",
+  "source": "none user-owned",
+  "outcome": "n/a",
+  "status": "verified",
+  "next_action": ""
+ },
+ {
+  "capability": "verification",
+  "source": "",
+  "outcome": "migrate",
+  "status": "partial",
+  "next_action": "signed-in flows not yet exercised"
+ }
+]

@@ -12,3 +12,5 @@ Allow: /
 
 User-agent: *
 Allow: /
+
+Sitemap: https://internetbanking-george.lovable.app/sitemap.xml

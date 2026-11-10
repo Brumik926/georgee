@@ -1,0 +1,8 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "app.lovable.internetbanking_george.twa",
+    "sha256_cert_fingerprints": ["95:4F:E8:EC:FC:72:6F:98:99:53:1F:91:BE:8B:1F:8B:B3:01:2B:05:90:A2:24:78:E7:52:45:D1:FC:04:18:52", "3B:1E:6A:DC:BE:51:F4:67:52:41:B2:82:A7:63:37:06:AC:67:26:B5:31:DC:DB:F5:AA:B2:70:52:EB:93:21:C1"]
+  }
+}]
