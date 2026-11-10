@@ -10,7 +10,7 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "14.17"
+    PostgrestVersion: "14.18"
   }
   public: {
     Tables: {
@@ -206,48 +206,39 @@ export type Database = {
       transactions: {
         Row: {
           amount: number
-          amount_cents: number
           category: string
           counterparty: string
           created_at: string
           date: string
           iban: string | null
           id: string
-          idempotency_key: string | null
           note: string | null
-          status: string
           type: string
           user_id: string
           vs: string | null
         }
         Insert: {
           amount: number
-          amount_cents?: number
           category?: string
           counterparty: string
           created_at?: string
           date?: string
           iban?: string | null
           id?: string
-          idempotency_key?: string | null
           note?: string | null
-          status?: string
           type: string
           user_id?: string
           vs?: string | null
         }
         Update: {
           amount?: number
-          amount_cents?: number
           category?: string
           counterparty?: string
           created_at?: string
           date?: string
           iban?: string | null
           id?: string
-          idempotency_key?: string | null
           note?: string | null
-          status?: string
           type?: string
           user_id?: string
           vs?: string | null
@@ -259,39 +250,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      create_payment: {
-        Args: {
-          p_amount_cents: number
-          p_category: string
-          p_counterparty: string
-          p_iban: string
-          p_idempotency_key: string
-          p_note?: string
-          p_user_id: string
-        }
-        Returns: {
-          amount: number
-          amount_cents: number
-          category: string
-          counterparty: string
-          created_at: string
-          date: string
-          iban: string | null
-          id: string
-          idempotency_key: string | null
-          note: string | null
-          status: string
-          type: string
-          user_id: string
-          vs: string | null
-        }
-        SetofOptions: {
-          from: "*"
-          to: "transactions"
-          isOneToOne: true
-          isSetofReturn: false
-        }
-      }
+      [_ in never]: never
     }
     Enums: {
       [_ in never]: never
