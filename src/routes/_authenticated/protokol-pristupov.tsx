@@ -1,5 +1,6 @@
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
 import { ArrowLeft, Monitor } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { isPrimaryEmail } from "@/lib/accounts";
@@ -35,6 +36,18 @@ const fmt = new Intl.DateTimeFormat("sk-SK", {
 });
 
 function ProtokolPristupov() {
+  const qc = useQueryClient();
+  useEffect(() => {
+    const ch = supabase
+      .channel(`login-events-${Math.random().toString(36).slice(2)}`)
+      .on("postgres_changes", { event: "*", schema: "public", table: "login_events" }, () => {
+        void qc.invalidateQueries({ queryKey: ["login_events"] });
+      })
+      .subscribe();
+    return () => {
+      void supabase.removeChannel(ch);
+    };
+  }, [qc]);
   const { data, isLoading, error } = useQuery({
     queryKey: ["login_events"],
     queryFn: async (): Promise<LoginEvent[]> => {

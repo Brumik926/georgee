@@ -8,6 +8,13 @@
       "when": 1794296992870,
       "tag": "0000_create_banking_tables",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1794412136756,
+      "tag": "0001_login_events_admin_realtime",
+      "breakpoints": true
     }
   ]
 }
