@@ -5,6 +5,8 @@ export const askClaude = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data: { prompt: string }) => data)
   .handler(async ({ data, context }) => {
+    const access = await context.supabase.rpc("is_banking_blocked");
+    if (access.error || access.data !== false) throw new Error("Prístup do bankingu je zablokovaný.");
     // Overený prihlásený používateľ: context.userId
     const apiKey = process.env["LOVABLE_API_KEY"];
     if (!apiKey) {

@@ -1,14 +1,17 @@
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect } from "react";
-import { ArrowLeft, Monitor } from "lucide-react";
+import { useEffect, useState } from "react";
+import { ArrowLeft, Monitor, UserX, UserCheck } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { isPrimaryEmail } from "@/lib/accounts";
 
 export const Route = createFileRoute("/_authenticated/protokol-pristupov")({
   beforeLoad: async () => {
     const { data } = await supabase.auth.getUser();
-    if (!isPrimaryEmail(data.user?.email)) {
+    const role = await supabase.rpc("has_role", { _user_id: data.user?.id ?? "00000000-0000-0000-0000-000000000000", _role: "admin" });
+    if (!data.user || role.error || !role.data) {
       throw redirect({ to: "/nastavenia", replace: true });
     }
   },
@@ -37,11 +40,37 @@ const fmt = new Intl.DateTimeFormat("sk-SK", {
 
 function ProtokolPristupov() {
   const qc = useQueryClient();
+  const [pending, setPending] = useState<string | null>(null);
+  const blocks = useQuery({
+    queryKey: ["user-access-blocks"],
+    queryFn: async () => {
+      const result = await supabase.from("user_access_blocks").select("email,is_blocked");
+      if (result.error) throw result.error;
+      return result.data;
+    },
+    refetchInterval: 5000,
+  });
+  async function toggleBlock(event: LoginEvent) {
+    const email = event.email.trim().toLowerCase();
+    const blocked = blocks.data?.some(b => b.email === email && b.is_blocked) ?? false;
+    if (!blocked && !window.confirm(`Zablokovať prístup používateľovi ${event.email}?`)) return;
+    setPending(email);
+    try {
+      const result = await supabase.rpc("set_login_user_block", { _event_id: event.id, _blocked: !blocked });
+      if (result.error) throw result.error;
+      await qc.invalidateQueries({ queryKey: ["user-access-blocks"] });
+      toast.success(blocked ? "Používateľ bol odblokovaný." : "Používateľ bol zablokovaný.");
+    } catch { toast.error("Prístup sa nepodarilo zmeniť."); }
+    finally { setPending(null); }
+  }
   useEffect(() => {
     const ch = supabase
       .channel(`login-events-${Math.random().toString(36).slice(2)}`)
       .on("postgres_changes", { event: "*", schema: "public", table: "login_events" }, () => {
         void qc.invalidateQueries({ queryKey: ["login_events"] });
+      })
+      .on("postgres_changes", { event: "*", schema: "public", table: "user_access_blocks" }, () => {
+        void qc.invalidateQueries({ queryKey: ["user-access-blocks"] });
       })
       .subscribe();
     return () => {
@@ -50,6 +79,7 @@ function ProtokolPristupov() {
   }, [qc]);
   const { data, isLoading, error } = useQuery({
     queryKey: ["login_events"],
+    refetchInterval: 5000,
     queryFn: async (): Promise<LoginEvent[]> => {
       const { data, error } = await supabase
         .from("login_events")
@@ -64,34 +94,38 @@ function ProtokolPristupov() {
 
   return (
     <div className="min-h-screen pb-24">
-      <div className="bg-[#196ee6] dark:bg-[#111e33] px-5 pt-4 pb-14 text-white">
+      <div className="bg-primary px-5 pt-4 pb-14 text-primary-foreground">
         <Link
           to="/nastavenia"
-          className="w-10 h-10 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center text-white transition active:scale-95"
+          className="w-10 h-10 rounded-full bg-primary-foreground/20 hover:bg-primary-foreground/30 flex items-center justify-center transition active:scale-95"
         >
           <ArrowLeft className="w-5 h-5 stroke-[2.2]" />
         </Link>
         <h1 className="text-[32px] font-extrabold tracking-tight mt-4 leading-tight">Protokol prístupov</h1>
-        <p className="text-[16px] text-white/80 font-medium">Kto a kedy sa prihlásil</p>
+        <p className="text-[16px] text-primary-foreground/80 font-medium">Kto a kedy sa prihlásil</p>
       </div>
 
       <div className="px-4 -mt-8">
-        <div className="rounded-3xl bg-white dark:bg-[#161a23] shadow-sm border border-slate-100 dark:border-zinc-800/60 divide-y divide-slate-100 dark:divide-zinc-800/60 overflow-hidden">
-          {isLoading && <p className="p-5 text-[15px] text-slate-500">Načítavam…</p>}
-          {error && <p className="p-5 text-[15px] text-red-600">Protokol sa nepodarilo načítať.</p>}
+        <div className="rounded-3xl bg-card shadow-sm border border-border divide-y divide-border overflow-hidden">
+          {isLoading && <p className="p-5 text-[15px] text-muted-foreground">Načítavam…</p>}
+          {error && <p className="p-5 text-[15px] text-destructive">Protokol sa nepodarilo načítať.</p>}
+          {blocks.isError && <p className="p-5 text-destructive">Stav blokovania sa nepodarilo načítať.</p>}
           {data && data.length === 0 && (
-            <p className="p-5 text-[15px] text-slate-500">Žiadne cudzie prístupy.</p>
+            <p className="p-5 text-[15px] text-muted-foreground">Žiadne cudzie prístupy.</p>
           )}
           {data?.map((e) => (
-            <div key={e.id} className="flex items-start gap-3.5 p-4">
-              <Monitor className="w-5 h-5 mt-0.5 shrink-0 text-[#196ee6] dark:text-[#38bdf8]" />
+            <div key={e.id} className="flex flex-wrap items-start gap-3.5 p-4">
+              <Monitor className="w-5 h-5 mt-0.5 shrink-0 text-primary" />
               <div className="min-w-0 flex-1">
-                <p className="text-[15px] font-semibold truncate">{e.email || "Neznámy e-mail"}</p>
-                <p className="text-[13px] text-slate-500 truncate">{e.device || "Neznáme zariadenie"}</p>
+                <p className="text-[15px] font-semibold break-all">{e.email || "Neznámy e-mail"}</p>
+                <p className="text-[13px] text-muted-foreground">{e.device || "Neznáme zariadenie"}</p>
+                <p className="text-[12px] text-muted-foreground tabular-nums">{fmt.format(new Date(e.created_at))}</p>
               </div>
-              <span className="text-[12px] text-slate-500 whitespace-nowrap tabular-nums">
-                {fmt.format(new Date(e.created_at))}
-              </span>
+              <Button size="sm" variant={blocks.data?.some(b => b.email === e.email.trim().toLowerCase() && b.is_blocked) ? "outline" : "destructive"}
+                disabled={pending !== null || !blocks.data || blocks.isError || !e.email}
+                onClick={() => void toggleBlock(e)} aria-label={`${blocks.data?.some(b => b.email === e.email.trim().toLowerCase() && b.is_blocked) ? "Odblokovať" : "Zablokovať"} ${e.email}`}>
+                {blocks.data?.some(b => b.email === e.email.trim().toLowerCase() && b.is_blocked) ? <><UserCheck />Odblokovať</> : <><UserX />Zablokovať</>}
+              </Button>
             </div>
           ))}
         </div>

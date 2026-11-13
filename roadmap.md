@@ -1,4 +1,5 @@
 # Roadmap
+- [ ] Importovať 27 chýbajúcich prihlásení z pôvodného CSV bez duplicít, vrátane najstarších dostupných záznamov; skontrolovať ďalšie dostupné exporty.
 - [ ] Pridať blokovanie/odblokovanie v protokole, uzavretie bankingu a obrazovku s platobným odkazom; overiť oprávnenia a prihlásený priebeh.
 
 - [x] Overiť asistenta cez Lovable AI a odstrániť nepoužívaný ANTHROPIC_API_KEY; odpoveď overená v prihlásenom chate.

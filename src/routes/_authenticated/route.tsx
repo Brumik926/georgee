@@ -5,6 +5,7 @@ import { BiometricLock } from "@/components/bank/BiometricLock";
 import { PersistentBottomNav } from "@/components/bank/AppShell";
 import { SessionTimeoutWarning } from "@/components/bank/SessionTimeoutWarning";
 import { recordLogin } from "@/lib/login-log";
+import { BankingAccessGate } from "@/components/bank/BankingAccessGate";
 
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
@@ -27,10 +28,12 @@ function AuthenticatedLayout() {
   }, [user.id, user.email]);
 
   return (
+    <BankingAccessGate userId={user.id}>
     <BiometricLock key={user.id} userId={user.id}>
       <Outlet />
       <PersistentBottomNav />
       <SessionTimeoutWarning />
     </BiometricLock>
+    </BankingAccessGate>
   );
 }

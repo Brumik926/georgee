@@ -34,3 +34,4 @@ use the editor.
 - Keep login and password recovery on the public auth route; the protected layout validates the user and renders Outlet so successful login exposes child screens instead of a second login form.
 - Account owner displays consume the shared bank store's persisted profile; edit drafts stay local and saveProfile publishes only confirmed database results so screens cannot disagree after saving.
 - AI assistant calls use the authenticated server function and Lovable AI Gateway with the managed LOVABLE_API_KEY; never require a separate Anthropic credential.
+- Account blocking is keyed by normalized email and resolved auth ID, managed by an admin-only database function, and enforced by restrictive banking RLS plus a fail-closed shared access gate; historical login IDs may belong to accounts not yet migrated.
