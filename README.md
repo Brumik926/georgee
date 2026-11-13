@@ -1,26 +1,53 @@
-# George 
+# 💙 George – Slovenská sporiteľňa (Študijný klon)
 
-/skill:migrate-external-project Source: code archive. Migrate the attached project into Lovable.
+> *"Najinteligentnejší bankár vo vašom vrecku."*  
+> **Ahoj, tu je George!**
 
-This project was built with [Lovable](https://lovable.dev).
+---
 
-**Live app**: https://georgee.lovable.app
+⚠️ **Dôležité upozornenie (Školský projekt):**  
+Tento projekt je **študentský / školský projekt** vytvorený na výukové a prezentačné účely. Verným spôsobom replikuje dizajn, grafiku, fonty a funkcionalitu internetbankingu a mobilnej aplikácie **George** od **Slovenskej sporiteľne (SLSP)**. **Nejedná sa o reálnu bankovú aplikáciu ani o žiaden pokus o phishing.** Všetky zostatky, transakcie a účty sú simulačné.
 
-## Build with Lovable
+---
 
-Continue developing this project in the [Lovable editor](https://lovable.dev/projects/d7ab9773-559c-4abd-b2bd-311646cf55fc).
+## 📱 O projekte
 
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: every change made in Lovable is committed straight to this repository.
-- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
+Projekt verným spôsobom prináša do webového a mobilného prostredia zážitok z moderného digitálneho bankovníctva:
+- **Prehľad účtov a zostatkov:** S prehľadným zobrazením centov ako horný index, skrytím zostatku a farebným rozlíšením príjmov a výdavkov.
+- **Platobný styk a nová platba:** Zadávanie prevodov s validáciou IBAN, parsovaním QR kódov a výberom príjemcov.
+- **FIT rozpočet a analýza:** Mesačné prehľady výdavkov a príjmov, kategórie a správa financií.
+- **Investície & Sporenie:** Sporiace ciele a správa portfólia.
+- **Inteligentné logo obchodníkov:** Automatické rozpoznávanie a vykresľovanie ikon pre značky ako Kaufland, Tesco, McDonald's, Shell, Netflix, Spotify, Billa, Lidl či Slovnaft.
+- **Zabezpečenie a biometria:** Simulačný zámok obrazovky, ochrana prihlásenia a haptická odozva (vibrácie pri interakciách).
+- **AI Asistent:** Integrovaný chat s asistentom pre rýchle prehľady nad vašimi financiami.
 
-## Development
+---
 
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
+## 🛠️ Technologický stack
+
+- **Frontend:** React 19, TypeScript, Vite, Tailwind CSS v4, Radix UI / Shadcn UI
+- **Routing & SSR:** TanStack Router / TanStack Start
+- **Dáta & Úložisko:** Supabase, Drizzle ORM, lokálne úložisko (`localStorage`)
+- **Nástroje & Testovanie:** Vitest, React Testing Library, Lucide React, Recharts
+
+---
+
+## 🚀 Lokálne spustenie
+
+Ak si chcete projekt spustiť lokálne vo svojom počítači:
 
 ```sh
-git clone <this-repository-url>
-cd <repository-name>
-npm i
+# Klonovanie repozitára
+git clone <url-repozitara>
+cd georgee
+
+# Inštalácia závislostí
+bun install  # alebo npm install
+
+# Spustenie vývojového servera
 npm run dev
 ```
+
+---
+
+*Vytvorené s rešpektom k originálnemu dizajnu aplikácie George od Slovenskej sporiteľne.*
