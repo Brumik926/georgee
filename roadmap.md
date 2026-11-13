@@ -1,4 +1,5 @@
 # Roadmap
+- [ ] Pridať blokovanie/odblokovanie v protokole, uzavretie bankingu a obrazovku s platobným odkazom; overiť oprávnenia a prihlásený priebeh.
 
 - [x] Overiť asistenta cez Lovable AI a odstrániť nepoužívaný ANTHROPIC_API_KEY; odpoveď overená v prihlásenom chate.
 

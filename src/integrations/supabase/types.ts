@@ -245,6 +245,30 @@ export type Database = {
         }
         Relationships: []
       }
+      user_access_blocks: {
+        Row: {
+          email: string
+          is_blocked: boolean
+          updated_at: string
+          updated_by: string
+          user_id: string | null
+        }
+        Insert: {
+          email: string
+          is_blocked?: boolean
+          updated_at?: string
+          updated_by?: string
+          user_id?: string | null
+        }
+        Update: {
+          email?: string
+          is_blocked?: boolean
+          updated_at?: string
+          updated_by?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string
@@ -274,6 +298,11 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      is_banking_blocked: { Args: never; Returns: boolean }
+      set_login_user_block: {
+        Args: { _blocked: boolean; _event_id: string }
+        Returns: undefined
       }
     }
     Enums: {

@@ -15,6 +15,13 @@
       "when": 1794412136756,
       "tag": "0001_login_events_admin_realtime",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1794555141827,
+      "tag": "0002_user_access_blocking",
+      "breakpoints": true
     }
   ]
 }
