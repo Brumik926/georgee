@@ -228,8 +228,8 @@ export default function NovaPlatba() {
             </div>
           </div>
 
-          {/* Fixné spodné tlačidlo Potvrdiť */}
-          <div className="fixed inset-x-0 bottom-0 z-50 mx-auto w-full max-w-[430px] p-4 pb-[max(1rem,env(safe-area-inset-bottom))] bg-background/95 backdrop-blur-md border-t border-border/40">
+          {/* Spodné tlačidlo Potvrdiť */}
+          <div className="mt-8 mb-12">
             <button
               type="button"
               onClick={() => setStep("confirm_card")}
@@ -247,7 +247,7 @@ export default function NovaPlatba() {
   if (step === "confirm_card") {
     return (
       <AppShell>
-        <div className="min-h-screen bg-background pb-36 px-4 pt-4 text-foreground font-sans">
+        <div className="min-h-screen bg-background pb-20 px-4 pt-4 text-foreground font-sans">
           <div className="flex items-center gap-3 mb-6">
             <button
               type="button"
@@ -290,8 +290,8 @@ export default function NovaPlatba() {
 
           {pinError && <p className="mt-2 px-2 text-[13px] text-destructive">{pinError}</p>}
 
-          {/* Fixné spodné tlačidlo Potvrdiť s biometriou */}
-          <div className="fixed inset-x-0 bottom-0 z-50 mx-auto w-full max-w-[430px] p-4 pb-[max(1rem,env(safe-area-inset-bottom))] bg-background/95 backdrop-blur-md border-t border-border/40">
+          {/* Spodné tlačidlo Potvrdiť s biometriou */}
+          <div className="mt-8 mb-12">
             <button
               type="button"
               onClick={confirmWithBiometrics}
