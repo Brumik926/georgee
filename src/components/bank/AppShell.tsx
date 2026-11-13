@@ -3,6 +3,7 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import { type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { Rss, Activity, LayoutGrid, MessageSquare, ArrowLeft } from "lucide-react";
+import { triggerHaptic } from "@/lib/haptics";
 
 export function AppShell({ children }: { children: ReactNode }) {
   return (
@@ -38,6 +39,7 @@ export function PersistentBottomNav() {
             <Link
               key={t.to}
               to={t.to}
+              onClick={() => triggerHaptic(10)}
               className={`flex flex-col items-center text-[12px] transition ${
                 t.active ? "font-semibold text-[#196ee6] dark:text-[#4f95ff]" : "text-slate-500 dark:text-zinc-400"
               }`}
