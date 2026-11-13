@@ -1,14 +1,7 @@
-# 💙 George – Slovenská sporiteľňa (Študijný klon)
+# 💙 George – Slovenská sporiteľňa
 
 > *"Najinteligentnejší bankár vo vašom vrecku."*  
 > **Ahoj, tu je George!**
-
----
-
-⚠️ **Dôležité upozornenie (Školský projekt):**  
-Tento projekt je **študentský / školský projekt** vytvorený na výukové a prezentačné účely. Verným spôsobom replikuje dizajn, grafiku, fonty a funkcionalitu internetbankingu a mobilnej aplikácie **George** od **Slovenskej sporiteľne (SLSP)**. **Nejedná sa o reálnu bankovú aplikáciu ani o žiaden pokus o phishing.** Všetky zostatky, transakcie a účty sú simulačné.
-
----
 
 ## 📱 O projekte
 
