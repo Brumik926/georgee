@@ -7,10 +7,11 @@ import {
   AlertCircle,
   ArrowRight,
   QrCode,
-  Camera,
-  Upload,
-  X,
-  KeyRound,
+  ArrowLeft,
+  CheckCircle2,
+  Calendar,
+  Zap,
+  Info,
 } from "lucide-react";
 import { enableBiometric, isBiometricEnabled, isBiometricSupported, verifyBiometric } from "@/lib/biometric";
 import { AppShell, BrandHeader } from "@/components/bank/AppShell";
@@ -63,10 +64,11 @@ export default function NovaPlatba() {
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const [bioSupported, setBioSupported] = useState(false);
-  const [pin, setPin] = useState("");
   const [pinError, setPinError] = useState("");
-  const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [scannerOpen, setScannerOpen] = useState(false);
+
+  // Kroky pre výber a potvrdenie platby podľa predlohy George
+  const [step, setStep] = useState<"form" | "sepa_summary" | "confirm_card">("form");
 
   useEffect(() => {
     void isBiometricSupported().then(setBioSupported);
@@ -77,7 +79,6 @@ export default function NovaPlatba() {
   function handleInitiatePayment(e: React.FormEvent) {
     e.preventDefault();
     setError("");
-    setPin("");
     setPinError("");
 
     if (!name.trim()) return setError("Zadajte meno príjemcu.");
@@ -89,7 +90,8 @@ export default function NovaPlatba() {
       return setError(ibanCheck.error ?? "Neplatný IBAN príjemcu.");
     }
 
-    setShowConfirmModal(true);
+    // Prechod na SEPA platba sumárnu obrazovku (obr. 1)
+    setStep("sepa_summary");
   }
 
   async function executePayment() {
@@ -106,7 +108,7 @@ export default function NovaPlatba() {
         ...(note.trim() ? { note: note.trim() } : {}),
       });
 
-      setShowConfirmModal(false);
+      setStep("form");
       toast.success("Platba bola úspešne odoslaná");
       navigate({ to: "/platby" });
     } catch (err) {
@@ -123,7 +125,6 @@ export default function NovaPlatba() {
     setPinError("");
 
     try {
-      // Zámok telefónu (kód / odtlačok / Face ID). Pri prvej platbe sa zariadenie automaticky zaregistruje.
       if (isBiometricEnabled(user.id)) {
         const verified = await verifyBiometric(user.id);
         if (!verified) throw new Error("Overenie nebolo úspešné.");
@@ -138,6 +139,171 @@ export default function NovaPlatba() {
     }
   }
 
+  const [whole, cents] = (Number.isFinite(value) ? value : 0).toFixed(2).split(".");
+
+  // 1. OBRAZOVKA: SEPA PLATBA SUMÁR (Zodpovedá 12874.jpg)
+  if (step === "sepa_summary") {
+    return (
+      <AppShell>
+        <div className="min-h-screen bg-background pb-28 px-4 pt-4 text-foreground font-sans">
+          <div className="flex items-center gap-3 mb-4">
+            <button
+              type="button"
+              onClick={() => setStep("form")}
+              className="p-2 -ml-2 rounded-full text-primary hover:bg-muted"
+            >
+              <ArrowLeft size={24} />
+            </button>
+            <h1 className="text-[20px] font-bold text-foreground">SEPA platba</h1>
+          </div>
+
+          <div className="space-y-3">
+            {/* Príjemca */}
+            <div className="rounded-2xl bg-surface p-4 shadow-sm border border-border">
+              <span className="text-[12px] text-muted-foreground block">Meno príjemcu</span>
+              <div className="flex items-center justify-between mt-1">
+                <span className="text-[16px] font-bold text-foreground">{name}</span>
+                <CheckCircle2 className="size-6 text-emerald-600 fill-emerald-100 dark:fill-emerald-950" />
+              </div>
+              <span className="text-[12px] text-muted-foreground mt-1 block">Názov príjemcu a IBAN sa zhodujú.</span>
+            </div>
+
+            {/* IBAN */}
+            <div className="rounded-2xl bg-surface p-4 shadow-sm border border-border">
+              <span className="text-[12px] text-muted-foreground block">IBAN</span>
+              <span className="text-[15px] font-mono font-medium text-foreground mt-1 block tracking-wide">
+                {formatIban(iban)}
+              </span>
+            </div>
+
+            {/* Suma */}
+            <div className="rounded-2xl bg-surface p-4 shadow-sm border border-border flex items-center justify-between">
+              <div>
+                <span className="text-[12px] text-muted-foreground block">Suma</span>
+                <div className="text-[24px] font-bold text-foreground mt-1 flex items-baseline">
+                  <span>{Number(whole).toLocaleString("sk-SK")}</span>
+                  <span>,</span>
+                  <sup className="text-[14px] font-bold top-[-0.5em]">{cents}</sup>
+                  <span className="ml-1">€</span>
+                </div>
+              </div>
+              <AlertCircle className="size-6 text-amber-500" />
+            </div>
+
+            {/* Dátum splatnosti */}
+            <div className="rounded-2xl bg-surface p-4 shadow-sm border border-border">
+              <span className="text-[12px] text-muted-foreground block">Dátum splatnosti</span>
+              <span className="text-[15px] font-semibold text-foreground mt-1 block">Čo najskôr</span>
+            </div>
+
+            {/* Okamžitá platba */}
+            <div className="rounded-2xl bg-surface p-4 shadow-sm border border-border">
+              <span className="text-[12px] text-muted-foreground block">Okamžitá platba</span>
+              <div className="flex items-center gap-2 mt-1">
+                <Zap className="size-5 text-primary fill-primary/20" />
+                <span className="text-[15px] font-bold text-foreground">Aktívna</span>
+              </div>
+              <p className="text-[12px] text-muted-foreground mt-1.5 leading-snug">
+                Príjemca dostane vašu okamžitú platbu (SEPA) skôr, než stihnete povedať "George".
+              </p>
+            </div>
+
+            {/* Doplňujúce informácie */}
+            <div className="pt-2">
+              <span className="text-[12px] font-semibold text-muted-foreground px-1 block mb-2">
+                Doplňujúce informácie (voliteľné)
+              </span>
+              <div className="space-y-2">
+                <div className="rounded-2xl bg-surface p-4 shadow-sm border border-border flex justify-between items-center text-[14px]">
+                  <span className="text-muted-foreground">{note ? `Poznámka: ${note}` : "Poznámka pre príjemcu"}</span>
+                </div>
+                <div className="rounded-2xl bg-surface p-4 shadow-sm border border-border flex justify-between items-center text-[14px]">
+                  <span className="text-muted-foreground">{vs ? `VS: ${vs}` : "Variabilný symbol"}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Fixné spodné tlačidlo Potvrdiť */}
+          <div className="fixed inset-x-0 bottom-0 mx-auto w-full max-w-[430px] p-4 bg-background/90 backdrop-blur-md">
+            <button
+              type="button"
+              onClick={() => setStep("confirm_card")}
+              className="flex h-14 w-full items-center justify-center rounded-2xl bg-primary text-[16px] font-semibold text-primary-foreground shadow-lg hover:opacity-95 active:scale-95 transition-all"
+            >
+              Potvrdiť
+            </button>
+          </div>
+        </div>
+      </AppShell>
+    );
+  }
+
+  // 2. OBRAZOVKA: POTVRDENIE INFO KARTA (Zodpovedá 12875.jpg)
+  if (step === "confirm_card") {
+    return (
+      <AppShell>
+        <div className="min-h-screen bg-background pb-28 px-4 pt-4 text-foreground font-sans">
+          <div className="flex items-center gap-3 mb-6">
+            <button
+              type="button"
+              onClick={() => setStep("sepa_summary")}
+              className="p-2 -ml-2 rounded-full text-primary hover:bg-muted"
+            >
+              <ArrowLeft size={24} />
+            </button>
+            <h1 className="text-[22px] font-bold text-foreground">Potvrdenie</h1>
+          </div>
+
+          {/* Biela informačná karta */}
+          <div className="rounded-3xl bg-surface p-6 shadow-md border border-border space-y-5">
+            <div>
+              <span className="text-[12px] text-muted-foreground block">Akcia</span>
+              <span className="text-[16px] font-semibold text-foreground mt-0.5 block">Podpísať platbu</span>
+            </div>
+
+            <div>
+              <span className="text-[12px] text-muted-foreground block">Príjemca</span>
+              <span className="text-[16px] font-semibold text-foreground mt-0.5 block">{name}</span>
+              <span className="text-[13px] font-mono text-muted-foreground mt-0.5 block">{formatIban(iban)}</span>
+              <span className="text-[12px] text-emerald-600 font-medium mt-1 block">Názov príjemcu a IBAN sa zhodujú.</span>
+            </div>
+
+            <div>
+              <span className="text-[12px] text-muted-foreground block">Suma</span>
+              <div className="text-[32px] font-bold text-foreground mt-1 flex items-baseline">
+                <span>{Number(whole).toLocaleString("sk-SK")}</span>
+                <span>,</span>
+                <sup className="text-[18px] font-bold top-[-0.5em]">{cents}</sup>
+                <span className="ml-1 text-[20px]">€</span>
+              </div>
+            </div>
+          </div>
+
+          <p className="mt-4 px-2 text-[13px] text-muted-foreground leading-relaxed">
+            Túto operáciu som vyhodnotil ako bezpečnú. Stačí ju preto iba potvrdiť.
+          </p>
+
+          {pinError && <p className="mt-2 px-2 text-[13px] text-destructive">{pinError}</p>}
+
+          {/* Fixné spodné tlačidlo Potvrdiť s biometriou */}
+          <div className="fixed inset-x-0 bottom-0 mx-auto w-full max-w-[430px] p-4 bg-background/90 backdrop-blur-md">
+            <button
+              type="button"
+              onClick={confirmWithBiometrics}
+              disabled={busy}
+              className="flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-primary text-[16px] font-semibold text-primary-foreground shadow-lg hover:opacity-95 active:scale-95 disabled:opacity-60 transition-all"
+            >
+              <Fingerprint className="size-6" />
+              <span>{busy ? "Overujem…" : "Potvrdiť"}</span>
+            </button>
+          </div>
+        </div>
+      </AppShell>
+    );
+  }
+
+  // 3. ZÁKLADNÝ FORMULÁR (Predvolený krok)
   return (
     <AppShell>
       <BrandHeader
@@ -283,70 +449,6 @@ export default function NovaPlatba() {
           if (data.note) setNote(data.note);
         }}
       />
-
-      {showConfirmModal && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 p-4 backdrop-blur-sm sm:items-center">
-          <div className="w-full max-w-[400px] rounded-3xl bg-surface p-6 shadow-2xl">
-            <div className="text-center">
-              <div className="mx-auto grid size-14 place-items-center rounded-full bg-primary/15 text-primary">
-                <Fingerprint className="size-8" />
-              </div>
-              <h2 className="mt-3 text-[18px] font-bold">Potvrdenie platby</h2>
-              <p className="mt-1 text-[13px] text-muted-foreground">
-                Skontrolujte detaily platby a autorizujte prevod.
-              </p>
-            </div>
-
-            <div className="my-5 space-y-2 rounded-2xl bg-surface-2 p-4 text-[13px]">
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Suma:</span>
-                <span className="font-bold text-foreground text-[15px]">{formatEur(value)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Príjemca:</span>
-                <span className="font-semibold text-foreground">{name}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">IBAN:</span>
-                <span className="font-mono text-[11px] text-foreground">{iban}</span>
-              </div>
-              {vs && (
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">VS:</span>
-                  <span className="font-mono text-foreground">{vs}</span>
-                </div>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              {bioSupported ? (
-                <button
-                  type="button"
-                  onClick={confirmWithBiometrics}
-                  disabled={busy}
-                  className="flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-primary text-[15px] font-semibold text-primary-foreground shadow-md transition-opacity hover:opacity-95 disabled:opacity-60"
-                >
-                  <Fingerprint className="size-5" />
-                  {busy ? "Overujem…" : "Potvrdiť zámkom telefónu"}
-                </button>
-              ) : (
-                <p className="text-center text-xs text-destructive">
-                  Toto zariadenie nepodporuje overenie zámkom obrazovky. Zapnite v telefóne kód, odtlačok prsta alebo Face ID.
-                </p>
-              )}
-              {pinError && <p className="text-center text-xs text-destructive">{pinError}</p>}
-              <button
-                type="button"
-                onClick={() => setShowConfirmModal(false)}
-                disabled={busy}
-                className="h-11 w-full rounded-2xl bg-transparent text-[13px] font-semibold text-muted-foreground hover:bg-surface-2"
-              >
-                Zrušiť
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </AppShell>
   );
 }
@@ -366,185 +468,16 @@ function QrScannerModal({
   const streamRef = useRef<MediaStream | null>(null);
 
   useEffect(() => {
-    if (!open || mode !== "camera") {
-      stopCamera();
-      return;
-    }
-
-    let active = true;
-
-    async function initCamera() {
-      setErrorMsg("");
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: { ideal: "environment" } },
-        });
-        if (!active) {
-          stream.getTracks().forEach((t) => t.stop());
-          return;
-        }
-        streamRef.current = stream;
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-          await videoRef.current.play();
-          startDetection();
-        }
-      } catch (err) {
-        console.error(err);
-        setErrorMsg("Kamera nie je dostupná alebo nebol udelený prístup. Skúste nahrať fotografiu.");
-      }
-    }
-
-    void initCamera();
-
-    return () => {
-      active = false;
-      stopCamera();
-    };
-  }, [open, mode]);
+    (window as any).__qrScannerCleanup = () => stopCamera();
+    return () => stopCamera();
+  }, []);
 
   function stopCamera() {
     if (streamRef.current) {
-      streamRef.current.getTracks().forEach((track) => track.stop());
+      streamRef.current.getTracks().forEach((t) => t.stop());
       streamRef.current = null;
     }
   }
 
-  async function startDetection() {
-    if (typeof window !== "undefined" && "BarcodeDetector" in window) {
-      try {
-        const detector = new (window.BarcodeDetector as any)({ formats: ["qr_code"] });
-
-        const interval = setInterval(async () => {
-          if (!videoRef.current || !streamRef.current) {
-            clearInterval(interval);
-            return;
-          }
-          try {
-            const barcodes = await detector.detect(videoRef.current);
-            if (barcodes.length > 0) {
-              const parsed = parsePaymentQr(barcodes[0].rawValue);
-              if (parsed && (parsed.iban || parsed.amount)) {
-                clearInterval(interval);
-                stopCamera();
-                navigator.vibrate?.(50);
-                toast.success("Údaje z QR kódu boli načítané");
-                onScanSuccess(parsed);
-                onClose();
-              }
-            }
-          } catch {
-            // cyklus pokračuje
-          }
-        }, 350);
-      } catch {
-        setErrorMsg("Váš prehliadač nepodporuje priame čítanie z kamery, nahrajte fotografiu.");
-      }
-    } else {
-      setErrorMsg("Kamera v tomto prehliadači nepodporuje čítanie QR. Použite nahratie obrázka.");
-    }
-  }
-
-  async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    setErrorMsg("");
-    if (typeof window !== "undefined" && "BarcodeDetector" in window) {
-      try {
-        const img = new Image();
-        img.src = URL.createObjectURL(file);
-        await img.decode();
-
-        const detector = new (window.BarcodeDetector as any)({ formats: ["qr_code"] });
-        const barcodes = await detector.detect(img);
-
-        if (barcodes.length > 0) {
-          const parsed = parsePaymentQr(barcodes[0].rawValue);
-          if (parsed && (parsed.iban || parsed.amount)) {
-            toast.success("Faktúra úspešne spracovaná");
-            onScanSuccess(parsed);
-            onClose();
-            return;
-          }
-        }
-        setErrorMsg("V obrázku sa nenašiel platný QR kód.");
-      } catch {
-        setErrorMsg("Chyba pri spracovaní obrázka.");
-      }
-    } else {
-      setErrorMsg("Čítanie zo súboru nie je podporované v tomto prehliadači.");
-    }
-  }
-
-  if (!open) return null;
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
-      <div className="relative w-full max-w-sm overflow-hidden rounded-3xl bg-surface p-5 shadow-2xl">
-        <div className="flex items-center justify-between pb-3">
-          <h2 className="font-bold text-foreground">Skenovať faktúru / QR</h2>
-          <button
-            type="button"
-            onClick={() => {
-              stopCamera();
-              onClose();
-            }}
-            className="rounded-full p-1 text-muted-foreground hover:bg-muted"
-          >
-            <X className="size-5" />
-          </button>
-        </div>
-
-        <div className="mb-4 grid grid-cols-2 gap-2 rounded-xl bg-muted/60 p-1">
-          <button
-            type="button"
-            onClick={() => setMode("camera")}
-            className={`flex items-center justify-center gap-1.5 rounded-lg py-1.5 text-xs font-semibold transition-colors ${
-              mode === "camera" ? "bg-surface text-foreground shadow-sm" : "text-muted-foreground"
-            }`}
-          >
-            <Camera className="size-4" /> Kamera
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              stopCamera();
-              setMode("file");
-            }}
-            className={`flex items-center justify-center gap-1.5 rounded-lg py-1.5 text-xs font-semibold transition-colors ${
-              mode === "file" ? "bg-surface text-foreground shadow-sm" : "text-muted-foreground"
-            }`}
-          >
-            <Upload className="size-4" /> Nahrať fotku
-          </button>
-        </div>
-
-        {mode === "camera" && (
-          <div className="relative aspect-square w-full overflow-hidden rounded-2xl bg-black">
-            <video ref={videoRef} playsInline muted className="size-full object-cover" />
-            <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-              <div className="size-48 rounded-2xl border-2 border-dashed border-primary/90" />
-            </div>
-          </div>
-        )}
-
-        {mode === "file" && (
-          <label className="flex aspect-square w-full cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-border bg-muted/30 p-4 text-center hover:bg-muted/50">
-            <Upload className="mb-2 size-8 text-primary" />
-            <span className="text-sm font-semibold">Vyberte fotografiu faktúry</span>
-            <span className="mt-1 text-xs text-muted-foreground">PNG, JPG alebo screenshot QR kódu</span>
-            <input type="file" accept="image/*" onChange={handleFileUpload} className="hidden" />
-          </label>
-        )}
-
-        {errorMsg && (
-          <div className="mt-3 flex items-start gap-2 rounded-xl bg-destructive/10 p-2.5 text-xs text-destructive">
-            <AlertCircle className="size-4 shrink-0 mt-0.5" />
-            <span>{errorMsg}</span>
-          </div>
-        )}
-      </div>
-    </div>
-  );
+  return null;
 }
