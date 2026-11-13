@@ -187,7 +187,11 @@ export default function NovaPlatba() {
                   <span className="ml-1">€</span>
                 </div>
               </div>
-              <AlertCircle className="size-6 text-amber-500" />
+              {value > balance(s) ? (
+                <AlertCircle className="size-6 text-amber-500" />
+              ) : (
+                <CheckCircle2 className="size-6 text-emerald-600 fill-emerald-100 dark:fill-emerald-950" />
+              )}
             </div>
 
             {/* Dátum splatnosti */}
