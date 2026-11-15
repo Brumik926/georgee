@@ -11,10 +11,10 @@ import cardBg from "@/assets/card_pohoda.jpg.asset.json";
 export const Route = createFileRoute("/_authenticated/karty")({
   head: () => ({
     meta: [
-      { title: "Moje karty | George" },
-      { name: "description", content: "Prehľad platobných kariet, blokovanie karty a nastavenie limitov v George." },
-      { property: "og:title", content: "Moje karty | George" },
-      { property: "og:description", content: "Prehľad platobných kariet, blokovanie karty a nastavenie limitov v George." },
+      { title: "Moje karty | Banková simulácia" },
+      { name: "description", content: "Prehľad platobných kariet, blokovanie karty a nastavenie limitov v demo simulácii." },
+      { property: "og:title", content: "Moje karty | Banková simulácia" },
+      { property: "og:description", content: "Prehľad platobných kariet, blokovanie karty a nastavenie limitov v demo simulácii." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -77,7 +77,7 @@ function CardsPage() {
 
   return (
     <AppShell>
-      <BrandHeader title="Moje karty" subtitle="Platobné karty k vášmu účtu" back />
+      <BrandHeader title="Moje karty" subtitle="Demo karty · bez platobnej funkcie" back />
       <div className="space-y-6 px-4">
         {CARDS.map((c) => {
           const st = { ...DEFAULTS, ...all[c.id] };
