@@ -1,4 +1,3 @@
-import { AiChatButton } from "./AiChatModal";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { type ReactNode } from "react";
 import { createPortal } from "react-dom";
@@ -9,7 +8,6 @@ export function AppShell({ children }: { children: ReactNode }) {
   return (
     <div className="mx-auto min-h-screen w-full max-w-[430px] bg-background text-foreground pb-24 font-sans relative">
       {children}
-      <AiChatButton />
     </div>
   );
 }
