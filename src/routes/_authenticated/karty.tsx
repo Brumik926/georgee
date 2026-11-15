@@ -10,10 +10,10 @@ import { supabase } from "@/integrations/supabase/client";
 export const Route = createFileRoute("/_authenticated/karty")({
   head: () => ({
     meta: [
-      { title: "Moje karty | Banková simulácia" },
-      { name: "description", content: "Prehľad platobných kariet, blokovanie karty a nastavenie limitov v demo simulácii." },
-      { property: "og:title", content: "Moje karty | Banková simulácia" },
-      { property: "og:description", content: "Prehľad platobných kariet, blokovanie karty a nastavenie limitov v demo simulácii." },
+      { title: "Moje karty | Aplikácia" },
+      { name: "description", content: "Prehľad kariet, blokovanie a nastavenie limitov." },
+      { property: "og:title", content: "Moje karty | Aplikácia" },
+      { property: "og:description", content: "Prehľad kariet, blokovanie a nastavenie limitov." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -76,7 +76,7 @@ function CardsPage() {
 
   return (
     <AppShell>
-      <BrandHeader title="Moje karty" subtitle="Demo karty · bez platobnej funkcie" back />
+      <BrandHeader title="Moje karty" subtitle="Prehľad kariet" back />
       <div className="space-y-6 px-4">
         {CARDS.map((c) => {
           const st = { ...DEFAULTS, ...all[c.id] };
