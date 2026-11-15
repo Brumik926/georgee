@@ -28,7 +28,8 @@ import {
   UserX,
   LogOut,
   ChevronRight,
-  Landmark
+  Landmark,
+  MapPin
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -360,6 +361,12 @@ export function GeorgePrehladModern() {
             />
             <ListItem icon={Medal} title="Moja odmena" />
             <ListItem icon={Calculator} title="Menová kalkulačka" />
+            <ListItem
+              icon={MapPin}
+              title="Pobočky a bankomaty"
+              subtitle="Vyhľadať v externých mapách"
+              onClick={() => navigate({ to: "/lokality" })}
+            />
             <ListItem
               icon={TrendingUp}
               title="Ponuka investícií"
