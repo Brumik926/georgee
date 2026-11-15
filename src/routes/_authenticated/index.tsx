@@ -1,7 +1,4 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import cardBgAsset from "@/assets/card_pohoda.jpg.asset.json";
-const cardBgUrl = cardBgAsset.url;
-const cardBg = { url: cardBgUrl };
 import { useEffect, useState } from "react";
 import { Eye, EyeOff, BarChart3 } from "lucide-react";
 import {
@@ -221,7 +218,7 @@ function MerchantLogo({ counterparty, category }: { counterparty: string; catego
     );
   }
 
-  return <SlspLogo size={40} />;
+  return <DemoMark size={40} />;
 }
 
 interface ListItemProps {
