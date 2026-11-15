@@ -79,7 +79,6 @@ function Nastavenia() {
   const [userId, setUserId] = useState<string | null>(null);
   const [bioSupported, setBioSupported] = useState(false);
   const [bioUnlockOn, setBioUnlockOn] = useState(false);
-  const [bioPayOn, setBioPayOn] = useState(true);
   const [bioBusy, setBioBusy] = useState(false);
 
   useEffect(() => {
@@ -96,7 +95,6 @@ function Nastavenia() {
 
       if (uid) {
         setBioUnlockOn(isBiometricEnabled(uid));
-        setBioPayOn(isBiometricEnabled(uid));
       }
     })();
     return () => {
@@ -127,17 +125,6 @@ function Nastavenia() {
     }
   }
 
-  function toggleBioPay() {
-    if (!userId) return;
-    if (bioPayOn) {
-      disableBiometric(userId);
-      setBioPayOn(false);
-      toast.success("Potvrdzovanie platieb biometriou vypnuté");
-    } else {
-      setBioPayOn(true);
-      toast.success("Potvrdzovanie platieb biometriou zapnuté");
-    }
-  }
 
   async function handleSaveProfile() {
     await saveProfile(owner.trim(), iban.trim());
@@ -295,14 +282,14 @@ function Nastavenia() {
                 </div>
                 <div>
                   <p className="text-[15px] font-semibold">Odomknutie biometriou</p>
-                  <p className="text-[12px] text-muted-foreground">Odtlačok prsta alebo tvár pri otvorení</p>
+                  <p className="text-[12px] text-muted-foreground">Odtlačok prsta alebo tvár pri otvorení a potvrdení demo platby</p>
                 </div>
               </div>
 
               <button
                 type="button"
                 onClick={toggleBioUnlock}
-                disabled={bioBusy || !userId}
+                disabled={bioBusy || !userId || !bioSupported}
                 className={`w-12 h-7 rounded-full p-1 transition-colors ${
                   bioUnlockOn ? "bg-primary" : "bg-surface-2"
                 }`}
@@ -313,30 +300,7 @@ function Nastavenia() {
               </button>
             </div>
 
-            {/* Potvrdzovanie platieb */}
-            <div className="p-4 flex items-center justify-between">
-              <div className="flex items-center gap-3.5">
-                <div className="w-10 h-10 rounded-xl bg-surface-2 flex items-center justify-center text-primary">
-                  <Fingerprint className="w-5 h-5" />
-                </div>
-                <div>
-                  <p className="text-[15px] font-semibold">Potvrdzovanie platieb</p>
-                  <p className="text-[12px] text-muted-foreground">Biometria pred odoslaním novej platby</p>
-                </div>
-              </div>
 
-              <button
-                type="button"
-                onClick={toggleBioPay}
-                className={`w-12 h-7 rounded-full p-1 transition-colors ${
-                  bioPayOn ? "bg-primary" : "bg-surface-2"
-                }`}
-              >
-                <div className={`w-5 h-5 rounded-full bg-white transition-transform ${
-                  bioPayOn ? "translate-x-5" : "translate-x-0"
-                }`} />
-              </button>
-            </div>
 
           </div>
         </div>
@@ -368,7 +332,7 @@ function Nastavenia() {
                     type="text"
                     value={owner}
                     onChange={(e) => setOwner(e.target.value)}
-                    className="mt-1 w-full rounded-xl border border-border bg-transparent px-3 py-2 text-sm text-foreground outline-none focus:border-[#196ee6]"
+                    className="mt-1 w-full rounded-xl border border-border bg-transparent px-3 py-2 text-sm text-foreground outline-none focus:border-primary"
                   />
                 </div>
                 <div>
