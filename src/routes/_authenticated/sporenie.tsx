@@ -30,22 +30,32 @@ function Sporenie() {
   const targetTotal = useMemo(() => s.goals.reduce((sum, goal) => sum + goal.target, 0), [s.goals]);
   const overallProgress = targetTotal > 0 ? Math.min(100, (saved / targetTotal) * 100) : 0;
 
-  function createGoal() {
+  async function createGoal() {
     const value = Number(target.replace(",", "."));
     if (!name.trim()) return toast.error("Zadajte názov sporiaceho cieľa.");
     if (!Number.isFinite(value) || value <= 0) return toast.error("Zadajte platnú cieľovú sumu.");
-    addGoal(name.trim(), Math.round(value * 100) / 100);
-    setName("");
-    setTarget("");
-    toast.success("Sporiaci cieľ bol vytvorený.");
+    try {
+      await addGoal(name.trim(), Math.round(value * 100) / 100);
+      setName("");
+      setTarget("");
+      toast.success("Sporiaci cieľ bol vytvorený.");
+    } catch (error) {
+      console.error("Vytvorenie sporiaceho cieľa zlyhalo:", error);
+      toast.error("Sporiaci cieľ sa nepodarilo uložiť.");
+    }
   }
 
-  function addDeposit(goalId: string) {
+  async function addDeposit(goalId: string) {
     const value = Number((deposit[goalId] ?? "").replace(",", "."));
     if (!Number.isFinite(value) || value <= 0) return toast.error("Zadajte platnú sumu vkladu.");
-    depositToGoal(goalId, Math.round(value * 100) / 100);
-    setDeposit((current) => ({ ...current, [goalId]: "" }));
-    toast.success("Vklad bol pridaný do cieľa.");
+    try {
+      await depositToGoal(goalId, Math.round(value * 100) / 100);
+      setDeposit((current) => ({ ...current, [goalId]: "" }));
+      toast.success("Vklad bol pridaný do cieľa.");
+    } catch (error) {
+      console.error("Vklad do sporiaceho cieľa zlyhal:", error);
+      toast.error("Vklad sa nepodarilo uložiť.");
+    }
   }
 
   return (
@@ -109,7 +119,7 @@ function Sporenie() {
                     value={deposit[goal.id] ?? ""}
                     onChange={(event) => setDeposit((current) => ({ ...current, [goal.id]: event.target.value }))}
                   />
-                  <button type="button" onClick={() => addDeposit(goal.id)} className="inline-flex shrink-0 items-center gap-1 rounded-2xl bg-primary px-4 text-sm font-semibold text-primary-foreground transition hover:opacity-90">
+                  <button type="button" onClick={() => void addDeposit(goal.id)} className="inline-flex shrink-0 items-center gap-1 rounded-2xl bg-primary px-4 text-sm font-semibold text-primary-foreground transition hover:opacity-90">
                     <ArrowUpRight className="size-4" /> Vložiť
                   </button>
                 </div>
