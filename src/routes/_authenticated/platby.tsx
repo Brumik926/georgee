@@ -451,8 +451,8 @@ export default function UcetDetail() {
 
     sorted.forEach((txn) => {
       const d = new Date(txn.date);
-      const monthIdx = d.getUTCMonth();
-      const year = d.getUTCFullYear();
+      const monthIdx = d.getMonth();
+      const year = d.getFullYear();
       const monthName = MONTHS[monthIdx] || "Neznámy";
       const key = `${year}-${String(monthIdx).padStart(2, "0")}`;
       const label = `${monthName} ${year}`;
@@ -627,10 +627,11 @@ export default function UcetDetail() {
                         const txParts = splitAmount(t.amount);
 
                         return (
-                          <div
+                          <Link
                             key={t.id}
-                            onClick={() => navigate({ to: "/transakcia/$id", params: { id: t.id } })}
-                            className="cursor-pointer flex items-center justify-between rounded-3xl bg-detail-surface p-4 active:opacity-80 transition"
+                            to="/transakcia/$id"
+                            params={{ id: t.id }}
+                            className="flex items-center justify-between rounded-3xl bg-detail-surface p-4 transition active:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-detail-action"
                           >
                             {/* Vľavo: Logo obchodníka alebo iniciály */}
                             <div className="flex items-center gap-3 min-w-0 pr-2">
@@ -676,7 +677,7 @@ export default function UcetDetail() {
                                 <span className="ml-1 text-[13px] font-normal select-none">€</span>
                               </span>
                             </div>
-                          </div>
+                          </Link>
                         );
                       })}
                     </div>
@@ -744,7 +745,7 @@ export default function UcetDetail() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-[13px] text-detail-muted">Virtuálna karta</p>
-                  <p className="text-[16px] font-bold text-foreground mt-0.5">VISA Debit ···· 2269</p>
+                  <p className="text-[16px] font-bold text-foreground mt-0.5">Demo karta ···· 0001</p>
                 </div>
                 <CreditCard className="w-8 h-8 text-[#196ee6] dark:text-[#4f95ff]" />
               </div>
@@ -765,7 +766,7 @@ export default function UcetDetail() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-[12px] text-detail-muted">IBAN</p>
-                  <p className="text-[14px] font-mono font-medium text-foreground">{s.iban || "SK83 0900 0000 0052 0892 1207"}</p>
+                  <p className="text-[14px] font-mono font-medium text-foreground">{s.iban || "Demo IBAN nie je nastavený"}</p>
                 </div>
                 <button
                   type="button"
