@@ -77,7 +77,7 @@ function splitAmount(val: number) {
 }
 
 function formatIbanDisplay(rawIban?: string | null): string {
-  if (!rawIban) return "SK89 0900 0000 0052 0892 1207";
+  if (!rawIban) return "Demo IBAN nie je nastavený";
   const cleaned = rawIban.replace(/\s+/g, "");
   const groups = cleaned.match(/.{1,4}/g);
   return groups ? groups.join(" ") : rawIban;
