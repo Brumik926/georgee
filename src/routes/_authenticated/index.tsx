@@ -621,7 +621,7 @@ export function GeorgePrehladModern() {
                 to="/karty"
                 className="group relative block w-full rounded-3xl text-white shadow-md transition-all duration-300 hover:shadow-xl active:scale-[0.99] overflow-hidden border border-white/10"
               >
-                <div style={{ backgroundImage: `url(${cardBg.url})` }} className="aspect-[909/566] w-full bg-cover bg-center" role="img" aria-label="Karta Pohoda 30" />
+                <div className="relative aspect-[909/566] w-full overflow-hidden bg-gradient-to-br from-slate-700 via-slate-800 to-slate-950" role="img" aria-label="Demo karta"><span className="absolute right-5 top-5 rounded-full border border-white/30 bg-white/10 px-3 py-1 text-[10px] font-bold tracking-widest text-white">DEMO</span><span className="absolute -right-8 -top-12 size-56 rounded-full border border-white/10 bg-white/5" /><span className="absolute -bottom-24 left-1/3 size-64 rounded-full border border-white/10" /></div>
                 <div className="relative bg-card p-4 text-card-foreground">
                 <div className="pointer-events-none absolute -inset-full bg-gradient-to-tr from-transparent via-white/10 to-transparent rotate-45 transform transition-transform duration-1000 group-hover:translate-x-full" />
 
