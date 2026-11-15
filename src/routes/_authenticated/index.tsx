@@ -45,10 +45,10 @@ import {
 export const Route = createFileRoute("/_authenticated/")({
   head: () => ({
     meta: [
-      { title: "Banková simulácia | Prehľad" },
-      { name: "description", content: "Prehľad účtu a financií v bezpečnej bankovej simulácii." },
-      { property: "og:title", content: "Banková simulácia | Prehľad" },
-      { property: "og:description", content: "Prehľad účtu a financií v bezpečnej bankovej simulácii." },
+      { title: "Prehľad účtu | Aplikácia" },
+      { name: "description", content: "Prehľad účtu a osobných financií." },
+      { property: "og:title", content: "Prehľad účtu | Aplikácia" },
+      { property: "og:description", content: "Prehľad účtu a osobných financií." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -67,7 +67,7 @@ function splitAmount(val: number) {
 }
 
 function formatIbanDisplay(rawIban?: string | null): string {
-  if (!rawIban) return "Demo IBAN nie je nastavený";
+  if (!rawIban) return "IBAN nie je nastavený";
   const cleaned = rawIban.replace(/\s+/g, "");
   const groups = cleaned.match(/.{1,4}/g);
   return groups ? groups.join(" ") : rawIban;
@@ -445,8 +445,7 @@ export function GeorgePrehladModern() {
               Slovenská sporiteľňa
             </span>
           </div>
-          <p className="text-[11px] text-muted-foreground mb-0.5">Banková simulácia · Demo prostredie</p>
-          <p className="text-[11px] text-muted-foreground mb-0.5">Nejde o skutočnú bankovú aplikáciu.</p>
+          <p className="text-[11px] text-muted-foreground mb-0.5">Prehľad účtu a financií</p>
           
           
         </div>
