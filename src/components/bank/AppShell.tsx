@@ -54,7 +54,7 @@ export function PersistentBottomNav() {
   ] as const;
 
   return createPortal(
-    <nav className="fixed inset-x-0 bottom-0 z-50 mx-auto w-full max-w-[430px] border-t border-slate-200/70 dark:border-zinc-800/80 bg-white/95 dark:bg-[#12161f]/95 pb-[max(0.6rem,env(safe-area-inset-bottom))] pt-2 backdrop-blur-xl transition-colors">
+    <nav className="fixed inset-x-0 bottom-0 z-50 mx-auto w-full max-w-[430px] border-t border-border bg-background/95 pb-[max(0.6rem,env(safe-area-inset-bottom))] pt-2 backdrop-blur-xl transition-colors">
       <div className="grid grid-cols-5 items-end px-1">
         {tabs.map((t) => {
           const Icon = t.icon;
@@ -64,12 +64,12 @@ export function PersistentBottomNav() {
               to={t.to}
               onClick={() => triggerHaptic(10)}
               className={`flex flex-col items-center text-[12px] transition ${
-                t.active ? "font-semibold text-[#196ee6] dark:text-[#4f95ff]" : "text-slate-500 dark:text-zinc-400"
+                t.active ? "font-semibold text-primary" : "text-muted-foreground"
               }`}
             >
               <span
                 className={`relative mb-1 flex h-8 w-16 items-center justify-center rounded-full ${
-                  t.active ? "bg-[#eef3ff] dark:bg-[#242b3b]" : ""
+                  t.active ? "bg-primary/10" : ""
                 }`}
               >
                 <Icon className="w-6 h-6" strokeWidth={1.8} />
