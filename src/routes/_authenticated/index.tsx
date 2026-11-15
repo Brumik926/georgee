@@ -358,8 +358,13 @@ export function GeorgePrehladModern() {
               title="Moneyback"
               subtitle="0,00 € na vyplatenie"
               badge="5 nových"
+              onClick={() => navigate({ to: "/odmeny" })}
             />
-            <ListItem icon={Medal} title="Moja odmena" />
+            <ListItem
+              icon={Medal}
+              title="Moja odmena"
+              onClick={() => navigate({ to: "/odmeny" })}
+            />
             <ListItem icon={Calculator} title="Menová kalkulačka" />
             <ListItem
               icon={MapPin}
@@ -370,8 +375,9 @@ export function GeorgePrehladModern() {
             <ListItem
               icon={TrendingUp}
               title="Ponuka investícií"
+              subtitle="Ukážkové portfóliá"
               isLast={true}
-              onClick={() => navigate({ to: "/sporenie" })}
+              onClick={() => navigate({ to: "/investovanie" })}
             />
           </div>
         </div>
