@@ -35,10 +35,10 @@ import {
 export const Route = createFileRoute("/_authenticated/nastavenia")({
   head: () => ({
     meta: [
-      { title: "Nastavenia · Banková simulácia" },
-      { name: "description", content: "Nastavenia účtu, zabezpečenia a vzhľadu bankovej simulácie." },
-      { property: "og:title", content: "Nastavenia · Banková simulácia" },
-      { property: "og:description", content: "Nastavenia účtu, zabezpečenia a vzhľadu bankovej simulácie." },
+      { title: "Nastavenia | Aplikácia" },
+      { name: "description", content: "Nastavenia účtu, zabezpečenia a vzhľadu aplikácie." },
+      { property: "og:title", content: "Nastavenia | Aplikácia" },
+      { property: "og:description", content: "Nastavenia účtu, zabezpečenia a vzhľadu aplikácie." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -65,7 +65,7 @@ function Nastavenia() {
   const [isEditing, setIsEditing] = useState(false);
 
   useEffect(() => {
-    setOwner(s.owner || "Demo používateľ");
+    setOwner(s.owner || "Používateľ");
     setIban(s.iban || "");
   }, [s.owner, s.iban]);
 
@@ -158,9 +158,9 @@ function Nastavenia() {
           Nastavenia
         </h1>
         <p className="text-[14px] text-white/80 font-medium">
-          {owner || "Demo používateľ"}
+          {owner || "Používateľ"}
         </p>
-        <span className="mt-3 inline-flex rounded-full border border-white/25 bg-white/10 px-3 py-1 text-[10px] font-bold tracking-[0.14em] text-white">DEMO · BANKOVÁ SIMULÁCIA</span>
+        
       </div>
 
       {/* Telo nastavení */}
@@ -279,7 +279,7 @@ function Nastavenia() {
                 </div>
                 <div>
                   <p className="text-[15px] font-semibold">Odomknutie biometriou</p>
-                  <p className="text-[12px] text-muted-foreground">Odtlačok prsta alebo tvár pri otvorení a potvrdení demo platby</p>
+                  <p className="text-[12px] text-muted-foreground">Odtlačok prsta alebo tvár pri otvorení a potvrdení platby</p>
                 </div>
               </div>
 
@@ -357,7 +357,7 @@ function Nastavenia() {
                 </div>
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">IBAN</span>
-                  <span className="font-mono font-medium text-foreground">{iban || "Demo IBAN nie je nastavený"}</span>
+                  <span className="font-mono font-medium text-foreground">{iban || "IBAN nie je nastavený"}</span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">Typ účtu</span>
