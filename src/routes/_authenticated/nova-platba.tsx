@@ -29,10 +29,10 @@ import { toast } from "sonner";
 export const Route = createFileRoute("/_authenticated/nova-platba")({
   head: () => ({
     meta: [
-      { title: "Nová platba | George" },
-      { name: "description", content: "Zadajte SEPA prevod so skenovaním QR kódov a bezpečným overením v George." },
-      { property: "og:title", content: "Nová platba | George" },
-      { property: "og:description", content: "Zadajte SEPA prevod so skenovaním QR kódov a bezpečným overením v George." },
+      { title: "Nová platba | Banková simulácia" },
+      { name: "description", content: "Vyskúšajte simulovaný prevod, QR formulár a lokálne potvrdenie." },
+      { property: "og:title", content: "Nová platba | Banková simulácia" },
+      { property: "og:description", content: "Vyskúšajte simulovaný prevod, QR formulár a lokálne potvrdenie." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -109,7 +109,7 @@ export default function NovaPlatba() {
       });
 
       setStep("form");
-      toast.success("Platba bola úspešne odoslaná");
+      toast.success("Platba bola zaevidovaná v demo histórii.");
       navigate({ to: "/platby" });
     } catch (err) {
       console.error(err);
@@ -129,7 +129,7 @@ export default function NovaPlatba() {
         const verified = await verifyBiometric(user.id);
         if (!verified) throw new Error("Overenie nebolo úspešné.");
       } else {
-        await enableBiometric(user.id, s.owner || "George");
+        await enableBiometric(user.id, s.owner || "Banková simulácia");
       }
       await executePayment();
     } catch (err) {
@@ -165,7 +165,7 @@ export default function NovaPlatba() {
                 <span className="text-[16px] font-bold text-foreground">{name}</span>
                 <CheckCircle2 className="size-6 text-emerald-600 fill-emerald-100 dark:fill-emerald-950" />
               </div>
-              <span className="text-[12px] text-muted-foreground mt-1 block">Názov príjemcu a IBAN sa zhodujú.</span>
+              <span className="text-[12px] text-muted-foreground mt-1 block">Údaje sú zobrazené iba v demo náhľade.</span>
             </div>
 
             {/* IBAN */}
@@ -205,10 +205,10 @@ export default function NovaPlatba() {
               <span className="text-[12px] text-muted-foreground block">Okamžitá platba</span>
               <div className="flex items-center gap-2 mt-1">
                 <Zap className="size-5 text-primary fill-primary/20" />
-                <span className="text-[15px] font-bold text-foreground">Aktívna</span>
+                <span className="text-[15px] font-bold text-foreground">Demo režim</span>
               </div>
               <p className="text-[12px] text-muted-foreground mt-1.5 leading-snug">
-                Príjemca dostane vašu okamžitú platbu (SEPA) skôr, než stihnete povedať "George".
+                Toto je iba ukážka obrazovky. Žiadna SEPA platba sa nevykoná.
               </p>
             </div>
 
@@ -285,7 +285,7 @@ export default function NovaPlatba() {
           </div>
 
           <p className="mt-4 px-2 text-[13px] text-muted-foreground leading-relaxed">
-            Túto operáciu som vyhodnotil ako bezpečnú. Stačí ju preto iba potvrdiť.
+            Potvrdením sa vytvorí iba demo záznam v histórii tejto aplikácie. Bankový prevod sa nevykoná.
           </p>
 
           {pinError && <p className="mt-2 px-2 text-[13px] text-destructive">{pinError}</p>}
@@ -437,7 +437,7 @@ export default function NovaPlatba() {
 
           <p className="flex items-center justify-center gap-1.5 text-center text-[12px] text-muted-foreground">
             <ShieldCheck className="size-4 text-emerald-600" />
-            Platba je chránená bezpečnostným overením George
+            Simulácia · bez odoslania do banky
           </p>
         </form>
       </div>
