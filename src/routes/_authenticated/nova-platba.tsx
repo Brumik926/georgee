@@ -27,9 +27,9 @@ import { toast } from "sonner";
 export const Route = createFileRoute("/_authenticated/nova-platba")({
   head: () => ({
     meta: [
-      { title: "Nová platba | Banková simulácia" },
+      { title: "Nová platba | Aplikácia" },
       { name: "description", content: "Vyskúšajte simulovaný prevod, QR formulár a lokálne potvrdenie." },
-      { property: "og:title", content: "Nová platba | Banková simulácia" },
+      { property: "og:title", content: "Nová platba | Aplikácia" },
       { property: "og:description", content: "Vyskúšajte simulovaný prevod, QR formulár a lokálne potvrdenie." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
