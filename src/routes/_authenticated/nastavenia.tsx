@@ -69,7 +69,7 @@ function Nastavenia() {
 
   useEffect(() => {
     setOwner(s.owner || "Demo používateľ");
-    setIban(s.iban || "Demo IBAN nie je nastavený");
+    setIban(s.iban || "");
   }, [s.owner, s.iban]);
 
   // Téma (Denný / Nočný režim) — spravuje ThemeProvider v koreni
@@ -114,7 +114,7 @@ function Nastavenia() {
         setBioUnlockOn(false);
         toast.success("Odomknutie biometriou bolo vypnuté");
       } else {
-        const ok = await enableBiometric(userId, "George").then(() => true, () => false);
+        const ok = await enableBiometric(userId, "Banková simulácia").then(() => true, () => false);
         if (ok) {
           setBioUnlockOn(true);
           toast.success("Odomknutie biometriou bolo aktivované");
@@ -396,7 +396,7 @@ function Nastavenia() {
                 </div>
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-slate-400 dark:text-zinc-500">IBAN</span>
-                  <span className="font-mono font-medium text-slate-900 dark:text-white">{iban}</span>
+                  <span className="font-mono font-medium text-slate-900 dark:text-white">{iban || "Demo IBAN nie je nastavený"}</span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-slate-400 dark:text-zinc-500">Typ účtu</span>
