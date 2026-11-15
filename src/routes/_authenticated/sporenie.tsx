@@ -8,10 +8,10 @@ import { addGoal, depositToGoal, formatEur, useBank } from "@/lib/bank-store";
 export const Route = createFileRoute("/_authenticated/sporenie")({
   head: () => ({
     meta: [
-      { title: "Sporenie | Banková simulácia" },
-      { name: "description", content: "Prehľad demo sporiacich cieľov a ich napĺňania." },
-      { property: "og:title", content: "Sporenie | Banková simulácia" },
-      { property: "og:description", content: "Prehľad demo sporiacich cieľov a ich napĺňania." },
+      { title: "Sporenie | Aplikácia" },
+      { name: "description", content: "Prehľad sporiacich cieľov a ich napĺňania." },
+      { property: "og:title", content: "Sporenie | Aplikácia" },
+      { property: "og:description", content: "Prehľad sporiacich cieľov a ich napĺňania." },
       { property: "og:type", content: "website" },
     ],
   }),
@@ -65,7 +65,7 @@ function Sporenie() {
         <section className="rounded-3xl border border-border bg-surface p-5 shadow-sm">
           <div className="flex items-start justify-between gap-3">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.13em] text-muted-foreground">Nasporené spolu · demo</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.13em] text-muted-foreground">Nasporené spolu</p>
               <p className="mt-2 text-3xl font-bold tracking-tight text-income">{formatEur(saved)}</p>
               <p className="mt-1 text-sm text-muted-foreground">z plánovaných {formatEur(targetTotal)}</p>
             </div>
