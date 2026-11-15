@@ -339,10 +339,11 @@ export async function depositToGoal(id: string, amount: number) {
 
 export async function setBudget(category: string, limit: number) {
   const userId = await currentUserId();
-  if (!userId) return;
-  await supabase
+  if (!userId) throw new Error("Používateľ nie je prihlásený.");
+  const { error } = await supabase
     .from("budgets")
     .upsert({ user_id: userId, category, limit_amount: limit }, { onConflict: "user_id,category" });
+  if (error) throw error;
   const exists = state.budgets.some((b) => b.category === category);
   state.budgets = exists
     ? state.budgets.map((b) => (b.category === category ? { category, limit } : b))
@@ -351,7 +352,14 @@ export async function setBudget(category: string, limit: number) {
 }
 
 export async function removeBudget(category: string) {
-  await supabase.from("budgets").delete().eq("category", category);
+  const userId = await currentUserId();
+  if (!userId) throw new Error("Používateľ nie je prihlásený.");
+  const { error } = await supabase
+    .from("budgets")
+    .delete()
+    .eq("user_id", userId)
+    .eq("category", category);
+  if (error) throw error;
   state.budgets = state.budgets.filter((b) => b.category !== category);
   emit();
 }
