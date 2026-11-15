@@ -22,7 +22,6 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { AppShell } from "@/components/bank/AppShell";
-import { SlspLogo } from "@/components/bank/SlspLogo";
 import { balance, formatDate, MONTHS, useBank, type Txn } from "@/lib/bank-store";
 
 export const Route = createFileRoute("/_authenticated/platby")({
@@ -96,6 +95,14 @@ function getAvatarColor(name?: string | null): string {
 }
 
 // Komponent loga obchodníka s rozšíreným zoznamom slovenských značiek
+function DemoMark({ size = 40 }: { size?: number }) {
+  return (
+    <span className="grid shrink-0 place-items-center rounded-full border border-primary/15 bg-primary/10 text-primary" style={{ width: size, height: size }}>
+      <Landmark size={Math.round(size * 0.48)} />
+    </span>
+  );
+}
+
 function MerchantLogo({ counterparty, category }: { counterparty: string; category?: string }) {
   const name = (counterparty || "").toLowerCase();
 
@@ -107,7 +114,7 @@ function MerchantLogo({ counterparty, category }: { counterparty: string; catego
     name.includes("poplatok za vedenie") || 
     category === "Poplatky"
   ) {
-    return <SlspLogo />;
+    return <DemoMark />;
   }
 
   // 2. Kaufland
@@ -415,7 +422,7 @@ function MerchantLogo({ counterparty, category }: { counterparty: string; catego
   }
 
   // SPOĽAHLIVÝ FALLBACK: Vždy zobrazí okrúhly farebný kruh s iniciálami
-  return <SlspLogo size={40} />;
+  return <DemoMark size={40} />;
 }
 
 export default function UcetDetail() {
@@ -516,7 +523,7 @@ export default function UcetDetail() {
                   {formattedOwnResources}
                 </p>
               </div>
-              <SlspLogo size={56} />
+              <DemoMark size={56} />
             </div>
           </div>
 
