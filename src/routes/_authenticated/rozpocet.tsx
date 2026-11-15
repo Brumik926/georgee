@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { type FormEvent, useMemo, useState } from "react";
 import {
   PieChart as PieChartIcon,
   AlertTriangle,
@@ -95,7 +95,7 @@ function RozpocetPage() {
     setFormOpen(true);
   };
 
-  const saveLimit = async (event: React.FormEvent<HTMLFormElement>) => {
+  const saveLimit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const parsed = Number(limitValue.replace(",", "."));
     if (!Number.isFinite(parsed) || parsed <= 0 || parsed > 1000000) {
