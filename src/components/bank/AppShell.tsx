@@ -103,7 +103,7 @@ export function BrandHeader({
             <ArrowLeft className="size-5" />
           </Link>
         ) : (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Banková simulácia</span>
+          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Účet</span>
         )}
         {action}
       </div>
