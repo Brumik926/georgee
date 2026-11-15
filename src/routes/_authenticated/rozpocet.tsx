@@ -17,6 +17,7 @@ import {
   useBank,
   setBudget,
   removeBudget,
+  isExcludedFromOverview,
 } from "@/lib/bank-store";
 
 export const Route = createFileRoute("/_authenticated/rozpocet")({
@@ -57,7 +58,7 @@ function RozpocetPage() {
   const expenses = useMemo(
     () =>
       bank.transactions.filter((transaction) => {
-        if (transaction.type !== "out") return false;
+        if (transaction.type !== "out" || isExcludedFromOverview(transaction)) return false;
         const date = new Date(transaction.date);
         return date.getFullYear() === year && date.getMonth() === month - 1;
       }),
