@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Copy, CreditCard, Eye, EyeOff, Lock, Unlock } from "lucide-react";
+import { Copy, Eye, EyeOff, Lock, Unlock } from "lucide-react";
 import { toast } from "sonner";
 import { AppShell, BrandHeader } from "@/components/bank/AppShell";
 import { Button } from "@/components/ui/button";
