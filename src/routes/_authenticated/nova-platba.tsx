@@ -13,7 +13,7 @@ import {
   Zap,
   Info,
 } from "lucide-react";
-import { enableBiometric, isBiometricEnabled, isBiometricSupported, verifyBiometric } from "@/lib/biometric";
+import { isBiometricEnabled, isBiometricSupported, verifyBiometric } from "@/lib/biometric";
 import { AppShell, BrandHeader } from "@/components/bank/AppShell";
 import { RecipientPicker } from "@/components/bank/RecipientPicker";
 import {
@@ -67,7 +67,7 @@ export default function NovaPlatba() {
   const [pinError, setPinError] = useState("");
   const [scannerOpen, setScannerOpen] = useState(false);
 
-  // Kroky pre výber a potvrdenie platby podľa predlohy George
+  // Kroky formulára a potvrdenia simulovanej platby
   const [step, setStep] = useState<"form" | "sepa_summary" | "confirm_card">("form");
 
   useEffect(() => {
@@ -128,8 +128,6 @@ export default function NovaPlatba() {
       if (isBiometricEnabled(user.id)) {
         const verified = await verifyBiometric(user.id);
         if (!verified) throw new Error("Overenie nebolo úspešné.");
-      } else {
-        await enableBiometric(user.id, s.owner || "Banková simulácia");
       }
       await executePayment();
     } catch (err) {
@@ -137,6 +135,14 @@ export default function NovaPlatba() {
       setPinError("Overenie zámkom telefónu zlyhalo alebo bolo zrušené. Skúste znova.");
       setBusy(false);
     }
+  }
+
+  async function confirmDemoPayment() {
+    if (bioSupported && isBiometricEnabled(user.id)) {
+      await confirmWithBiometrics();
+      return;
+    }
+    await executePayment();
   }
 
   const [whole, cents] = (Number.isFinite(value) ? value : 0).toFixed(2).split(".");
@@ -270,7 +276,7 @@ export default function NovaPlatba() {
               <span className="text-[12px] text-muted-foreground block">Príjemca</span>
               <span className="text-[16px] font-semibold text-foreground mt-0.5 block">{name}</span>
               <span className="text-[13px] font-mono text-muted-foreground mt-0.5 block">{formatIban(iban)}</span>
-              <span className="text-[12px] text-emerald-600 font-medium mt-1 block">Názov príjemcu a IBAN sa zhodujú.</span>
+              <span className="text-[12px] text-emerald-600 font-medium mt-1 block">Údaje príjemcu sú zobrazené v demo náhľade.</span>
             </div>
 
             <div>
@@ -294,12 +300,12 @@ export default function NovaPlatba() {
           <div className="mt-8 mb-12">
             <button
               type="button"
-              onClick={confirmWithBiometrics}
+              onClick={confirmDemoPayment}
               disabled={busy}
               className="flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-primary text-[16px] font-semibold text-primary-foreground shadow-lg hover:opacity-95 active:scale-95 disabled:opacity-60 transition-all"
             >
-              <Fingerprint className="size-6" />
-              <span>{busy ? "Overujem…" : "Potvrdiť"}</span>
+              {bioSupported && isBiometricEnabled(user.id) ? <Fingerprint className="size-6" /> : <CheckCircle2 className="size-6" />}
+              <span>{busy ? "Spracúvam…" : "Potvrdiť demo platbu"}</span>
             </button>
           </div>
         </div>
