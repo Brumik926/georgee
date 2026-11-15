@@ -37,9 +37,9 @@ import {
   UserX,
   LogOut,
   ChevronRight,
-  Wifi
+  Wifi,
+  Landmark
 } from "lucide-react";
-import { SlspLogo } from "@/components/bank/SlspLogo";
 import { supabase } from "@/integrations/supabase/client";
 import {
   balance,
@@ -112,6 +112,10 @@ function getAvatarColor(name?: string | null): string {
 }
 
 // Komponent loga obchodníka
+function DemoMark({ size = 40 }: { size?: number }) {
+  return <span className="grid shrink-0 place-items-center rounded-full border border-primary/15 bg-primary/10 text-primary" style={{ width: size, height: size }}><Landmark size={Math.round(size * 0.48)} /></span>;
+}
+
 function MerchantLogo({ counterparty, category }: { counterparty: string; category?: string }) {
   const name = (counterparty || "").toLowerCase();
 
@@ -127,7 +131,7 @@ function MerchantLogo({ counterparty, category }: { counterparty: string; catego
     (category || "").toLowerCase().includes("poplatk");
 
   if (isBankFee) {
-    return <SlspLogo size={40} />;
+    return <DemoMark size={40} />;
   }
 
   if (name.includes("kaufland")) {
@@ -584,7 +588,7 @@ export function GeorgePrehladModern() {
                       {hidden ? "•••• € vlastné zdroje" : `${formatEur(total)} vlastné zdroje`}
                     </p>
                   </div>
-                    <SlspLogo size={52} />
+                    <DemoMark size={52} />
                </div>
               </Link>
 
