@@ -12,7 +12,6 @@ import {
   Moon, 
   Fingerprint, 
   LogOut,
-  X,
   ShieldCheck,
   Smartphone,
   ExternalLink
