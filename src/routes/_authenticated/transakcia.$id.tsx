@@ -9,7 +9,7 @@ import { exportReceipt } from "@/lib/pdf-export";
 export const Route = createFileRoute("/_authenticated/transakcia/$id")({
   head: () => ({
     meta: [
-      { title: "Detail transakcie | George" },
+      { title: "Detail transakcie | Banková simulácia" },
       { name: "description", content: "Podrobnosti platby: suma, dátum, príjemca, IBAN a priebežný zostatok." },
       { property: "og:title", content: "Detail transakcie | George" },
       { property: "og:description", content: "Podrobnosti platby: suma, dátum, príjemca, IBAN a priebežný zostatok." },
