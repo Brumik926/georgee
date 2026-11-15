@@ -9,9 +9,9 @@ import { supabase } from "@/integrations/supabase/client";
 export const Route = createFileRoute("/_authenticated/centrum-platieb")({
   head: () => ({
     meta: [
-      { title: "Centrum platieb | Banková simulácia" },
+      { title: "Centrum platieb | Aplikácia" },
       { name: "description", content: "Uložení príjemcovia a šablóny platieb na opakovanie jedným ťuknutím." },
-      { property: "og:title", content: "Centrum platieb | Banková simulácia" },
+      { property: "og:title", content: "Centrum platieb | Aplikácia" },
       { property: "og:description", content: "Uložení príjemcovia a šablóny platieb na opakovanie jedným ťuknutím." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -110,7 +110,7 @@ function CentrumPlatieb() {
 
   return (
     <AppShell>
-      <BrandHeader title="Centrum platieb" subtitle="Spravujte príjemcov a demo platobné šablóny" />
+      <BrandHeader title="Centrum platieb" subtitle="Spravujte príjemcov a platobné šablóny" />
 
       <div className="space-y-4 px-4 pb-24">
         <input
