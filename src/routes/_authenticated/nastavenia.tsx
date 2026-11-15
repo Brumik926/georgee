@@ -38,10 +38,10 @@ import {
 export const Route = createFileRoute("/_authenticated/nastavenia")({
   head: () => ({
     meta: [
-      { title: "Nastavenia · George" },
-      { name: "description", content: "Nastavenia účtu, zabezpečenia a vzhľadu internetbankingu George." },
-      { property: "og:title", content: "Nastavenia · George" },
-      { property: "og:description", content: "Nastavenia účtu, zabezpečenia a vzhľadu internetbankingu George." },
+      { title: "Nastavenia · Banková simulácia" },
+      { name: "description", content: "Nastavenia účtu, zabezpečenia a vzhľadu bankovej simulácie." },
+      { property: "og:title", content: "Nastavenia · Banková simulácia" },
+      { property: "og:description", content: "Nastavenia účtu, zabezpečenia a vzhľadu bankovej simulácie." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -68,8 +68,8 @@ function Nastavenia() {
   const [isEditing, setIsEditing] = useState(false);
 
   useEffect(() => {
-    setOwner(s.owner || "Tomáš Lizák");
-    setIban(s.iban || "SK31 1200 3545 0984 0539");
+    setOwner(s.owner || "Demo používateľ");
+    setIban(s.iban || "Demo IBAN nie je nastavený");
   }, [s.owner, s.iban]);
 
   // Téma (Denný / Nočný režim) — spravuje ThemeProvider v koreni
@@ -163,7 +163,7 @@ function Nastavenia() {
     <div className="min-h-screen pb-24 transition-colors">
       
       {/* Modrá hlavička */}
-      <div className="bg-[#196ee6] dark:bg-[#111e33] px-5 pt-4 pb-14 text-white transition-colors">
+      <div className="brand-header px-5 pt-5 pb-14 text-brand-foreground transition-colors">
         <Link 
           to="/" 
           className="w-10 h-10 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center text-white transition active:scale-95"
@@ -173,9 +173,10 @@ function Nastavenia() {
         <h1 className="text-[32px] font-extrabold tracking-tight text-white mt-4 leading-tight">
           Nastavenia
         </h1>
-        <p className="text-[16px] text-white/80 font-medium">
-          {owner}
+        <p className="text-[14px] text-white/80 font-medium">
+          {owner || "Demo používateľ"}
         </p>
+        <span className="mt-3 inline-flex rounded-full border border-white/25 bg-white/10 px-3 py-1 text-[10px] font-bold tracking-[0.14em] text-white">DEMO · BANKOVÁ SIMULÁCIA</span>
       </div>
 
       {/* Telo nastavení */}
