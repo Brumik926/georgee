@@ -23,10 +23,10 @@ import {
 export const Route = createFileRoute("/_authenticated/rozpocet")({
   head: () => ({
     meta: [
-      { title: "Rozpočet a analýza výdavkov | Banková simulácia" },
+      { title: "Rozpočet a analýza výdavkov | Aplikácia" },
       {
         name: "description",
-        content: "Sledujte svoje príjmy, výdavky a rozpočtové limity v bankovej simulácii.",
+        content: "Sledujte svoje príjmy, výdavky a rozpočtové limity.",
       },
     ],
   }),
