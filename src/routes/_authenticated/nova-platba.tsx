@@ -9,9 +9,7 @@ import {
   QrCode,
   ArrowLeft,
   CheckCircle2,
-  Calendar,
   Zap,
-  Info,
 } from "lucide-react";
 import { isBiometricEnabled, isBiometricSupported, verifyBiometric } from "@/lib/biometric";
 import { AppShell, BrandHeader } from "@/components/bank/AppShell";
@@ -23,7 +21,7 @@ import {
   formatEur,
   useBank,
 } from "@/lib/bank-store";
-import { parsePaymentQr, type ParsedPaymentData } from "@/lib/qr-parser";
+import { type ParsedPaymentData } from "@/lib/qr-parser";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/nova-platba")({
