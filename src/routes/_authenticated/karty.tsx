@@ -96,7 +96,7 @@ function CardsPage() {
               >
                 <div className="mb-8 flex items-center justify-end">
                   <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-[#1f1f1f]">
-                    {st.blocked ? "Blokovaná" : "Virtuálna"}
+                    {st.blocked ? "Blokovaná" : "DEMO"}
                   </span>
                 </div>
                 <p className="text-xs opacity-70">Číslo karty</p>
