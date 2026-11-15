@@ -1,7 +1,7 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { type ReactNode } from "react";
 import { createPortal } from "react-dom";
-import { Rss, Activity, LayoutGrid, MessageSquare, ArrowLeft } from "lucide-react";
+import { Activity, ArrowLeft, CreditCard, LayoutGrid, PiggyBank, UserRound } from "lucide-react";
 import { triggerHaptic } from "@/lib/haptics";
 
 export function AppShell({ children }: { children: ReactNode }) {
@@ -15,17 +15,17 @@ export function AppShell({ children }: { children: ReactNode }) {
 export function PersistentBottomNav() {
   const path = useRouterState({ select: (s) => s.location.pathname });
 
-  // Skryť na zadávaní platby, v detaile transakcie a v detaile účtu (má vlastnú lištu)
+  // Skryť navigáciu na obrazovkách s vlastným ovládaním alebo detailnou navigáciou.
   if (path === "/nova-platba" || path.startsWith("/transakcia") || path === "/platby") {
     return null;
   }
 
   const tabs = [
     { to: "/", label: "Prehľad", active: path === "/", icon: null },
-    { to: "/rozpocet", label: "FIT", active: path === "/rozpocet", icon: Rss },
-    { to: "/sporenie", label: "Invest", active: path === "/sporenie", icon: Activity },
-    { to: "/centrum-platieb", label: "Objavujte", active: path === "/centrum-platieb" || path === "/karty" || path === "/svetovy-cas", icon: LayoutGrid },
-    { to: "/nastavenia", label: "Kontakty", active: path === "/nastavenia" || path === "/upozornenia", icon: MessageSquare, dot: true },
+    { to: "/centrum-platieb", label: "Platby", active: path === "/centrum-platieb", icon: LayoutGrid },
+    { to: "/karty", label: "Karty", active: path === "/karty", icon: CreditCard },
+    { to: "/sporenie", label: "Sporenie", active: path === "/sporenie", icon: PiggyBank },
+    { to: "/nastavenia", label: "Profil", active: path === "/nastavenia" || path === "/upozornenia", icon: UserRound },
   ] as const;
 
   return createPortal(
@@ -48,7 +48,6 @@ export function PersistentBottomNav() {
                 ) : (
                   <span className="font-bold text-[22px] leading-none select-none">g</span>
                 )}
-                {"dot" in t && t.dot && <span className="absolute top-0 right-3 h-2 w-2 rounded-full bg-[#e63946]" />}
               </span>
               <span>{t.label}</span>
             </Link>
@@ -79,7 +78,7 @@ export function BrandHeader({
             <ArrowLeft className="size-5" />
           </Link>
         ) : (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">George</span>
+          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">George · DEMO</span>
         )}
         {action}
       </div>
