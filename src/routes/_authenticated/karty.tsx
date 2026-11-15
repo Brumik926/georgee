@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Copy, CreditCard, Eye, EyeOff, Lock, Unlock } from "lucide-react";
+import { Copy, Eye, EyeOff, Lock, Unlock } from "lucide-react";
 import { toast } from "sonner";
 import { AppShell, BrandHeader } from "@/components/bank/AppShell";
 import { Button } from "@/components/ui/button";
@@ -11,10 +11,10 @@ import cardBg from "@/assets/card_pohoda.jpg.asset.json";
 export const Route = createFileRoute("/_authenticated/karty")({
   head: () => ({
     meta: [
-      { title: "Moje karty | George" },
-      { name: "description", content: "Prehľad platobných kariet, blokovanie karty a nastavenie limitov v George." },
-      { property: "og:title", content: "Moje karty | George" },
-      { property: "og:description", content: "Prehľad platobných kariet, blokovanie karty a nastavenie limitov v George." },
+      { title: "Moje karty | Demo" },
+      { name: "description", content: "Simulácia platobných kariet, blokovania a nastavenia limitov." },
+      { property: "og:title", content: "Moje karty | Demo" },
+      { property: "og:description", content: "Simulácia platobných kariet, blokovania a nastavenia limitov." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -25,22 +25,23 @@ export const Route = createFileRoute("/_authenticated/karty")({
 type CardSettings = { blocked: boolean; payLimit: number; atmLimit: number };
 const DEFAULTS: CardSettings = { blocked: false, payLimit: 1500, atmLimit: 500 };
 
+// Výhradne testovacie údaje. Nie sú prepojené so žiadnou platobnou kartou.
 const CARDS = [
   {
-    id: "mc-3302",
-    label: "Virtuálna karta Visa",
-    last4: "3302",                        // sem zadajte posledné 4 číslice
-    number: "4123 4567 8901 3302",        // sem zadajte celé 16-miestne číslo
-    cvv: "945",                           // sem zadajte CVV kód
-    expiry: "10/31",                      // sem zadajte platnosť (napr. 08/28)
+    id: "demo-4242",
+    label: "Virtuálna karta · DEMO",
+    last4: "4242",
+    number: "4242 4242 4242 4242",
+    cvv: "123",
+    expiry: "12/30",
   },
   {
-    id: "mc-5739",
-    label: "Virtuálna karta Visa",
-    last4: "5739",
-    number: "4123 4567 2050 5739",
-    cvv: "081",
-    expiry: "10/31",
+    id: "demo-4444",
+    label: "Virtuálna karta · DEMO",
+    last4: "4444",
+    number: "5555 5555 5555 4444",
+    cvv: "456",
+    expiry: "12/30",
   },
 ];
 
@@ -48,6 +49,8 @@ function CardsPage() {
   const s = useBank();
   const [userId, setUserId] = useState<string | null>(null);
   const [shown, setShown] = useState<Record<string, boolean>>({});
+  const [all, setAll] = useState<Record<string, CardSettings>>({});
+
   const copy = async (v: string, what: string) => {
     try {
       await navigator.clipboard.writeText(v.replace(/ /g, ""));
@@ -56,14 +59,19 @@ function CardsPage() {
       toast.error("Kopírovanie sa nepodarilo");
     }
   };
-  const [all, setAll] = useState<Record<string, CardSettings>>({});
 
   useEffect(() => {
     void supabase.auth.getUser().then(({ data }) => {
       const id = data.user?.id ?? null;
       setUserId(id);
       const raw = id ? localStorage.getItem(`george-cards:${id}`) : null;
-      if (raw) setAll(JSON.parse(raw));
+      if (raw) {
+        try {
+          setAll(JSON.parse(raw) as Record<string, CardSettings>);
+        } catch {
+          localStorage.removeItem(`george-cards:${id}`);
+        }
+      }
     });
   }, []);
 
@@ -73,11 +81,17 @@ function CardsPage() {
     if (userId) localStorage.setItem(`george-cards:${userId}`, JSON.stringify(merged));
   };
 
-  const holder = s.owner || "Majiteľ účtu";
+  const holder = s.owner || "Demo používateľ";
 
   return (
     <AppShell>
-      <BrandHeader title="Moje karty" subtitle="Platobné karty k vášmu účtu" back />
+      <BrandHeader title="Moje karty" subtitle="Testovacie platobné karty" back />
+      <div className="mx-4 mb-5 rounded-2xl border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-sm">
+        <p className="font-bold text-amber-700 dark:text-amber-300">DEMO / SIMULÁCIA</p>
+        <p className="mt-1 text-xs text-muted-foreground">
+          Zobrazené čísla, CVV a platnosť sú testovacie údaje. Karty nie sú skutočné a nemožno nimi platiť.
+        </p>
+      </div>
       <div className="space-y-6 px-4">
         {CARDS.map((c) => {
           const st = { ...DEFAULTS, ...all[c.id] };
@@ -94,20 +108,21 @@ function CardsPage() {
                   st.blocked ? "opacity-50 grayscale" : ""
                 }`}
               >
-                <div className="mb-8 flex items-center justify-end">
+                <div className="mb-5 flex items-center justify-between">
+                  <span className="rounded-full bg-black/35 px-2.5 py-1 text-[10px] font-bold tracking-wider">DEMO</span>
                   <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-[#1f1f1f]">
                     {st.blocked ? "Blokovaná" : "Virtuálna"}
                   </span>
                 </div>
-                <p className="text-xs opacity-70">Číslo karty</p>
+                <p className="text-xs opacity-70">Číslo testovacej karty</p>
                 <div className="mb-4 flex items-center gap-3 text-lg tracking-widest font-mono">
                   {open ? c.number : `•••• •••• •••• ${c.last4}`}
                   {open ? (
                     <button
                       type="button"
-                      aria-label="Kopírovať číslo karty"
+                      aria-label="Kopírovať testovacie číslo karty"
                       className="grid size-9 place-items-center rounded-full hover:bg-white/15"
-                      onClick={() => copy(c.number, "Číslo karty")}
+                      onClick={() => copy(c.number, "Testovacie číslo karty")}
                     >
                       <Copy className="size-4" />
                     </button>
@@ -119,7 +134,7 @@ function CardsPage() {
                     <p className="text-sm font-semibold tracking-wide uppercase mt-0.5">{holder}</p>
                   </div>
                   <div>
-                    <p className="opacity-70 uppercase text-[9px] tracking-wider">Dátum platnosti</p>
+                    <p className="opacity-70 uppercase text-[9px] tracking-wider">Platnosť</p>
                     <p className="text-sm font-semibold font-mono mt-0.5">{c.expiry}</p>
                   </div>
                   <div>
@@ -129,9 +144,9 @@ function CardsPage() {
                       {open ? (
                         <button
                           type="button"
-                          aria-label="Kopírovať CVV"
+                          aria-label="Kopírovať testovacie CVV"
                           className="grid size-7 place-items-center rounded-full hover:bg-white/15"
-                          onClick={() => copy(c.cvv, "CVV")}
+                          onClick={() => copy(c.cvv, "Testovacie CVV")}
                         >
                           <Copy className="size-3.5" />
                         </button>
@@ -154,7 +169,7 @@ function CardsPage() {
                   className="h-12 rounded-2xl"
                   onClick={() => {
                     save(c.id, { ...st, blocked: !st.blocked });
-                    toast.success(st.blocked ? "Karta odblokovaná" : "Karta dočasne zablokovaná");
+                    toast.success(st.blocked ? "Demo karta odblokovaná" : "Demo karta dočasne zablokovaná");
                   }}
                 >
                   {st.blocked ? <Unlock /> : <Lock />} {st.blocked ? "Odblokovať" : "Zablokovať"}
@@ -162,13 +177,13 @@ function CardsPage() {
               </div>
               <section className="space-y-6 rounded-3xl bg-surface p-5" data-no-swipe>
                 <LimitRow
-                  label="Denný limit platieb"
+                  label="Denný limit platieb (simulácia)"
                   value={st.payLimit}
                   max={5000}
                   onChange={(v) => save(c.id, { ...st, payLimit: v })}
                 />
                 <LimitRow
-                  label="Denný limit výberov z bankomatu"
+                  label="Denný limit výberov z bankomatu (simulácia)"
                   value={st.atmLimit}
                   max={2000}
                   onChange={(v) => save(c.id, { ...st, atmLimit: v })}
