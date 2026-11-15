@@ -28,7 +28,7 @@ import { balance, formatDate, MONTHS, useBank, type Txn } from "@/lib/bank-store
 export const Route = createFileRoute("/_authenticated/platby")({
   head: () => ({
     meta: [
-      { title: "Účet a transakcie | George" },
+      { title: "Účet a transakcie | Banková simulácia" },
       { name: "description", content: "História transakcií a správa účtu George" },
     ],
   }),
