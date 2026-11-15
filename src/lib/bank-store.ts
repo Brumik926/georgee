@@ -311,7 +311,7 @@ async function announceTransaction(t: Txn) {
 
 export async function addGoal(name: string, target: number) {
   const userId = await currentUserId();
-  if (!userId) return;
+  if (!userId) throw new Error("Používateľ nie je prihlásený.");
   const { data, error } = await supabase
     .from("goals")
     .insert({ user_id: userId, name, target, saved: 0 })
