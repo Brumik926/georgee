@@ -5,12 +5,6 @@ import {
   Search,
   CreditCard,
   MoreVertical,
-  Compass,
-  PieChart,
-  MessageSquare,
-  Activity,
-  ArrowDownLeft,
-  ArrowUpRight,
   TrendingUp,
   ArrowLeft,
   Plane,
@@ -34,7 +28,6 @@ import {
   UserX,
   LogOut,
   ChevronRight,
-  Wifi,
   Landmark
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
