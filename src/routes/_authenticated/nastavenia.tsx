@@ -183,38 +183,38 @@ function Nastavenia() {
       <div className="px-4 -mt-8 space-y-5">
         
         {/* Navigačné položky */}
-        <div className="rounded-3xl bg-white dark:bg-[#161a23] shadow-sm border border-slate-100 dark:border-zinc-800/60 divide-y divide-slate-100 dark:divide-zinc-800/60 overflow-hidden">
-          <Link to="/karty" className="flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-zinc-800/40 transition">
+        <div className="rounded-3xl bg-surface shadow-sm border border-border divide-y divide-border overflow-hidden">
+          <Link to="/karty" className="flex items-center justify-between p-4 hover:bg-surface-2 transition">
             <div className="flex items-center gap-3.5">
-              <CreditCard className="w-5 h-5 text-[#196ee6] dark:text-[#38bdf8]" />
+              <CreditCard className="w-5 h-5 text-primary" />
               <span className="text-[15px] font-semibold">Karty</span>
             </div>
             <ChevronRight className="w-5 h-5 text-slate-400" />
           </Link>
 
-          <Link to="/sporenie" className="flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-zinc-800/40 transition">
+          <Link to="/sporenie" className="flex items-center justify-between p-4 hover:bg-surface-2 transition">
             <div className="flex items-center gap-3.5">
-              <PiggyBank className="w-5 h-5 text-[#196ee6] dark:text-[#38bdf8]" />
+              <PiggyBank className="w-5 h-5 text-primary" />
               <span className="text-[15px] font-semibold">Sporenie a ciele</span>
             </div>
             <ChevronRight className="w-5 h-5 text-slate-400" />
           </Link>
 
-          <Link to="/rozpocet" className="flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-zinc-800/40 transition">
+          <Link to="/rozpocet" className="flex items-center justify-between p-4 hover:bg-surface-2 transition">
             <div className="flex items-center gap-3.5">
-              <PieChart className="w-5 h-5 text-[#196ee6] dark:text-[#38bdf8]" />
+              <PieChart className="w-5 h-5 text-primary" />
               <span className="text-[15px] font-semibold">Rozpočet</span>
             </div>
             <ChevronRight className="w-5 h-5 text-slate-400" />
           </Link>
 
-          <Link to="/upozornenia" className="flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-zinc-800/40 transition">
+          <Link to="/upozornenia" className="flex items-center justify-between p-4 hover:bg-surface-2 transition">
             <div className="flex items-center gap-3.5">
-              <Bell className="w-5 h-5 text-[#196ee6] dark:text-[#38bdf8]" />
+              <Bell className="w-5 h-5 text-primary" />
               <div className="flex items-center gap-2">
                 <span className="text-[15px] font-semibold">Upozornenia</span>
                 {unread > 0 && (
-                  <span className="px-2 py-0.5 rounded-full bg-[#196ee6] text-white text-[11px] font-bold">
+                  <span className="px-2 py-0.5 rounded-full bg-primary text-white text-[11px] font-bold">
                     {unread}
                   </span>
                 )}
@@ -223,26 +223,26 @@ function Nastavenia() {
             <ChevronRight className="w-5 h-5 text-slate-400" />
           </Link>
 
-          <Link to="/prijat" className="flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-zinc-800/40 transition">
+          <Link to="/prijat" className="flex items-center justify-between p-4 hover:bg-surface-2 transition">
             <div className="flex items-center gap-3.5">
-              <ArrowDownLeft className="w-5 h-5 text-[#196ee6] dark:text-[#38bdf8]" />
+              <ArrowDownLeft className="w-5 h-5 text-primary" />
               <span className="text-[15px] font-semibold">Prijať peniaze</span>
             </div>
             <ChevronRight className="w-5 h-5 text-slate-400" />
           </Link>
 
-          <Link to="/centrum-platieb" className="flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-zinc-800/40 transition">
+          <Link to="/centrum-platieb" className="flex items-center justify-between p-4 hover:bg-surface-2 transition">
             <div className="flex items-center gap-3.5">
-              <ArrowDownLeft className="w-5 h-5 rotate-180 text-[#196ee6] dark:text-[#38bdf8]" />
+              <ArrowDownLeft className="w-5 h-5 rotate-180 text-primary" />
               <span className="text-[15px] font-semibold">Centrum platieb</span>
             </div>
             <ChevronRight className="w-5 h-5 text-slate-400" />
           </Link>
 
           {isPrimary && (
-            <Link to="/protokol-pristupov" className="flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-zinc-800/40 transition">
+            <Link to="/protokol-pristupov" className="flex items-center justify-between p-4 hover:bg-surface-2 transition">
               <div className="flex items-center gap-3.5">
-                <ShieldCheck className="w-5 h-5 text-[#196ee6] dark:text-[#38bdf8]" />
+                <ShieldCheck className="w-5 h-5 text-primary" />
                 <span className="text-[15px] font-semibold">Protokol prístupov</span>
               </div>
               <ChevronRight className="w-5 h-5 text-slate-400" />
@@ -252,17 +252,17 @@ function Nastavenia() {
 
         {/* VZHĽAD */}
         <div>
-          <p className="text-[11px] font-bold tracking-wider text-slate-400 dark:text-zinc-500 uppercase px-1 mb-2">
+          <p className="text-[11px] font-bold tracking-wider text-muted-foreground uppercase px-1 mb-2">
             Vzhľad
           </p>
-          <div className="rounded-3xl bg-white dark:bg-[#161a23] p-4 shadow-sm border border-slate-100 dark:border-zinc-800/60 flex items-center justify-between">
+          <div className="rounded-3xl bg-surface p-4 shadow-sm border border-border flex items-center justify-between">
             <div className="flex items-center gap-3.5">
-              <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-zinc-800 flex items-center justify-center text-slate-700 dark:text-zinc-200">
+              <div className="w-10 h-10 rounded-xl bg-surface-2 flex items-center justify-center text-slate-700 dark:text-zinc-200">
                 {light ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
               </div>
               <div>
                 <p className="text-[15px] font-semibold">Denný režim</p>
-                <p className="text-[12px] text-slate-400 dark:text-zinc-500">Prepnite kedykoľvek</p>
+                <p className="text-[12px] text-muted-foreground">Prepnite kedykoľvek</p>
               </div>
             </div>
 
@@ -270,7 +270,7 @@ function Nastavenia() {
               type="button"
               onClick={toggleTheme}
               className={`w-12 h-7 rounded-full p-1 transition-colors ${
-                light ? "bg-[#196ee6]" : "bg-slate-200 dark:bg-zinc-700"
+                light ? "bg-primary" : "bg-surface-2"
               }`}
             >
               <div className={`w-5 h-5 rounded-full bg-white transition-transform ${
@@ -282,20 +282,20 @@ function Nastavenia() {
 
         {/* ZABEZPEČENIE */}
         <div>
-          <p className="text-[11px] font-bold tracking-wider text-slate-400 dark:text-zinc-500 uppercase px-1 mb-2">
+          <p className="text-[11px] font-bold tracking-wider text-muted-foreground uppercase px-1 mb-2">
             Zabezpečenie
           </p>
-          <div className="rounded-3xl bg-white dark:bg-[#161a23] shadow-sm border border-slate-100 dark:border-zinc-800/60 divide-y divide-slate-100 dark:divide-zinc-800/60 overflow-hidden">
+          <div className="rounded-3xl bg-surface shadow-sm border border-border divide-y divide-border overflow-hidden">
             
             {/* Odomknutie biometriou */}
             <div className="p-4 flex items-center justify-between">
               <div className="flex items-center gap-3.5">
-                <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-zinc-800 flex items-center justify-center text-[#196ee6] dark:text-[#38bdf8]">
+                <div className="w-10 h-10 rounded-xl bg-surface-2 flex items-center justify-center text-primary">
                   <Fingerprint className="w-5 h-5" />
                 </div>
                 <div>
                   <p className="text-[15px] font-semibold">Odomknutie biometriou</p>
-                  <p className="text-[12px] text-slate-400 dark:text-zinc-500">Odtlačok prsta alebo tvár pri otvorení</p>
+                  <p className="text-[12px] text-muted-foreground">Odtlačok prsta alebo tvár pri otvorení</p>
                 </div>
               </div>
 
@@ -304,7 +304,7 @@ function Nastavenia() {
                 onClick={toggleBioUnlock}
                 disabled={bioBusy || !userId}
                 className={`w-12 h-7 rounded-full p-1 transition-colors ${
-                  bioUnlockOn ? "bg-[#196ee6]" : "bg-slate-200 dark:bg-zinc-700"
+                  bioUnlockOn ? "bg-primary" : "bg-surface-2"
                 }`}
               >
                 <div className={`w-5 h-5 rounded-full bg-white transition-transform ${
@@ -316,12 +316,12 @@ function Nastavenia() {
             {/* Potvrdzovanie platieb */}
             <div className="p-4 flex items-center justify-between">
               <div className="flex items-center gap-3.5">
-                <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-zinc-800 flex items-center justify-center text-[#196ee6] dark:text-[#38bdf8]">
+                <div className="w-10 h-10 rounded-xl bg-surface-2 flex items-center justify-center text-primary">
                   <Fingerprint className="w-5 h-5" />
                 </div>
                 <div>
                   <p className="text-[15px] font-semibold">Potvrdzovanie platieb</p>
-                  <p className="text-[12px] text-slate-400 dark:text-zinc-500">Biometria pred odoslaním novej platby</p>
+                  <p className="text-[12px] text-muted-foreground">Biometria pred odoslaním novej platby</p>
                 </div>
               </div>
 
@@ -329,7 +329,7 @@ function Nastavenia() {
                 type="button"
                 onClick={toggleBioPay}
                 className={`w-12 h-7 rounded-full p-1 transition-colors ${
-                  bioPayOn ? "bg-[#196ee6]" : "bg-slate-200 dark:bg-zinc-700"
+                  bioPayOn ? "bg-primary" : "bg-surface-2"
                 }`}
               >
                 <div className={`w-5 h-5 rounded-full bg-white transition-transform ${
@@ -347,43 +347,43 @@ function Nastavenia() {
         {/* MÔJ ÚČET */}
         <div>
           <div className="flex items-center justify-between px-1 mb-2">
-            <p className="text-[11px] font-bold tracking-wider text-slate-400 dark:text-zinc-500 uppercase">
+            <p className="text-[11px] font-bold tracking-wider text-muted-foreground uppercase">
               Môj účet
             </p>
             <button
               type="button"
               onClick={() => setIsEditing(!isEditing)}
-              className="text-[13px] font-semibold text-[#196ee6] dark:text-[#38bdf8] hover:underline"
+              className="text-[13px] font-semibold text-primary hover:underline"
             >
               {isEditing ? "Zrušiť" : "Upraviť"}
             </button>
           </div>
 
-          <div className="rounded-3xl bg-white dark:bg-[#161a23] p-5 shadow-sm border border-slate-100 dark:border-zinc-800/60 space-y-4">
+          <div className="rounded-3xl bg-surface p-5 shadow-sm border border-border space-y-4">
             {isEditing ? (
               <div className="space-y-3">
                 <div>
-                  <label className="text-xs text-slate-400 dark:text-zinc-500 font-medium">Meno majiteľa</label>
+                  <label className="text-xs text-muted-foreground font-medium">Meno majiteľa</label>
                   <input
                     type="text"
                     value={owner}
                     onChange={(e) => setOwner(e.target.value)}
-                    className="mt-1 w-full rounded-xl border border-slate-200 dark:border-zinc-700 bg-transparent px-3 py-2 text-sm text-slate-900 dark:text-white outline-none focus:border-[#196ee6]"
+                    className="mt-1 w-full rounded-xl border border-border bg-transparent px-3 py-2 text-sm text-foreground outline-none focus:border-[#196ee6]"
                   />
                 </div>
                 <div>
-                  <label className="text-xs text-slate-400 dark:text-zinc-500 font-medium">IBAN</label>
+                  <label className="text-xs text-muted-foreground font-medium">IBAN</label>
                   <input
                     type="text"
                     value={iban}
                     onChange={(e) => setIban(e.target.value)}
-                    className="mt-1 w-full rounded-xl border border-slate-200 dark:border-zinc-700 bg-transparent px-3 py-2 text-sm text-slate-900 dark:text-white outline-none focus:border-[#196ee6]"
+                    className="mt-1 w-full rounded-xl border border-border bg-transparent px-3 py-2 text-sm text-foreground outline-none focus:border-[#196ee6]"
                   />
                 </div>
                 <button
                   type="button"
                   onClick={handleSaveProfile}
-                  className="w-full py-2.5 rounded-xl bg-[#196ee6] text-white font-semibold text-sm active:scale-98 transition"
+                  className="w-full py-2.5 rounded-xl bg-primary text-white font-semibold text-sm active:scale-98 transition"
                 >
                   Uložiť zmeny
                 </button>
@@ -391,16 +391,16 @@ function Nastavenia() {
             ) : (
               <>
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-slate-400 dark:text-zinc-500">Vlastník</span>
-                  <span className="font-semibold text-slate-900 dark:text-white">{owner}</span>
+                  <span className="text-muted-foreground">Vlastník</span>
+                  <span className="font-semibold text-foreground">{owner}</span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-slate-400 dark:text-zinc-500">IBAN</span>
-                  <span className="font-mono font-medium text-slate-900 dark:text-white">{iban || "Demo IBAN nie je nastavený"}</span>
+                  <span className="text-muted-foreground">IBAN</span>
+                  <span className="font-mono font-medium text-foreground">{iban || "Demo IBAN nie je nastavený"}</span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-slate-400 dark:text-zinc-500">Typ účtu</span>
-                  <span className="font-semibold text-slate-900 dark:text-white">Bežný účet</span>
+                  <span className="text-muted-foreground">Typ účtu</span>
+                  <span className="font-semibold text-foreground">Bežný účet</span>
                 </div>
               </>
             )}
@@ -411,7 +411,7 @@ function Nastavenia() {
         <button
           type="button"
           onClick={signOut}
-          className="w-full py-4 rounded-2xl bg-white dark:bg-[#161a23] text-red-600 dark:text-red-400 font-semibold text-[15px] flex items-center justify-center gap-2 border border-slate-100 dark:border-zinc-800/60 shadow-sm active:scale-[0.99] transition"
+          className="w-full py-4 rounded-2xl bg-surface text-destructive font-semibold text-[15px] flex items-center justify-center gap-2 border border-border shadow-sm active:scale-[0.99] transition"
         >
           <LogOut className="w-5 h-5" />
           <span>Odhlásiť sa</span>
@@ -441,19 +441,19 @@ function LoginHistory() {
   return (
     <div>
       <div className="flex items-center justify-between px-1 mb-2">
-        <h2 className="text-[11px] font-bold tracking-wider text-slate-400 dark:text-zinc-500 uppercase">
+        <h2 className="text-[11px] font-bold tracking-wider text-muted-foreground uppercase">
           Posledné prístupy
         </h2>
         <Link
           to="/protokol-pristupov"
-          className="text-[12px] font-semibold text-[#196ee6] dark:text-[#38bdf8] flex items-center gap-1 hover:underline"
+          className="text-[12px] font-semibold text-primary flex items-center gap-1 hover:underline"
         >
           <span>Celý protokol</span>
           <ExternalLink className="w-3.5 h-3.5" />
         </Link>
       </div>
 
-      <div className="rounded-3xl bg-white dark:bg-[#161a23] shadow-sm border border-slate-100 dark:border-zinc-800/60 divide-y divide-slate-100 dark:divide-zinc-800/60 overflow-hidden">
+      <div className="rounded-3xl bg-surface shadow-sm border border-border divide-y divide-border overflow-hidden">
         {items === null ? (
           <p className="p-4 text-sm text-slate-400">Načítavam prístupy…</p>
         ) : items.length === 0 ? (
@@ -461,23 +461,23 @@ function LoginHistory() {
         ) : (
           items.slice(0, 5).map((e, i) => (
             <div key={e.id} className="p-4 flex items-center gap-3.5">
-              <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-zinc-800 flex items-center justify-center text-[#196ee6] dark:text-[#38bdf8] shrink-0">
+              <div className="w-10 h-10 rounded-xl bg-surface-2 flex items-center justify-center text-primary shrink-0">
                 <Smartphone className="w-5 h-5" />
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-[15px] font-semibold truncate text-slate-900 dark:text-white">
+                <p className="text-[15px] font-semibold truncate text-foreground">
                   {e.email || "Neznámy e-mail"}
                 </p>
-                <p className="text-[12px] text-slate-400 dark:text-zinc-500 truncate">
+                <p className="text-[12px] text-muted-foreground truncate">
                   {e.device || "Zariadenie"}
                 </p>
               </div>
               <div className="text-right shrink-0">
-                <p className="text-[12px] font-medium text-slate-600 dark:text-zinc-400">
+                <p className="text-[12px] font-medium text-muted-foreground">
                   {fmt(e.created_at)}
                 </p>
                 {i === 0 && (
-                  <span className="inline-block mt-0.5 px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[11px] font-semibold">
+                  <span className="inline-block mt-0.5 px-2 py-0.5 rounded-full bg-income/10 text-income text-[11px] font-semibold">
                     Najnovší
                   </span>
                 )}
