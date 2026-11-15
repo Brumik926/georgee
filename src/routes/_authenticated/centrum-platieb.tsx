@@ -21,6 +21,8 @@ export const Route = createFileRoute("/_authenticated/centrum-platieb")({
 });
 
 type Template = { id: string; title: string; name: string; iban: string; amount: string; vs?: string | undefined };
+type SavedRecipient = { name: string; iban: string; category?: string };
+const favoritesKey = (userId: string) => `george-fav-recipients:${userId}`;
 
 const field =
   "w-full rounded-2xl border border-border bg-surface-2 px-4 py-3 text-[15px] outline-none placeholder:text-muted-foreground focus:border-primary";
@@ -32,11 +34,36 @@ function CentrumPlatieb() {
   const [form, setForm] = useState({ title: "", name: "", iban: "", amount: "", vs: "" });
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState("");
+  const [userId, setUserId] = useState<string | null>(null);
+  const [favorites, setFavorites] = useState<SavedRecipient[]>([]);
   const match = (x: { name: string; iban: string; title?: string }) => {
     const n = q.trim().toLowerCase().replace(/\s/g, "");
     if (!n) return true;
     return [x.name, x.iban, x.title ?? ""].some((v) => v.toLowerCase().replace(/\s/g, "").includes(n));
   };
+
+  useEffect(() => {
+    let active = true;
+    void supabase.auth.getUser().then(({ data }) => {
+      if (!active) return;
+      const id = data.user?.id ?? null;
+      setUserId(id);
+      if (!id) return;
+      try {
+        const parsed = JSON.parse(localStorage.getItem(favoritesKey(id)) ?? "[]") as unknown;
+        if (Array.isArray(parsed)) {
+          setFavorites(parsed.filter((item): item is SavedRecipient =>
+            !!item && typeof item === "object" &&
+            typeof (item as SavedRecipient).name === "string" &&
+            typeof (item as SavedRecipient).iban === "string"
+          ));
+        }
+      } catch {
+        setFavorites([]);
+      }
+    });
+    return () => { active = false; };
+  }, []);
 
   useEffect(() => {
     supabase
@@ -85,6 +112,15 @@ function CentrumPlatieb() {
 
   const pay = (p: { name: string; iban: string; amount?: string | undefined; vs?: string | undefined }) =>
     navigate({ to: "/nova-platba", search: { name: p.name, iban: p.iban, amount: p.amount, vs: p.vs } });
+
+  const removeFavorite = (iban: string) => {
+    if (!userId) return;
+    const normalized = iban.replace(/\s/g, "").toUpperCase();
+    const next = favorites.filter((item) => item.iban.replace(/\s/g, "").toUpperCase() !== normalized);
+    setFavorites(next);
+    localStorage.setItem(favoritesKey(userId), JSON.stringify(next));
+    toast.success("Príjemca bol odstránený z obľúbených.");
+  };
 
   const addTemplate = async () => {
     if (!form.name || !form.iban || !(Number(form.amount.replace(",", ".")) > 0)) {
@@ -170,6 +206,51 @@ function CentrumPlatieb() {
               </li>
             ))}
           </ul>
+        </section>
+
+        <section className="rounded-3xl border border-border bg-surface p-4 shadow-sm">
+          <div className="mb-2 flex items-center justify-between gap-2">
+            <h2 className="flex items-center gap-2 text-[16px] font-bold">
+              <Star className="h-4 w-4 text-primary" /> Obľúbení príjemcovia
+            </h2>
+            <span className="text-xs text-muted-foreground">{favorites.length}</span>
+          </div>
+          {favorites.filter(match).length === 0 ? (
+            <p className="py-3 text-sm text-muted-foreground">
+              {favorites.length === 0
+                ? "Zatiaľ nemáte uložených obľúbených príjemcov. Pridajte si ich vo formulári demo platby."
+                : "Žiadny obľúbený príjemca nezodpovedá vyhľadávaniu."}
+            </p>
+          ) : (
+            <ul className="divide-y divide-border">
+              {favorites.filter(match).map((recipient) => (
+                <li key={recipient.iban} className="flex items-center gap-2 py-3">
+                  <button
+                    type="button"
+                    onClick={() => pay(recipient)}
+                    className="flex min-w-0 flex-1 items-center gap-3 text-left"
+                  >
+                    <span className="grid size-10 shrink-0 place-items-center rounded-full bg-primary/10 text-sm font-bold text-primary">
+                      {recipient.name.trim().slice(0, 2).toUpperCase()}
+                    </span>
+                    <span className="min-w-0">
+                      <span className="block truncate text-sm font-semibold">{recipient.name}</span>
+                      <span className="block truncate text-xs text-muted-foreground">{recipient.iban}</span>
+                    </span>
+                    <span className="ml-auto shrink-0 text-xs font-semibold text-primary">Demo platba</span>
+                  </button>
+                  <button
+                    type="button"
+                    aria-label={`Odstrániť ${recipient.name} z obľúbených`}
+                    onClick={() => removeFavorite(recipient.iban)}
+                    className="grid size-9 shrink-0 place-items-center rounded-full text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                  >
+                    <Trash2 className="size-4" />
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
         </section>
 
         <section className="rounded-3xl bg-surface p-4">
