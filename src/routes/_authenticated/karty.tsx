@@ -27,20 +27,20 @@ const DEFAULTS: CardSettings = { blocked: false, payLimit: 1500, atmLimit: 500 }
 
 const CARDS = [
   {
-    id: "mc-3302",
-    label: "Virtuálna karta Visa",
-    last4: "3302",                        // sem zadajte posledné 4 číslice
-    number: "4123 4567 8901 3302",        // sem zadajte celé 16-miestne číslo
-    cvv: "945",                           // sem zadajte CVV kód
-    expiry: "10/31",                      // sem zadajte platnosť (napr. 08/28)
+    id: "demo-card-01",
+    label: "Demo virtuálna karta",
+    last4: "0001",
+    number: "0000 0000 0000 0001",
+    cvv: "000",
+    expiry: "12/30",
   },
   {
-    id: "mc-5739",
-    label: "Virtuálna karta Visa",
-    last4: "5739",
-    number: "4123 4567 2050 5739",
-    cvv: "081",
-    expiry: "10/31",
+    id: "demo-card-02",
+    label: "Demo virtuálna karta",
+    last4: "0002",
+    number: "0000 0000 0000 0002",
+    cvv: "000",
+    expiry: "12/30",
   },
 ];
 
