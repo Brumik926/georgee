@@ -380,11 +380,22 @@ export function inMonth(t: Txn, d = new Date()) {
   return x.getFullYear() === d.getFullYear() && x.getMonth() === d.getMonth();
 }
 
+export function isExcludedFromOverview(transaction: Pick<Txn, "id">) {
+  if (typeof window === "undefined") return false;
+  try {
+    const raw = window.localStorage.getItem(`george-txn-extra:${transaction.id}`);
+    if (!raw) return false;
+    return (JSON.parse(raw) as { exclude?: unknown }).exclude === true;
+  } catch {
+    return false;
+  }
+}
+
 export function monthTotals(s: BankState, d = new Date()) {
   let income = 0;
   let expense = 0;
   for (const t of s.transactions) {
-    if (!inMonth(t, d)) continue;
+    if (!inMonth(t, d) || isExcludedFromOverview(t)) continue;
     if (t.type === "in") income += t.amount;
     else expense += t.amount;
   }
