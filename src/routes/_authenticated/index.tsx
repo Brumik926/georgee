@@ -235,11 +235,11 @@ function ListItem({ icon: Icon, title, subtitle, badge, isLast, onClick }: ListI
     <div
       onClick={onClick}
       className={`flex items-center justify-between py-3.5 cursor-pointer active:opacity-60 transition-opacity ${
-        !isLast ? "border-b border-gray-100 dark:border-white/5" : ""
+        !isLast ? "border-b border-border" : ""
       }`}
     >
       <div className="flex items-center gap-3.5">
-        <div className="text-gray-500 dark:text-gray-400">
+        <div className="text-muted-foreground">
           <Icon size={22} strokeWidth={1.8} />
         </div>
         <div>
@@ -247,7 +247,7 @@ function ListItem({ icon: Icon, title, subtitle, badge, isLast, onClick }: ListI
             {title}
           </div>
           {subtitle && (
-            <div className="text-[12px] text-gray-400 dark:text-gray-500 mt-0.5">{subtitle}</div>
+            <div className="text-[12px] text-gray-400 dark:text-muted-foreground mt-0.5">{subtitle}</div>
           )}
         </div>
       </div>
@@ -317,7 +317,7 @@ export function GeorgePrehladModern() {
           <button
             type="button"
             onClick={() => setCurrentViewMode("dashboard")}
-            className="p-2 -ml-2 rounded-full transition-colors text-[#196ee6] dark:text-[#4f95ff] hover:bg-blue-50 dark:hover:bg-white/10"
+            className="p-2 -ml-2 rounded-full transition-colors text-primary hover:bg-blue-50 dark:hover:bg-white/10"
             aria-label="Späť na prehľad"
           >
             <ArrowLeft size={24} />
@@ -326,7 +326,7 @@ export function GeorgePrehladModern() {
             <button
               type="button"
               onClick={handleLogout}
-              className="font-bold text-[14px] hover:underline flex items-center gap-1.5 text-[#196ee6] dark:text-[#4f95ff]"
+              className="font-bold text-[14px] hover:underline flex items-center gap-1.5 text-primary"
             >
               <LogOut size={18} />
               Odhlásiť
@@ -337,7 +337,7 @@ export function GeorgePrehladModern() {
         <h1 className="text-[26px] font-bold mb-6 text-[#111827] dark:text-white">Profil</h1>
 
         {/* Karta používateľa */}
-        <div className="rounded-3xl p-5 mb-8 shadow-sm border flex justify-between items-center bg-white dark:bg-[#1c1c24] border-gray-100 dark:border-white/5">
+        <div className="rounded-3xl p-5 mb-8 shadow-sm border flex justify-between items-center bg-surface border-border">
           <div>
             <span className="text-[17px] font-bold block text-gray-900 dark:text-white">
               {userName}
@@ -356,7 +356,7 @@ export function GeorgePrehladModern() {
           <h2 className="text-[13px] font-bold mb-3 px-1 text-gray-900 dark:text-gray-400">
             Doplnky
           </h2>
-          <div className="rounded-3xl px-5 py-1 shadow-sm border bg-white dark:bg-[#1c1c24] border-gray-100 dark:border-white/5">
+          <div className="rounded-3xl px-5 py-1 shadow-sm border bg-surface border-border">
             <ListItem icon={Plane} title="Travel Hub" />
             <ListItem icon={Heart} title="Odporučte Georgea" />
             <ListItem
@@ -381,7 +381,7 @@ export function GeorgePrehladModern() {
           <h2 className="text-[13px] font-bold mb-3 px-1 text-gray-900 dark:text-gray-400">
             Profil
           </h2>
-          <div className="rounded-3xl px-5 py-1 shadow-sm border bg-white dark:bg-[#1c1c24] border-gray-100 dark:border-white/5">
+          <div className="rounded-3xl px-5 py-1 shadow-sm border bg-surface border-border">
             <ListItem
               icon={User}
               title="Prihlásenie a podpisovanie"
@@ -404,7 +404,7 @@ export function GeorgePrehladModern() {
           <h2 className="text-[13px] font-bold mb-3 px-1 text-gray-900 dark:text-gray-400">
             Aplikácia
           </h2>
-          <div className="rounded-3xl px-5 py-1 shadow-sm border bg-white dark:bg-[#1c1c24] border-gray-100 dark:border-white/5">
+          <div className="rounded-3xl px-5 py-1 shadow-sm border bg-surface border-border">
             <ListItem icon={Layout} title="Prispôsobiť prehľad" />
             <ListItem icon={Globe} title="Zmeniť jazyk" />
             <ListItem icon={AppWindow} title="Ikona aplikácie" />
@@ -422,7 +422,7 @@ export function GeorgePrehladModern() {
           <h2 className="text-[13px] font-bold mb-3 px-1 text-gray-900 dark:text-gray-400">
             O aplikácii
           </h2>
-          <div className="rounded-3xl px-5 py-1 shadow-sm border bg-white dark:bg-[#1c1c24] border-gray-100 dark:border-white/5">
+          <div className="rounded-3xl px-5 py-1 shadow-sm border bg-surface border-border">
             <ListItem icon={Info} title="Informácie" />
             <ListItem icon={ShieldCheck} title="Kontrola zabezpečenia" />
             <ListItem icon={UserX} title="Zrušiť elektronické služby" isLast={true} />
@@ -434,7 +434,7 @@ export function GeorgePrehladModern() {
           <h2 className="text-[13px] font-bold mb-3 px-1 text-gray-900 dark:text-gray-400">
             Ďalšie aplikácie
           </h2>
-          <div className="rounded-3xl px-5 py-1 shadow-sm border bg-white dark:bg-[#1c1c24] border-gray-100 dark:border-white/5">
+          <div className="rounded-3xl px-5 py-1 shadow-sm border bg-surface border-border">
             <ListItem
               icon={CreditCard}
               title="Google Pay"
@@ -452,8 +452,8 @@ export function GeorgePrehladModern() {
               Slovenská sporiteľňa
             </span>
           </div>
-          <p className="text-[11px] text-gray-500 mb-0.5">Banková simulácia · Demo prostredie</p>
-          <p className="text-[11px] text-gray-500 mb-0.5">Nejde o skutočnú bankovú aplikáciu.</p>
+          <p className="text-[11px] text-muted-foreground mb-0.5">Banková simulácia · Demo prostredie</p>
+          <p className="text-[11px] text-muted-foreground mb-0.5">Nejde o skutočnú bankovú aplikáciu.</p>
           
           
         </div>
@@ -464,7 +464,7 @@ export function GeorgePrehladModern() {
   // --- SHELL: DASHBOARD ---
   return (
     <div
-      className="min-h-screen transition-colors duration-300 bg-[#f4f6f9] dark:bg-[#0e0e12] text-gray-900 dark:text-white pb-28"
+      className="mx-auto min-h-screen w-full max-w-[430px] bg-background pb-28 text-foreground transition-colors duration-300"
       style={{ fontFamily: "'Mulish', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}
     >
       {currentViewMode === "profile" ? profileContent : (
@@ -515,30 +515,30 @@ export function GeorgePrehladModern() {
             <div className="grid grid-cols-2 gap-3 mb-5">
               <Link
                 to="/rozpocet"
-                className="rounded-3xl p-4 block active:scale-[0.98] bg-white dark:bg-[#1c1c24] shadow-sm"
+                className="rounded-3xl p-4 block active:scale-[0.98] bg-surface shadow-sm"
               >
                 <div className="flex justify-between items-start">
-                  <span className="text-[13px] font-medium text-[#1b2a4a] dark:text-gray-200 leading-snug">
+                  <span className="text-[13px] font-medium text-foreground leading-snug">
                     Výdavky za {MONTHS[new Date().getMonth()]?.toLowerCase()}
                   </span>
-                  <div className="w-8 h-8 shrink-0 rounded-full flex items-center justify-center bg-[#eef3ff] dark:bg-[#242b3b] text-[#196ee6] dark:text-[#4f95ff]">
+                  <div className="w-8 h-8 shrink-0 rounded-full flex items-center justify-center bg-primary/10 text-primary">
                     <BarChart3 size={15} strokeWidth={2.5} />
                   </div>
                 </div>
-                <div className="text-[19px] font-bold flex items-baseline tracking-tight text-[#1b2a4a] dark:text-white mt-1.5">
+                <div className="text-[19px] font-bold flex items-baseline tracking-tight text-foreground mt-1.5">
                   <span>{expParts.whole}</span>
                   <span>,</span>
                   <sup className="text-[11px] font-bold top-[-0.55em] ml-0.5">{expParts.cents}</sup>
                   <span className="ml-1">€</span>
                 </div>
-                <div className="text-[12px] text-gray-500 mt-0.5">Neurčený rozpočet</div>
+                <div className="text-[12px] text-muted-foreground mt-0.5">Neurčený rozpočet</div>
               </Link>
 
-              <div className="rounded-3xl p-4 bg-white dark:bg-[#1c1c24] shadow-sm">
-                <span className="text-[13px] font-medium text-[#1b2a4a] dark:text-gray-200 leading-snug block min-h-8">
+              <div className="rounded-3xl p-4 bg-surface shadow-sm">
+                <span className="text-[13px] font-medium text-foreground leading-snug block min-h-8">
                   Príjmy za {MONTHS[new Date().getMonth()]?.toLowerCase()}
                 </span>
-                <div className="text-[19px] font-bold flex items-baseline tracking-tight text-[#1b2a4a] dark:text-white mt-1.5">
+                <div className="text-[19px] font-bold flex items-baseline tracking-tight text-foreground mt-1.5">
                   <span>{incParts.whole}</span>
                   <span>,</span>
                   <sup className="text-[11px] font-bold top-[-0.55em] ml-0.5">{incParts.cents}</sup>
@@ -548,21 +548,21 @@ export function GeorgePrehladModern() {
             </div>
 
             {/* Nadpis: Vaše produkty */}
-            <h2 className="text-[13px] font-medium mb-2.5 px-1 text-gray-500 dark:text-gray-400">
+            <h2 className="text-[13px] font-medium mb-2.5 px-1 text-muted-foreground">
               Vaše produkty
             </h2>
 
             {/* KARTA: ÚČET */}
-            <div className="rounded-3xl p-5 mb-4 relative overflow-hidden bg-white dark:bg-[#1c1c24] shadow-sm">
+            <div className="rounded-3xl p-5 mb-4 relative overflow-hidden bg-surface shadow-sm">
               <div className="absolute top-0 left-0 w-full h-1 bg-[#2d2a8f]" />
 
               <Link to="/platby" className="block cursor-pointer active:opacity-90" title="Otvoriť detail účtu">
                 <div className="flex justify-between items-start mt-0.5">
                   <div>
-                    <h3 className="text-[16px] font-semibold text-[#1b2a4a] dark:text-white">Účet</h3>
+                    <h3 className="text-[16px] font-semibold text-foreground">Účet</h3>
                     <div
                       className={`mt-1 text-[25px] font-bold flex items-baseline tracking-tight ${
-                        totalParts.isNegative ? "text-[#d62828] dark:text-[#ff5252]" : "text-[#1b2a4a] dark:text-white"
+                        totalParts.isNegative ? "text-[#d62828] dark:text-[#ff5252]" : "text-foreground"
                       }`}
                     >
                       {!hidden && totalParts.isNegative && <span>-</span>}
@@ -581,7 +581,7 @@ export function GeorgePrehladModern() {
                         {hidden ? <EyeOff size={16} /> : <Eye size={16} />}
                       </button>
                     </div>
-                    <p className="mt-1 text-[13px] text-gray-500 dark:text-gray-400">
+                    <p className="mt-1 text-[13px] text-muted-foreground">
                       {hidden ? "•••• € vlastné zdroje" : `${formatEur(total)} vlastné zdroje`}
                     </p>
                   </div>
@@ -592,11 +592,11 @@ export function GeorgePrehladModern() {
               <div className="flex justify-between items-center mt-4">
                 <Link
                   to="/nova-platba"
-                  className="px-5 py-2 rounded-full font-medium text-[13px] bg-[#eef3ff] dark:bg-[#242b3b] text-[#196ee6] dark:text-[#4f95ff] active:scale-95"
+                  className="px-5 py-2 rounded-full font-medium text-[13px] bg-primary/10 text-primary active:scale-95"
                 >
                   Nová platba
                 </Link>
-                <Link to="/platby" className="p-2 rounded-full text-[#196ee6] dark:text-[#4f95ff]" title="Detail účtu">
+                <Link to="/platby" className="p-2 rounded-full text-primary" title="Detail účtu">
                   <MoreVertical size={20} />
                 </Link>
               </div>
@@ -605,12 +605,12 @@ export function GeorgePrehladModern() {
             {/* SEKCIA: KARTY A ÚVERY */}
             <div className="mb-4">
               <div className="flex items-center justify-between mb-2.5 px-2">
-                <h2 className="text-[12px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                <h2 className="text-[12px] font-semibold uppercase tracking-wider text-muted-foreground">
                   Karty a úvery
                 </h2>
                 <Link
                   to="/karty"
-                  className="text-[12px] font-semibold text-[#196ee6] dark:text-[#4f95ff] hover:underline"
+                  className="text-[12px] font-semibold text-primary hover:underline"
                 >
                   Správa kariet
                 </Link>
@@ -651,12 +651,12 @@ export function GeorgePrehladModern() {
             </div>
 
             {/* Karta: Investície a sporenie */}
-            <div className="rounded-3xl p-5 mb-4 relative overflow-hidden bg-white dark:bg-[#1c1c24] shadow-sm">
+            <div className="rounded-3xl p-5 mb-4 relative overflow-hidden bg-surface shadow-sm">
               <div className="absolute top-0 left-0 w-full h-1 bg-[#2d2a8f]" />
               <div className="flex justify-between items-start mt-0.5">
                 <div>
-                  <h3 className="text-[16px] font-semibold text-[#1b2a4a] dark:text-white">Investície</h3>
-                  <div className="text-[25px] font-bold flex items-baseline tracking-tight text-[#1b2a4a] dark:text-white mt-1">
+                  <h3 className="text-[16px] font-semibold text-foreground">Investície</h3>
+                  <div className="text-[25px] font-bold flex items-baseline tracking-tight text-foreground mt-1">
                     <span>{hidden ? "••••" : savParts.whole}</span>
                     <span>,</span>
                     <sup className="text-[13px] font-bold top-[-0.55em] ml-0.5 leading-none">{hidden ? "••" : savParts.cents}</sup>
@@ -671,22 +671,22 @@ export function GeorgePrehladModern() {
               </div>
               <Link
                 to="/sporenie"
-                className="mt-4 px-5 py-2 rounded-full font-medium text-[13px] inline-block bg-[#eef3ff] dark:bg-[#242b3b] text-[#196ee6] dark:text-[#4f95ff]"
+                className="mt-4 px-5 py-2 rounded-full font-medium text-[13px] inline-block bg-primary/10 text-primary"
               >
                 Vyhľadať a kúpiť
               </Link>
             </div>
 
             {/* Karta: Moneyback */}
-            <div className="rounded-3xl p-5 mb-4 relative overflow-hidden bg-white dark:bg-[#1c1c24] shadow-sm">
+            <div className="rounded-3xl p-5 mb-4 relative overflow-hidden bg-surface shadow-sm">
               <div className="absolute top-0 left-0 w-full h-1 bg-[#a94fb5]" />
               <div className="flex justify-between items-start mt-0.5">
                 <div className="pr-3">
-                  <h3 className="text-[16px] font-semibold text-[#1b2a4a] dark:text-white">Moneyback</h3>
+                  <h3 className="text-[16px] font-semibold text-foreground">Moneyback</h3>
                   <span className="mt-1.5 inline-block rounded-full bg-[#fbeefc] dark:bg-[#3a2340] px-2.5 py-0.5 text-[11px] font-semibold text-[#a94fb5]">
                     7 nových ponúk
                   </span>
-                  <p className="mt-2 text-[13px] text-gray-500 dark:text-gray-400 leading-normal">
+                  <p className="mt-2 text-[13px] text-muted-foreground leading-normal">
                     Objavte ponuky od najlepších značiek a získajte späť časť svojich peňazí.
                   </p>
                 </div>
@@ -696,7 +696,7 @@ export function GeorgePrehladModern() {
               </div>
               <button
                 type="button"
-                className="mt-4 px-5 py-2 rounded-full font-medium text-[13px] bg-[#eef3ff] dark:bg-[#242b3b] text-[#196ee6] dark:text-[#4f95ff]"
+                className="mt-4 px-5 py-2 rounded-full font-medium text-[13px] bg-primary/10 text-primary"
               >
                 Prezrite si 7 nových ponúk
               </button>
@@ -710,13 +710,13 @@ export function GeorgePrehladModern() {
                 </h2>
                 <Link
                   to="/platby"
-                  className="text-[12px] font-semibold hover:underline text-[#196ee6] dark:text-[#4f95ff]"
+                  className="text-[12px] font-semibold hover:underline text-primary"
                 >
                   Zobraziť všetky
                 </Link>
               </div>
 
-              <div className="rounded-3xl divide-y overflow-hidden bg-white dark:bg-[#1c1c24] shadow-sm border border-gray-100 dark:border-white/5 divide-gray-100 dark:divide-white/5 text-gray-900 dark:text-white">
+              <div className="rounded-3xl divide-y overflow-hidden bg-surface shadow-sm border border-border divide-gray-100 dark:divide-white/5 text-gray-900 dark:text-white">
                 {recentTransactions.length === 0 ? (
                   <p className="p-4 text-center text-[13px] text-gray-400">
                     Žiadne nedávne transakcie
@@ -738,7 +738,7 @@ export function GeorgePrehladModern() {
                             <p className="text-[13px] font-bold truncate text-gray-900 dark:text-white">
                               {tx.counterparty || "Platba"}
                             </p>
-                            <p className="text-[11px] text-gray-500 dark:text-gray-400">
+                            <p className="text-[11px] text-muted-foreground">
                               {formatDate(tx.date)} • {tx.category}
                             </p>
                           </div>
