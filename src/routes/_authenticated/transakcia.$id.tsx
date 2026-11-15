@@ -34,8 +34,8 @@ function formatDay(iso: string) {
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <dt className="text-[15px] text-detail-muted">{label}</dt>
-      <dd className="mt-1 break-words text-[19px] font-semibold leading-snug text-detail-ink">{children}</dd>
+      <dt className="text-[12px] text-detail-muted">{label}</dt>
+      <dd className="mt-0.5 break-words text-[15px] font-semibold leading-snug text-detail-ink">{children}</dd>
     </div>
   );
 }
@@ -187,7 +187,7 @@ function Detail() {
             />
           </section>
 
-          <dl className="space-y-7 rounded-3xl bg-detail-surface p-5">
+          <dl className="space-y-5 rounded-3xl bg-detail-surface p-5">
             <Row label={income ? "Odosielateľ" : "Príjemca"}>
               {t.counterparty}
               {t.iban ? <><br />IBAN: {formatIban(t.iban)}</> : null}
