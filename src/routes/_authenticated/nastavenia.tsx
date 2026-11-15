@@ -12,8 +12,6 @@ import {
   Moon, 
   Fingerprint, 
   LogOut,
-  Edit2,
-  Check,
   X,
   ShieldCheck,
   Smartphone,
