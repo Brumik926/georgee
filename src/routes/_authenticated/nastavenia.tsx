@@ -160,7 +160,7 @@ function Nastavenia() {
   }
 
   return (
-    <div className="min-h-screen pb-24 transition-colors">
+    <div className="mx-auto min-h-screen w-full max-w-[430px] pb-24 transition-colors">
       
       {/* Modrá hlavička */}
       <div className="brand-header px-5 pt-5 pb-14 text-brand-foreground transition-colors">
