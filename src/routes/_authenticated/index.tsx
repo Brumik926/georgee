@@ -55,10 +55,10 @@ import {
 export const Route = createFileRoute("/_authenticated/")({
   head: () => ({
     meta: [
-      { title: "Internetbanking George | Prehľad" },
-      { name: "description", content: "Prehľad účtu a financií v internetbankingu George." },
-      { property: "og:title", content: "Internetbanking George | Prehľad" },
-      { property: "og:description", content: "Prehľad účtu a financií v internetbankingu George." },
+      { title: "Banková simulácia | Prehľad" },
+      { name: "description", content: "Prehľad účtu a financií v bezpečnej bankovej simulácii." },
+      { property: "og:title", content: "Banková simulácia | Prehľad" },
+      { property: "og:description", content: "Prehľad účtu a financií v bezpečnej bankovej simulácii." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -293,7 +293,7 @@ export function GeorgePrehladModern() {
   const incParts = splitAmount(totals.income);
   const savParts = splitAmount(s.goals.reduce((sum, goal) => sum + goal.saved, 0));
 
-  const cardLastFour = "3302";
+  const cardLastFour = "0001";
 
   const recentTransactions = [...(s.transactions ?? [])]
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
@@ -451,10 +451,10 @@ export function GeorgePrehladModern() {
               Slovenská sporiteľňa
             </span>
           </div>
-          <p className="text-[11px] text-gray-500 mb-0.5">© 2026 Slovenská sporiteľňa, a. s.</p>
-          <p className="text-[11px] text-gray-500 mb-0.5">Verzia 26.30.13 (2630130)</p>
-          <p className="text-[11px] text-gray-500 mb-0.5">GID: 6.1.0.7188</p>
-          <p className="text-[11px] text-gray-500">GESDK: 23.42.0</p>
+          <p className="text-[11px] text-gray-500 mb-0.5">Banková simulácia · Demo prostredie</p>
+          <p className="text-[11px] text-gray-500 mb-0.5">Nejde o skutočnú bankovú aplikáciu.</p>
+          
+          
         </div>
       </main>
     </div>
@@ -470,8 +470,9 @@ export function GeorgePrehladModern() {
         <>
           {/* Modrá hlavička */}
           <div className="pt-6 pb-20 px-4 transition-colors duration-300 bg-[#196ee6] dark:bg-[#0e0e12] text-white rounded-b-3xl dark:rounded-none">
-            <header className="flex justify-end items-center">
-              <div className="flex items-center gap-2">
+            <header className="flex items-center justify-between gap-2">
+              <span className="max-w-[170px] rounded-full border border-white/30 bg-white/10 px-2.5 py-1 text-[9px] font-bold leading-tight tracking-[0.08em] text-white">DEMO · BANKOVÁ SIMULÁCIA</span>
+              <div className="flex shrink-0 items-center gap-1">
                 <Link
                   to="/platby"
                   className="text-white hover:bg-white/10 p-2 rounded-full transition-colors"
