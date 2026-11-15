@@ -6,7 +6,6 @@ import { AppShell, BrandHeader } from "@/components/bank/AppShell";
 import { Button } from "@/components/ui/button";
 import { formatEur, useBank } from "@/lib/bank-store";
 import { supabase } from "@/integrations/supabase/client";
-import cardBg from "@/assets/card_pohoda.jpg.asset.json";
 
 export const Route = createFileRoute("/_authenticated/karty")({
   head: () => ({
@@ -85,22 +84,19 @@ function CardsPage() {
           return (
             <div key={c.id} className="space-y-3">
               <div
-                style={{
-                  backgroundImage: `url(${cardBg.url})`,
-                  backgroundSize: "cover",
-                  backgroundPosition: "center",
-                }}
-                className={`relative aspect-[909/566] rounded-2xl p-5 text-white shadow-lg transition [text-shadow:0_1px_3px_rgba(0,0,0,0.8)] ${
+                className={`relative aspect-[909/566] overflow-hidden rounded-2xl bg-gradient-to-br from-slate-700 via-slate-800 to-slate-950 p-5 text-white shadow-lg transition [text-shadow:0_1px_3px_rgba(0,0,0,0.8)] ${
                   st.blocked ? "opacity-50 grayscale" : ""
                 }`}
               >
-                <div className="mb-8 flex items-center justify-end">
+                <div className="pointer-events-none absolute -right-8 -top-10 size-48 rounded-full border border-white/10 bg-white/5" />
+                <div className="pointer-events-none absolute -bottom-16 left-1/3 size-56 rounded-full border border-white/10" />
+                <div className="relative mb-8 flex items-center justify-end">
                   <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-[#1f1f1f]">
                     {st.blocked ? "Blokovaná" : "DEMO"}
                   </span>
                 </div>
-                <p className="text-xs opacity-70">Číslo karty</p>
-                <div className="mb-4 flex items-center gap-3 text-lg tracking-widest font-mono">
+                <p className="relative text-xs opacity-70">Číslo demo karty</p>
+                <div className="relative mb-4 flex items-center gap-3 text-lg tracking-widest font-mono">
                   {open ? c.number : `•••• •••• •••• ${c.last4}`}
                   {open ? (
                     <button
@@ -113,7 +109,7 @@ function CardsPage() {
                     </button>
                   ) : null}
                 </div>
-                <div className="flex items-end justify-between text-xs">
+                <div className="relative flex items-end justify-between text-xs">
                   <div>
                     <p className="opacity-70 uppercase text-[9px] tracking-wider">Držiteľ karty</p>
                     <p className="text-sm font-semibold tracking-wide uppercase mt-0.5">{holder}</p>
