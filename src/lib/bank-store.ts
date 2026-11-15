@@ -312,20 +312,32 @@ async function announceTransaction(t: Txn) {
 export async function addGoal(name: string, target: number) {
   const userId = await currentUserId();
   if (!userId) return;
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("goals")
     .insert({ user_id: userId, name, target, saved: 0 })
     .select("id")
     .maybeSingle();
-  state.goals = [...state.goals, { id: data?.id ?? crypto.randomUUID(), name, target, saved: 0 }];
+  if (error) throw error;
+  if (!data?.id) throw new Error("Sporiaci cieľ sa nepodarilo vytvoriť.");
+  state.goals = [...state.goals, { id: data.id, name, target, saved: 0 }];
   emit();
 }
 
 export async function depositToGoal(id: string, amount: number) {
+  const userId = await currentUserId();
+  if (!userId) throw new Error("Používateľ nie je prihlásený.");
   const goal = state.goals.find((g) => g.id === id);
-  if (!goal) return;
+  if (!goal) throw new Error("Sporiaci cieľ sa nenašiel.");
   const saved = goal.saved + amount;
-  await supabase.from("goals").update({ saved }).eq("id", id);
+  const { data, error } = await supabase
+    .from("goals")
+    .update({ saved })
+    .eq("id", id)
+    .eq("user_id", userId)
+    .select("id")
+    .maybeSingle();
+  if (error) throw error;
+  if (!data) throw new Error("Vklad sa nepodarilo uložiť.");
   state.goals = state.goals.map((g) => (g.id === id ? { ...g, saved } : g));
   emit();
   await addTransaction({
