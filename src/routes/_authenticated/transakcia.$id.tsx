@@ -9,9 +9,9 @@ import { exportReceipt } from "@/lib/pdf-export";
 export const Route = createFileRoute("/_authenticated/transakcia/$id")({
   head: () => ({
     meta: [
-      { title: "Detail transakcie | Banková simulácia" },
+      { title: "Detail transakcie | Aplikácia" },
       { name: "description", content: "Podrobnosti platby: suma, dátum, príjemca, IBAN a priebežný zostatok." },
-      { property: "og:title", content: "Detail transakcie | Banková simulácia" },
+      { property: "og:title", content: "Detail transakcie | Aplikácia" },
       { property: "og:description", content: "Podrobnosti platby: suma, dátum, príjemca, IBAN a priebežný zostatok." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
