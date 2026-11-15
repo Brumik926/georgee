@@ -2,16 +2,16 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { Repeat, Star, Trash2, Plus, User } from "lucide-react";
 import { toast } from "sonner";
-import { AppShell } from "@/components/bank/AppShell";
+import { AppShell, BrandHeader } from "@/components/bank/AppShell";
 import { formatEur, useBank } from "@/lib/bank-store";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/_authenticated/centrum-platieb")({
   head: () => ({
     meta: [
-      { title: "Centrum platieb | George" },
+      { title: "Centrum platieb | Banková simulácia" },
       { name: "description", content: "Uložení príjemcovia a šablóny platieb na opakovanie jedným ťuknutím." },
-      { property: "og:title", content: "Centrum platieb | George" },
+      { property: "og:title", content: "Centrum platieb | Banková simulácia" },
       { property: "og:description", content: "Uložení príjemcovia a šablóny platieb na opakovanie jedným ťuknutím." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -53,10 +53,22 @@ function CentrumPlatieb() {
   const save = async (list: Template[]) => {
     const removed = templates.filter((t) => !list.some((l) => l.id === t.id));
     const added = list.filter((l) => !templates.some((t) => t.id === l.id));
-    setTemplates(list);
-    for (const r of removed) await supabase.from("payment_templates").delete().eq("id", r.id);
-    for (const a of added)
-      await supabase.from("payment_templates").insert({ id: a.id, title: a.title, name: a.name, iban: a.iban, amount: Number(a.amount), vs: a.vs ?? null });
+    try {
+      for (const r of removed) {
+        const { error } = await supabase.from("payment_templates").delete().eq("id", r.id);
+        if (error) throw error;
+      }
+      for (const a of added) {
+        const { error } = await supabase.from("payment_templates").insert({ id: a.id, title: a.title, name: a.name, iban: a.iban, amount: Number(a.amount), vs: a.vs ?? null });
+        if (error) throw error;
+      }
+      setTemplates(list);
+      return true;
+    } catch (error) {
+      console.error("Nepodarilo sa uložiť šablónu platby:", error);
+      toast.error("Zmeny šablón sa nepodarilo uložiť.");
+      return false;
+    }
   };
 
   const recipients = useMemo(() => {
@@ -74,12 +86,12 @@ function CentrumPlatieb() {
   const pay = (p: { name: string; iban: string; amount?: string | undefined; vs?: string | undefined }) =>
     navigate({ to: "/nova-platba", search: { name: p.name, iban: p.iban, amount: p.amount, vs: p.vs } });
 
-  const addTemplate = () => {
+  const addTemplate = async () => {
     if (!form.name || !form.iban || !(Number(form.amount.replace(",", ".")) > 0)) {
       toast.error("Vyplňte príjemcu, IBAN a sumu");
       return;
     }
-    save([
+    const saved = await save([
       ...templates,
       {
         id: crypto.randomUUID(),
@@ -90,6 +102,7 @@ function CentrumPlatieb() {
         vs: form.vs || undefined,
       },
     ]);
+    if (!saved) return;
     setForm({ title: "", name: "", iban: "", amount: "", vs: "" });
     setOpen(false);
     toast.success("Šablóna uložená");
@@ -97,12 +110,9 @@ function CentrumPlatieb() {
 
   return (
     <AppShell>
-      <header className="brand-header px-5 pb-16 pt-6 text-brand-foreground">
-        <h1 className="text-[30px] font-bold leading-none">Centrum platieb</h1>
-        <p className="mt-2 text-[14px] opacity-80">Zopakujte platbu jedným ťuknutím</p>
-      </header>
+      <BrandHeader title="Centrum platieb" subtitle="Spravujte príjemcov a demo platobné šablóny" />
 
-      <div className="-mt-12 space-y-4 px-4 pb-6">
+      <div className="space-y-4 px-4 pb-24">
         <input
           aria-label="Hľadať v šablónach a príjemcoch"
           className={field + " bg-surface"}
@@ -110,7 +120,7 @@ function CentrumPlatieb() {
           value={q}
           onChange={(e) => setQ(e.target.value)}
         />
-        <section className="rounded-3xl bg-surface p-4">
+        <section className="rounded-3xl border border-border bg-surface p-4 shadow-sm">
           <div className="mb-3 flex items-center justify-between">
             <h2 className="flex items-center gap-2 text-[16px] font-bold">
               <Star className="h-4 w-4 text-primary" /> Šablóny platieb
@@ -154,7 +164,7 @@ function CentrumPlatieb() {
                   </span>
                   <span className="ml-auto shrink-0 text-[15px] font-bold">{formatEur(Number(t.amount))}</span>
                 </button>
-                <button aria-label="Odstrániť šablónu" onClick={() => save(templates.filter((x) => x.id !== t.id))} className="p-2 text-muted-foreground">
+                <button aria-label="Odstrániť šablónu" onClick={() => void save(templates.filter((x) => x.id !== t.id))} className="p-2 text-muted-foreground">
                   <Trash2 className="h-4 w-4" />
                 </button>
               </li>
