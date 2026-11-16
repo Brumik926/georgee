@@ -431,6 +431,7 @@ export default function UcetDetail() {
   const [activeTab, setActiveTab] = useState<"transakcie" | "funkcie" | "karty" | "info">("transakcie");
   const [isSearching, setIsSearching] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [transactionFilter, setTransactionFilter] = useState<"all" | "in" | "out">("all");
 
   // Reálny zostatok
   const currentBalance = balance(s);
@@ -448,6 +449,10 @@ export default function UcetDetail() {
     let sorted = [...(s.transactions ?? [])].sort(
       (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
     );
+
+    if (transactionFilter !== "all") {
+      sorted = sorted.filter((t) => t.type === transactionFilter);
+    }
 
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase().trim();
@@ -478,7 +483,12 @@ export default function UcetDetail() {
       .sort((a, b) => b.localeCompare(a))
       .map((k) => groups[k])
       .filter((g): g is { label: string; items: Txn[] } => Boolean(g));
-  }, [s.transactions, searchQuery]);
+  }, [s.transactions, searchQuery, transactionFilter]);
+
+  const visibleTransactionCount = groupedTransactions.reduce(
+    (count, group) => count + group.items.length,
+    0,
+  );
 
   const copyIban = () => {
     if (s.iban) {
@@ -610,6 +620,28 @@ export default function UcetDetail() {
                 </div>
               )}
 
+              <div className="flex gap-2 overflow-x-auto pb-1" role="group" aria-label="Filter transakcií">
+                {([
+                  { value: "all", label: "Všetky" },
+                  { value: "in", label: "Prijaté" },
+                  { value: "out", label: "Odoslané" },
+                ] as const).map((filter) => (
+                  <button
+                    key={filter.value}
+                    type="button"
+                    aria-pressed={transactionFilter === filter.value}
+                    onClick={() => setTransactionFilter(filter.value)}
+                    className={`shrink-0 rounded-full border px-4 py-2 text-[13px] font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-detail-action ${
+                      transactionFilter === filter.value
+                        ? "border-primary bg-primary text-primary-foreground"
+                        : "border-detail-action-surface bg-detail-surface text-detail-muted hover:text-foreground"
+                    }`}
+                  >
+                    {filter.label}
+                  </button>
+                ))}
+              </div>
+
               {/* Platobné príkazy a rezervácie */}
               <div className="flex items-center gap-4 rounded-3xl bg-detail-surface px-5 py-5 transition-colors">
                 <div className="shrink-0 text-detail-action">
@@ -618,7 +650,7 @@ export default function UcetDetail() {
                 <div>
                   <h3 className="text-[16px] font-medium text-foreground">História transakcií</h3>
                   <p className="mt-0.5 text-[13px] text-detail-muted" aria-live="polite">
-                    {s.loading ? "Načítavam…" : s.error ? "História nie je dostupná" : `Dostupné záznamy: ${s.transactions.length}`}
+                    {s.loading ? "Načítavam…" : s.error ? "História nie je dostupná" : `Zobrazené záznamy: ${visibleTransactionCount} / ${s.transactions.length}`}
                   </p>
                 </div>
               </div>
@@ -630,8 +662,8 @@ export default function UcetDetail() {
                     ? "Načítavam transakcie…"
                     : s.error
                       ? "Transakcie nie sú dostupné."
-                      : searchQuery
-                        ? "Nenašli sa žiadne vyhovujúce transakcie."
+                      : searchQuery || transactionFilter !== "all"
+                        ? "Pre zvolené vyhľadávanie a filter sa nenašli žiadne transakcie."
                         : "Zatiaľ žiadne zaznamenané transakcie."}
                 </div>
               ) : (
