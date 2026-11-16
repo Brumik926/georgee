@@ -28,6 +28,22 @@ export const Route = createFileRoute("/_authenticated/transakcia/$id")({
 
 type Extra = { exclude?: boolean | undefined; note?: string | undefined; attachment?: string | undefined };
 const extraKey = (id: string) => `george-txn-extra:${id}`;
+
+function parseExtra(raw: string | null): Extra {
+  if (!raw) return {};
+  try {
+    const value: unknown = JSON.parse(raw);
+    if (!value || typeof value !== "object" || Array.isArray(value)) return {};
+    const record = value as Record<string, unknown>;
+    return {
+      exclude: record.exclude === true,
+      note: typeof record.note === "string" ? record.note : undefined,
+      attachment: typeof record.attachment === "string" ? record.attachment : undefined,
+    };
+  } catch {
+    return {};
+  }
+}
 const attachmentDbName = "george-demo-attachments";
 
 function openAttachmentDb(): Promise<IDBDatabase> {
@@ -112,15 +128,17 @@ function Detail() {
   const fileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    try { setExtra(JSON.parse(localStorage.getItem(extraKey(id)) || "{}")); } catch { setExtra({}); }
+    try { setExtra(parseExtra(localStorage.getItem(extraKey(id)))); } catch { setExtra({}); }
   }, [id]);
 
-  const save = (next: Extra) => {
+  const save = (next: Extra): boolean => {
     try {
       localStorage.setItem(extraKey(id), JSON.stringify(next));
       setExtra(next);
+      return true;
     } catch {
       toast.error("Zmena sa nepodarila uložiť v tomto zariadení.");
+      return false;
     }
   };
 
@@ -302,13 +320,13 @@ function Detail() {
                   aria-label="Odstrániť prílohu"
                   className="rounded-full p-2 text-detail-muted"
                   onClick={async () => {
+                    if (!save({ ...extra, attachment: undefined })) return;
                     try {
                       await deleteAttachment(id);
-                      save({ ...extra, attachment: undefined });
                       toast.success("Príloha odstránená");
                     } catch (error) {
                       console.error(error);
-                      toast.error("Prílohu sa nepodarilo odstrániť.");
+                      toast.error("Príloha bola odpojená od transakcie, ale súbor sa nepodarilo odstrániť z úložiska.");
                     }
                   }}
                 >
@@ -330,8 +348,11 @@ function Detail() {
                 }
                 try {
                   await storeAttachment(id, file);
-                  save({ ...extra, attachment: file.name });
-                  toast.success("Príloha uložená v tomto zariadení");
+                  if (save({ ...extra, attachment: file.name })) {
+                    toast.success("Príloha uložená v tomto zariadení");
+                  } else {
+                    try { await deleteAttachment(id); } catch (cleanupError) { console.error("Nepodarilo sa odstrániť neuloženú prílohu:", cleanupError); }
+                  }
                 } catch (error) {
                   console.error(error);
                   toast.error("Prílohu sa nepodarilo uložiť.");
