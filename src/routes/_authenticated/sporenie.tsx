@@ -98,7 +98,7 @@ function Sporenie() {
           <div className="mt-5 h-2.5 overflow-hidden rounded-full bg-surface-2">
             <div className="h-full rounded-full bg-income transition-[width] duration-500" style={{ width: `${overallProgress}%` }} />
           </div>
-          <p className="mt-2 text-right text-xs font-semibold text-muted-foreground">{Math.round(overallProgress)} % splnené</p>
+          <p className="mt-2 text-right text-xs font-semibold text-muted-foreground">{s.loading || s.error ? "—" : `${Math.round(overallProgress)} % splnené`}</p>
         </section>
 
         <div className="flex items-center justify-between px-1">
