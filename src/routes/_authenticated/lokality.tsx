@@ -27,6 +27,9 @@ function LokalityPage() {
   return (
     <main className="mx-auto min-h-screen w-full max-w-[430px] bg-background px-5 pb-28 text-foreground">
       <header className="pt-6 pb-5">
+        <span className="mb-4 inline-flex rounded-full border border-primary/20 bg-primary/5 px-2.5 py-1 text-[9px] font-bold tracking-[0.12em] text-primary">
+          DEMO · BANKOVÁ SIMULÁCIA
+        </span>
         <Link to="/" className="mb-5 inline-flex items-center gap-2 text-sm text-muted-foreground">
           <ArrowLeft className="size-4" />
           Späť na prehľad
