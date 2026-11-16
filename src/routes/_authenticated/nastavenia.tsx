@@ -63,6 +63,8 @@ function Nastavenia() {
   const [owner, setOwner] = useState("");
   const [iban, setIban] = useState("");
   const [isEditing, setIsEditing] = useState(false);
+  const [profileSaving, setProfileSaving] = useState(false);
+  const [signingOut, setSigningOut] = useState(false);
 
   useEffect(() => {
     setOwner(s.owner || "Používateľ");
@@ -124,23 +126,42 @@ function Nastavenia() {
 
 
   async function handleSaveProfile() {
-    await saveProfile(owner.trim(), iban.trim());
-    setIsEditing(false);
-    toast.success("Údaje účtu boli uložené");
+    if (profileSaving) return;
+    if (!owner.trim()) {
+      toast.error("Zadajte meno majiteľa účtu.");
+      return;
+    }
+    setProfileSaving(true);
+    try {
+      await saveProfile(owner.trim(), iban.trim());
+      setIsEditing(false);
+      toast.success("Údaje účtu boli uložené.");
+    } catch (error) {
+      console.error("Uloženie profilu zlyhalo:", error);
+      toast.error(error instanceof Error ? error.message : "Údaje účtu sa nepodarilo uložiť.");
+    } finally {
+      setProfileSaving(false);
+    }
   }
 
   async function signOut() {
+    if (signingOut) return;
+    setSigningOut(true);
     try {
-      await supabase.auth.signOut();
-    } catch {
-      // ticho pokračujeme
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      clearUnlocked();
+      resetStore();
+      resetNotifications();
+      queryClient.clear();
+      toast.success("Boli ste úspešne odhlásený.");
+      await navigate({ to: "/auth" });
+    } catch (error) {
+      console.error("Odhlásenie zlyhalo:", error);
+      toast.error("Odhlásenie sa nepodarilo. Skúste to znova.");
+    } finally {
+      setSigningOut(false);
     }
-    clearUnlocked();
-    resetStore();
-    resetNotifications();
-    queryClient.clear();
-    toast.success("Boli ste úspešne odhlásený");
-    navigate({ to: "/auth" });
   }
 
   return (
@@ -344,9 +365,10 @@ function Nastavenia() {
                 <button
                   type="button"
                   onClick={handleSaveProfile}
-                  className="w-full py-2.5 rounded-xl bg-primary text-white font-semibold text-sm active:scale-98 transition"
+                  disabled={profileSaving}
+                  className="w-full py-2.5 rounded-xl bg-primary text-white font-semibold text-sm active:scale-98 transition disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  Uložiť zmeny
+                  {profileSaving ? "Ukladám…" : "Uložiť zmeny"}
                 </button>
               </div>
             ) : (
@@ -372,10 +394,11 @@ function Nastavenia() {
         <button
           type="button"
           onClick={signOut}
-          className="w-full py-4 rounded-2xl bg-surface text-destructive font-semibold text-[15px] flex items-center justify-center gap-2 border border-border shadow-sm active:scale-[0.99] transition"
+          disabled={signingOut}
+          className="w-full py-4 rounded-2xl bg-surface text-destructive font-semibold text-[15px] flex items-center justify-center gap-2 border border-border shadow-sm active:scale-[0.99] transition disabled:cursor-not-allowed disabled:opacity-50"
         >
           <LogOut className="w-5 h-5" />
-          <span>Odhlásiť sa</span>
+          <span>{signingOut ? "Odhlasujem…" : "Odhlásiť sa"}</span>
         </button>
 
       </div>
