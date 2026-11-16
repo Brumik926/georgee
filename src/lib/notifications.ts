@@ -38,6 +38,7 @@ const defaultSettings: NotifSettings = {
 const empty: NotifState = { settings: defaultSettings, items: [], loading: true, error: null };
 
 let state: NotifState = empty;
+let notificationGeneration = 0;
 const listeners = new Set<() => void>();
 
 function emit() {
@@ -64,8 +65,12 @@ export function useNotifications(): NotifState {
 }
 
 export async function hydrateNotifications() {
+  const generation = ++notificationGeneration;
+  state = { ...state, loading: true, error: null };
+  emit();
   try {
     const userId = await currentUserId();
+    if (generation !== notificationGeneration) return;
     if (!userId) {
       state = { ...empty, loading: false };
       emit();
@@ -82,6 +87,7 @@ export async function hydrateNotifications() {
         .limit(50),
     ]);
 
+    if (generation !== notificationGeneration) return;
     if (settingsRes.error) throw settingsRes.error;
     if (itemsRes.error) throw itemsRes.error;
 
@@ -110,6 +116,7 @@ export async function hydrateNotifications() {
     state = { settings, items, loading: false, error: null };
     emit();
   } catch (e) {
+    if (generation !== notificationGeneration) return;
     console.error("hydrateNotifications failed", e);
     state = { ...state, loading: false, error: "Upozornenia sa nepodarilo načítať. Skúste to znova." };
     emit();
@@ -117,11 +124,13 @@ export async function hydrateNotifications() {
 }
 
 export function resetNotifications() {
+  notificationGeneration += 1;
   state = empty;
   emit();
 }
 
 export async function updateNotifSettings(patch: Partial<NotifSettings>) {
+  const generation = notificationGeneration;
   const previous = state.settings;
   const next = { ...previous, ...patch };
   state = { ...state, settings: next };
@@ -140,7 +149,7 @@ export async function updateNotifSettings(patch: Partial<NotifSettings>) {
     if (error) throw error;
   } catch (error) {
     console.error("Uloženie nastavení upozornení zlyhalo:", error);
-    if (state.settings === next) {
+    if (generation === notificationGeneration && state.settings === next) {
       state = { ...state, settings: previous };
       emit();
     }
@@ -158,6 +167,7 @@ export function playNotificationSound() {
 }
 
 export async function notify(kind: NotifKind, title: string, body: string) {
+  const generation = notificationGeneration;
   const enabled =
     kind === "in"
       ? state.settings.onIncoming
@@ -179,6 +189,7 @@ export async function notify(kind: NotifKind, title: string, body: string) {
     .select("id, created_at")
     .maybeSingle();
 
+  if (generation !== notificationGeneration) return;
   if (error) {
     console.error("Uloženie upozornenia zlyhalo:", error);
     toast.error("Upozornenie sa nepodarilo uložiť do histórie.");
@@ -203,6 +214,7 @@ export async function notify(kind: NotifKind, title: string, body: string) {
 }
 
 export async function markAllRead() {
+  const generation = notificationGeneration;
   const previous = state.items;
   state = { ...state, items: previous.map((n) => ({ ...n, read: true })) };
   emit();
@@ -213,6 +225,7 @@ export async function markAllRead() {
     if (error) throw error;
   } catch (error) {
     console.error("Označenie upozornení ako prečítaných zlyhalo:", error);
+    if (generation !== notificationGeneration) return;
     state = { ...state, items: previous };
     emit();
     toast.error("Upozornenia sa nepodarilo označiť ako prečítané.");
@@ -220,6 +233,7 @@ export async function markAllRead() {
 }
 
 export async function clearNotifications() {
+  const generation = notificationGeneration;
   const previous = state.items;
   state = { ...state, items: [] };
   emit();
@@ -230,6 +244,7 @@ export async function clearNotifications() {
     if (error) throw error;
   } catch (error) {
     console.error("Vymazanie upozornení zlyhalo:", error);
+    if (generation !== notificationGeneration) return;
     state = { ...state, items: previous };
     emit();
     toast.error("Upozornenia sa nepodarilo vymazať.");
