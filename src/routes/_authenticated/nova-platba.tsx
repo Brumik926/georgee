@@ -74,7 +74,7 @@ export default function NovaPlatba() {
 
   const normalizedAmount = amount.trim().replace(",", ".");
   const value = Number(normalizedAmount);
-  const amountValid = /^\\d+(?:\\.\\d{1,2})?$/.test(normalizedAmount) && Number.isFinite(value) && value > 0;
+  const amountValid = /^\d+(?:\.\d{1,2})?$/.test(normalizedAmount) && Number.isFinite(value) && value > 0;
 
   function handleInitiatePayment(e: React.FormEvent) {
     e.preventDefault();
