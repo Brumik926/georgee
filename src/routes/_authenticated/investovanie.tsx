@@ -20,7 +20,12 @@ function InvestovaniePage() {
 
   const selected = useMemo(() => funds.find((fund) => fund.id === selectedId) ?? funds[1]!, [selectedId]);
   const numericAmount = Number(amount.replace(",", "."));
-  const canAdd = Number.isFinite(numericAmount) && numericAmount > 0 && numericAmount <= 10000;
+  const canAdd =
+    Number.isFinite(numericAmount) &&
+    numericAmount > 0 &&
+    numericAmount <= 10000 &&
+    Math.abs(numericAmount * 100 - Math.round(numericAmount * 100)) <= 0.000001 &&
+    simulatedTotal + numericAmount <= 1_000_000;
 
   function addSimulation() {
     if (!canAdd) return;
@@ -105,7 +110,12 @@ function InvestovaniePage() {
           onChange={(event) => { setAmount(event.target.value); setMessage(""); }}
           className="mt-2 h-12 w-full rounded-xl border border-input bg-background px-3 text-base outline-none focus:border-primary"
           placeholder="50"
+          maxLength={12}
+          aria-describedby="simulation-amount-hint"
         />
+        <p id="simulation-amount-hint" className="mt-1 text-xs text-muted-foreground">
+          Najviac dve desatinné miesta, jeden prírastok do 10 000 € a celkový limit simulácie 1 000 000 €.
+        </p>
         <button
           type="button"
           disabled={!canAdd}
