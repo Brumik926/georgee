@@ -2,14 +2,14 @@
  * IBAN validátor s kontrolou dĺžky, štruktúry a ISO 7064 MOD-97 kontrolného súčtu.
  */
 
-// Špecifické dĺžky IBAN pre vybrané SEPA krajiny
+// Oficiálne dĺžky IBAN pre krajiny SEPA a bežné európske prevody.
 const IBAN_LENGTHS: Record<string, number> = {
-  SK: 24, // Slovensko
-  CZ: 24, // Česko
-  AT: 20, // Rakúsko
-  DE: 22, // Nemecko
-  PL: 28, // Poľsko
-  HU: 28, // Maďarskoa
+  AL: 28, AD: 24, AT: 20, BE: 16, BA: 20, BG: 22, HR: 21, CY: 28,
+  CZ: 24, DK: 18, EE: 20, FI: 18, FR: 27, DE: 22, GI: 23, GR: 27,
+  HU: 28, IS: 26, IE: 22, IT: 27, XK: 20, LV: 21, LI: 21, LT: 20,
+  LU: 20, MK: 19, MT: 31, MD: 24, MC: 27, ME: 22, NL: 18, NO: 15,
+  PL: 28, PT: 25, RO: 24, SM: 27, RS: 22, SK: 24, SI: 19, ES: 24,
+  SE: 24, CH: 21, GB: 22, VA: 22,
 };
 
 export function normalizeIban(iban: string): string {
