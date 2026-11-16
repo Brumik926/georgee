@@ -198,7 +198,7 @@ function CardsPage() {
                 <Button
                   variant={st.blocked ? "default" : "secondary"}
                   className="h-12 rounded-2xl"
-                  disabled={!settingsReady}
+                  disabled={!settingsReady || !userId}
                   onClick={() => {
                     if (save(c.id, { ...st, blocked: !st.blocked })) {
                       toast.success(st.blocked ? "Karta odblokovaná" : "Karta dočasne zablokovaná");
@@ -213,14 +213,14 @@ function CardsPage() {
                   label="Denný limit platieb"
                   value={st.payLimit}
                   max={5000}
-                  disabled={!settingsReady}
+                  disabled={!settingsReady || !userId}
                   onChange={(v) => save(c.id, { ...st, payLimit: v })}
                 />
                 <LimitRow
                   label="Denný limit výberov z bankomatu"
                   value={st.atmLimit}
                   max={2000}
-                  disabled={!settingsReady}
+                  disabled={!settingsReady || !userId}
                   onChange={(v) => save(c.id, { ...st, atmLimit: v })}
                 />
               </section>
