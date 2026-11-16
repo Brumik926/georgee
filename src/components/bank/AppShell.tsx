@@ -28,7 +28,7 @@ export function PersistentBottomNav() {
   const path = useRouterState({ select: (s) => s.location.pathname });
 
   // Skryť navigáciu počas zadávania platby a v obrazovkách s vlastnou navigáciou.
-  if (path === "/nova-platba" || path.startsWith("/transakcia") || path === "/platby") {
+  if (path.startsWith("/nova-platba") || path.startsWith("/transakcia/") || path === "/platby") {
     return null;
   }
 
@@ -37,18 +37,18 @@ export function PersistentBottomNav() {
     {
       to: "/centrum-platieb",
       label: "Platby",
-      active: path === "/centrum-platieb" || path === "/prijat",
+      active: path === "/centrum-platieb" || path.startsWith("/centrum-platieb/") || path === "/prijat",
       icon: ArrowLeftRight,
     },
-    { to: "/karty", label: "Karty", active: path === "/karty", icon: CreditCard },
-    { to: "/sporenie", label: "Sporenie", active: path === "/sporenie", icon: PiggyBank },
+    { to: "/karty", label: "Karty", active: path === "/karty" || path.startsWith("/karty/"), icon: CreditCard },
+    { to: "/sporenie", label: "Sporenie", active: path === "/sporenie" || path.startsWith("/sporenie/"), icon: PiggyBank },
     {
       to: "/nastavenia",
       label: "Profil",
       active:
-        path === "/nastavenia" ||
-        path === "/upozornenia" ||
-        path === "/protokol-pristupov",
+        path === "/nastavenia" || path.startsWith("/nastavenia/") ||
+        path === "/upozornenia" || path.startsWith("/upozornenia/") ||
+        path === "/protokol-pristupov" || path.startsWith("/protokol-pristupov/"),
       icon: UserRound,
     },
   ] as const;
@@ -63,6 +63,7 @@ export function PersistentBottomNav() {
               key={t.to}
               to={t.to}
               onClick={() => triggerHaptic(10)}
+              aria-current={t.active ? "page" : undefined}
               className={`flex flex-col items-center text-[12px] transition ${
                 t.active ? "font-semibold text-primary" : "text-muted-foreground"
               }`}
