@@ -299,8 +299,6 @@ export function GeorgePrehladModern() {
   const incParts = splitAmount(totals.income);
   const savParts = splitAmount(s.goals.reduce((sum, goal) => sum + goal.saved, 0));
 
-  const cardLastFour = "0001";
-
   const recentTransactions = sortTransactionsNewestFirst(s.transactions ?? []).slice(0, 4);
 
   async function handleLogout() {
@@ -691,55 +689,32 @@ export function GeorgePrehladModern() {
                 </Link>
               </div>
 
-              {/* Vlastný vizuál syntetickej platobnej karty */}
+              {/* Prehľad kariet bez vymyslených údajov */}
               <Link
                 to="/karty"
-                aria-label="Otvoriť detail demo karty"
-                className="group relative block aspect-[1.586] w-full overflow-hidden rounded-3xl border border-white/15 bg-gradient-to-br from-slate-800 via-indigo-950 to-slate-950 p-5 text-left text-white shadow-lg transition duration-300 hover:shadow-xl active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                aria-label="Otvoriť prehľad kariet"
+                className="group relative block min-h-44 w-full overflow-hidden rounded-3xl border border-white/15 bg-gradient-to-br from-slate-800 via-indigo-950 to-slate-950 p-5 text-left text-white shadow-lg transition duration-300 hover:shadow-xl active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
               >
                 <span aria-hidden="true" className="pointer-events-none absolute -right-16 -top-24 size-72 rounded-full border border-white/10 bg-white/[0.03]" />
-                <span aria-hidden="true" className="pointer-events-none absolute -bottom-36 left-1/3 size-72 rounded-full border border-white/10" />
-                <span aria-hidden="true" className="pointer-events-none absolute inset-0 bg-gradient-to-tr from-transparent via-white/[0.07] to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
-
-                <div className="relative z-10 flex h-full flex-col justify-between">
-                  <div className="flex items-start justify-between">
+                <div className="relative z-10 flex h-full min-h-32 flex-col justify-between">
+                  <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-white/65">Platobná karta</p>
-                      <p className="mt-1 text-[13px] font-semibold tracking-[0.12em] text-white">DEMO CARD</p>
+                      <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-white/65">Platobné karty</p>
+                      <p className="mt-1 text-[13px] font-semibold tracking-[0.12em] text-white">Prehľad kariet</p>
                     </div>
-                    <span className="rounded-full border border-white/30 bg-white/10 px-3 py-1 text-[9px] font-bold tracking-[0.2em] text-white">DEMO</span>
+                    <span className="rounded-full border border-white/30 bg-white/10 px-3 py-1 text-[9px] font-bold tracking-[0.2em] text-white">BEZ ÚDAJOV</span>
                   </div>
-
                   <div className="flex items-center gap-3">
-                    <span aria-hidden="true" className="grid h-8 w-10 grid-cols-2 gap-px overflow-hidden rounded-md border border-white/30 bg-white/25 p-1">
-                      <span className="rounded-sm bg-white/55" />
-                      <span className="rounded-sm bg-white/35" />
-                      <span className="rounded-sm bg-white/35" />
-                      <span className="rounded-sm bg-white/55" />
-                    </span>
-                    <span className="text-[10px] font-semibold tracking-[0.16em] text-white/75">VIRTUÁLNA SIMULÁCIA</span>
-                  </div>
-
-                  <div>
-                    <p className="font-mono text-[clamp(13px,3.8vw,17px)] font-semibold tracking-[0.16em] text-white drop-shadow-sm">
-                      •••• •••• •••• {cardLastFour}
-                    </p>
-                    <div className="mt-3 flex items-end justify-between gap-3">
-                      <div className="min-w-0">
-                        <p className="text-[8px] uppercase tracking-[0.18em] text-white/55">Držiteľ karty</p>
-                        <p className="mt-1 truncate text-[11px] font-semibold uppercase tracking-[0.12em] text-white">{userName || "Majiteľ účtu"}</p>
-                      </div>
-                      <div className="shrink-0 text-right">
-                        <p className="text-[8px] uppercase tracking-[0.18em] text-white/55">Platnosť</p>
-                        <p className="mt-1 font-mono text-[11px] font-semibold text-white">12/30</p>
-                      </div>
+                    <CreditCard className="size-8 text-white/80" />
+                    <div>
+                      <p className="text-sm font-semibold text-white">Karty nie sú načítané</p>
+                      <p className="mt-1 text-xs text-white/65">Otvoriť prehľad kariet</p>
                     </div>
+                    <ChevronRight className="ml-auto size-5 text-white/70" />
                   </div>
                 </div>
               </Link>
-            </div>
-
-            {/* Karta: Investície a sporenie */}
+              {/* Karta: Investície a sporenie */}
             <div className="rounded-3xl p-5 mb-4 relative overflow-hidden bg-surface shadow-sm">
               <div className="absolute top-0 left-0 w-full h-1 bg-[#2d2a8f]" />
               <div className="flex justify-between items-start mt-0.5">
