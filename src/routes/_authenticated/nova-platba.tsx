@@ -80,7 +80,9 @@ export default function NovaPlatba() {
   function handleInitiatePayment(e: React.FormEvent) {
     e.preventDefault();
     setError("");
-    setPinError("");
+    setPinError();
+    if (s.loading) return setError("Údaje účtu sa ešte načítavajú.");
+    if (s.error) return setError("Údaje účtu nie sú dostupné. Skúste ich načítať znova.");
 
     if (!name.trim()) return setError("Zadajte meno príjemcu.");
     if (!amountValid) return setError("Zadajte kladnú sumu s najviac dvoma desatinnými miestami.");
@@ -98,6 +100,13 @@ export default function NovaPlatba() {
   async function executePayment(alreadyProcessing = false) {
     if (submissionRef.current && !alreadyProcessing) return;
     if (!alreadyProcessing) submissionRef.current = true;
+    if (s.loading || s.error) {
+      submissionRef.current = false;
+      setBusy(false);
+      setStep("form");
+      setError("Údaje účtu nie sú dostupné. Skúste ich načítať znova.");
+      return;
+    }
     if (!amountValid) {
       submissionRef.current = false;
       setBusy(false);
@@ -330,7 +339,7 @@ export default function NovaPlatba() {
             <button
               type="button"
               onClick={confirmDemoPayment}
-              disabled={busy}
+              disabled={busy || s.loading || !!s.error}
               className="flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-primary text-[16px] font-semibold text-primary-foreground shadow-lg hover:opacity-95 active:scale-95 disabled:opacity-60 transition-all"
             >
               {bioSupported && isBiometricEnabled(user.id) ? <Fingerprint className="size-6" /> : <CheckCircle2 className="size-6" />}
@@ -464,9 +473,10 @@ export default function NovaPlatba() {
 
           <button
             type="submit"
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-primary text-[15px] font-semibold text-primary-foreground shadow-md transition-opacity hover:opacity-95"
+            disabled={busy || s.loading || !!s.error}
+            className="flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-primary text-[15px] font-semibold text-primary-foreground shadow-md transition-opacity hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            <span>Pokračovať na autorizáciu</span>
+            <span>{s.loading ? "Načítavam údaje účtu…" : s.error ? "Údaje účtu nie sú dostupné" : "Pokračovať na autorizáciu"}</span>
             <ArrowRight className="size-4" />
           </button>
 
