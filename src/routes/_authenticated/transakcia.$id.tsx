@@ -36,9 +36,9 @@ function parseExtra(raw: string | null): Extra {
     if (!value || typeof value !== "object" || Array.isArray(value)) return {};
     const record = value as Record<string, unknown>;
     return {
-      exclude: record.exclude === true,
-      note: typeof record.note === "string" ? record.note : undefined,
-      attachment: typeof record.attachment === "string" ? record.attachment : undefined,
+      exclude: record["exclude"] === true,
+      note: typeof record["note"] === "string" ? record["note"] : undefined,
+      attachment: typeof record["attachment"] === "string" ? record["attachment"] : undefined,
     };
   } catch {
     return {};
