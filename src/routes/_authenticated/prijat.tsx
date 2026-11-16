@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { Copy, Check, ArrowDownLeft } from "lucide-react";
 import { AppShell, BrandHeader } from "@/components/bank/AppShell";
-import { addTransaction, CATEGORIES, useBank } from "@/lib/bank-store";
+import { addTransaction, CATEGORIES, hydrate, useBank } from "@/lib/bank-store";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/prijat")({
