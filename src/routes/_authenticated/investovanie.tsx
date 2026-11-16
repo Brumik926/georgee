@@ -1,21 +1,21 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { ArrowLeft, TrendingUp, ShieldCheck, Sparkles, PlusCircle, Info } from "lucide-react";
+import { ArrowLeft, TrendingUp, ShieldCheck, PlusCircle, Info } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/investovanie")({
   component: InvestovaniePage,
 });
 
 const funds = [
-  { id: "steady", name: "Stabilný mix", risk: "Nižšie", change: "+2,4 %", description: "Modelové portfólio s nižším kolísaním.", bars: [24, 28, 27, 31, 30, 34, 37, 39] },
-  { id: "balanced", name: "Vyvážený mix", risk: "Stredné", change: "+5,8 %", description: "Modelové portfólio kombinujúce rast a stabilitu.", bars: [18, 22, 20, 28, 26, 33, 37, 43] },
-  { id: "growth", name: "Rastový mix", risk: "Vyššie", change: "+9,1 %", description: "Modelové portfólio s vyšším kolísaním hodnoty.", bars: [14, 21, 18, 31, 27, 39, 34, 49] },
+  { id: "steady", name: "Stabilný mix", risk: "Nižšie", description: "Vzdelávací príklad portfólia s nižšou mierou kolísania." },
+  { id: "balanced", name: "Vyvážený mix", risk: "Stredné", description: "Vzdelávací príklad kombinujúci konzervatívnejšie a dynamickejšie triedy aktív." },
+  { id: "growth", name: "Rastový mix", risk: "Vyššie", description: "Vzdelávací príklad portfólia s vyššou mierou kolísania." },
 ];
 
 function InvestovaniePage() {
   const [selectedId, setSelectedId] = useState("balanced");
-  const [amount, setAmount] = useState("50");
-  const [simulatedTotal, setSimulatedTotal] = useState(500);
+  const [amount, setAmount] = useState("");
+  const [simulatedTotal, setSimulatedTotal] = useState(0);
   const [message, setMessage] = useState("");
 
   const selected = useMemo(() => funds.find((fund) => fund.id === selectedId) ?? funds[1]!, [selectedId]);
@@ -61,7 +61,7 @@ function InvestovaniePage() {
         <div className="mt-2 text-3xl font-bold tabular-nums">
           {simulatedTotal.toLocaleString("sk-SK", { style: "currency", currency: "EUR" })}
         </div>
-        <p className="mt-1 text-xs text-muted-foreground">Fiktívny zostatok · bez reálnych peňazí</p>
+        <p className="mt-1 text-xs text-muted-foreground">Modelová suma zadaná v tejto relácii · bez reálnych peňazí</p>
       </section>
 
       <section className="mt-6">
@@ -77,7 +77,7 @@ function InvestovaniePage() {
             >
               <div className="flex items-center justify-between gap-3">
                 <span className="font-semibold">{fund.name}</span>
-                <span className="text-sm font-bold text-primary">{fund.change}</span>
+                <ShieldCheck className="size-4 text-primary" />
               </div>
               <div className="mt-1 text-xs text-muted-foreground">Modelové riziko: {fund.risk}</div>
             </button>
@@ -93,17 +93,17 @@ function InvestovaniePage() {
           </div>
           <span className="rounded-full bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary">{selected.risk} riziko</span>
         </div>
-        <div className="mt-5 flex h-28 items-end gap-2" aria-label="Ukážkový vývoj hodnoty">
-          {selected.bars.map((height, index) => (
-            <div key={index} className="flex-1 rounded-t-md bg-primary/70" style={{ height: `${height * 2}px` }} />
-          ))}
+        <div className="mt-4 rounded-2xl bg-muted/50 p-4">
+          <p className="text-sm font-medium">Bez výkonnostných údajov</p>
+          <p className="mt-1 text-xs leading-5 text-muted-foreground">
+            Simulácia neobsahuje historické trhové dáta, odhadované výnosy ani skutočné investičné produkty.
+          </p>
         </div>
-        <p className="mt-2 text-center text-[11px] text-muted-foreground">Ilustračný graf bez historických trhových dát</p>
       </section>
 
       <section className="mt-5 rounded-3xl border border-border bg-card p-4 shadow-sm">
         <h2 className="font-bold">Pridať do simulácie</h2>
-        <p className="mt-1 text-xs text-muted-foreground">Zadaj sumu, ktorú chceš modelovo pridať.</p>
+        <p className="mt-1 text-xs text-muted-foreground">Zadaj sumu, ktorú chceš modelovo pridať. Po obnovení stránky sa simulácia vynuluje.</p>
         <label htmlFor="simulation-amount" className="mt-4 block text-xs font-semibold">Suma v EUR</label>
         <input
           id="simulation-amount"
@@ -111,7 +111,7 @@ function InvestovaniePage() {
           value={amount}
           onChange={(event) => { setAmount(event.target.value); setMessage(""); }}
           className="mt-2 h-12 w-full rounded-xl border border-input bg-background px-3 text-base outline-none focus:border-primary"
-          placeholder="50"
+          placeholder="Zadajte sumu"
           maxLength={12}
           aria-describedby="simulation-amount-hint"
         />
