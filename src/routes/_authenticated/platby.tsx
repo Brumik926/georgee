@@ -1,4 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { z } from "zod";
 import { useState, useMemo } from "react";
 import { createPortal } from "react-dom";
 import { 
@@ -25,6 +26,11 @@ import { AppShell } from "@/components/bank/AppShell";
 import { balance, formatDate, MONTHS, sortTransactionsNewestFirst, useBank, type Txn } from "@/lib/bank-store";
 
 export const Route = createFileRoute("/_authenticated/platby")({
+  validateSearch: z.object({
+    q: z.string().optional(),
+    filter: z.enum(["all", "in", "out"]).optional(),
+    searchOpen: z.enum(["1"]).optional(),
+  }),
   head: () => ({
     meta: [
       { title: "Účet a transakcie | Aplikácia" },
@@ -428,10 +434,11 @@ function MerchantLogo({ counterparty, category }: { counterparty: string; catego
 export default function UcetDetail() {
   const s = useBank();
   const navigate = useNavigate();
+  const search = Route.useSearch();
   const [activeTab, setActiveTab] = useState<"transakcie" | "funkcie" | "karty" | "info">("transakcie");
-  const [isSearching, setIsSearching] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [transactionFilter, setTransactionFilter] = useState<"all" | "in" | "out">("all");
+  const [isSearching, setIsSearching] = useState(search.searchOpen === "1" || Boolean(search.q));
+  const [searchQuery, setSearchQuery] = useState(search.q ?? "");
+  const [transactionFilter, setTransactionFilter] = useState<"all" | "in" | "out">(search.filter ?? "all");
 
   // Reálny zostatok
   const currentBalance = balance(s);
@@ -681,6 +688,7 @@ export default function UcetDetail() {
                             key={t.id}
                             to="/transakcia/$id"
                             params={{ id: t.id }}
+                            search={{ q: searchQuery || undefined, filter: transactionFilter, searchOpen: isSearching ? "1" : undefined }}
                             className="flex items-center justify-between rounded-3xl bg-detail-surface p-4 transition active:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-detail-action"
                           >
                             {/* Vľavo: Logo obchodníka alebo iniciály */}
