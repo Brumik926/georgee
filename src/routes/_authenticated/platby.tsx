@@ -758,7 +758,7 @@ export default function UcetDetail() {
                 {[
                   { title: "Trvalé príkazy", icon: RefreshCw, to: "/centrum-platieb" },
                   { title: "Výber z bankomatu mobilom", icon: Landmark },
-                  { title: "Výpisy z účtu", icon: FileText, to: "/upozornenia" },
+                  { title: "Výpisy z účtu", icon: FileText, to: "/vypisy" },
                   { title: "Limit pre okamžité platby (SEPA)", desc: "Bez limitu", icon: Zap },
                   { title: "Súhlasy s inkasom", icon: ClipboardCheck },
                   { title: "Vytvoriť payme link / QR kód", icon: QrCode, to: "/prijat" },
