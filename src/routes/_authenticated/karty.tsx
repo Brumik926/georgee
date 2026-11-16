@@ -43,9 +43,15 @@ const CARDS = [
   },
 ];
 
+function normalizeLimit(value: unknown, max: number, fallback: number) {
+  if (typeof value !== "number" || !Number.isFinite(value)) return fallback;
+  return Math.min(max, Math.max(0, Math.round(value / 50) * 50));
+}
+
 function CardsPage() {
   const s = useBank();
   const [userId, setUserId] = useState<string | null>(null);
+  const [settingsReady, setSettingsReady] = useState(false);
   const [shown, setShown] = useState<Record<string, boolean>>({});
   const copy = async (v: string, what: string) => {
     try {
@@ -58,18 +64,62 @@ function CardsPage() {
   const [all, setAll] = useState<Record<string, CardSettings>>({});
 
   useEffect(() => {
-    void supabase.auth.getUser().then(({ data }) => {
-      const id = data.user?.id ?? null;
-      setUserId(id);
-      const raw = id ? localStorage.getItem(`george-cards:${id}`) : null;
-      if (raw) setAll(JSON.parse(raw));
-    });
+    let active = true;
+    void supabase.auth.getUser()
+      .then(({ data, error }) => {
+        if (!active) return;
+        if (error) throw error;
+        const id = data.user?.id ?? null;
+        setUserId(id);
+        if (!id) return;
+        try {
+          const raw = localStorage.getItem(`george-cards:${id}`);
+          if (!raw) return;
+          const parsed: unknown = JSON.parse(raw);
+          if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return;
+          const stored = parsed as Record<string, unknown>;
+          const valid: Record<string, CardSettings> = {};
+          for (const card of CARDS) {
+            const value = stored[card.id];
+            if (!value || typeof value !== "object" || Array.isArray(value)) continue;
+            const settings = value as Record<string, unknown>;
+            valid[card.id] = {
+              blocked: typeof settings.blocked === "boolean" ? settings.blocked : DEFAULTS.blocked,
+              payLimit: normalizeLimit(settings.payLimit, 5000, DEFAULTS.payLimit),
+              atmLimit: normalizeLimit(settings.atmLimit, 2000, DEFAULTS.atmLimit),
+            };
+          }
+          setAll(valid);
+        } catch {
+          // Poškodené alebo nedostupné lokálne nastavenia nesmú zablokovať obrazovku kariet.
+          setAll({});
+        }
+      })
+      .catch(() => {
+        if (active) toast.error("Nastavenia kariet sa nepodarilo načítať.");
+      })
+      .finally(() => {
+        if (active) setSettingsReady(true);
+      });
+    return () => {
+      active = false;
+    };
   }, []);
 
   const save = (cardId: string, next: CardSettings) => {
+    if (!userId || !settingsReady) {
+      toast.error("Nastavenia karty ešte nie sú pripravené.");
+      return false;
+    }
     const merged = { ...all, [cardId]: next };
-    setAll(merged);
-    if (userId) localStorage.setItem(`george-cards:${userId}`, JSON.stringify(merged));
+    try {
+      localStorage.setItem(`george-cards:${userId}`, JSON.stringify(merged));
+      setAll(merged);
+      return true;
+    } catch {
+      toast.error("Nastavenia sa nepodarilo uložiť do tohto zariadenia.");
+      return false;
+    }
   };
 
   const holder = s.owner || "Majiteľ účtu";
@@ -149,8 +199,9 @@ function CardsPage() {
                   variant={st.blocked ? "default" : "secondary"}
                   className="h-12 rounded-2xl"
                   onClick={() => {
-                    save(c.id, { ...st, blocked: !st.blocked });
-                    toast.success(st.blocked ? "Karta odblokovaná" : "Karta dočasne zablokovaná");
+                    if (save(c.id, { ...st, blocked: !st.blocked })) {
+                      toast.success(st.blocked ? "Karta odblokovaná" : "Karta dočasne zablokovaná");
+                    }
                   }}
                 >
                   {st.blocked ? <Unlock /> : <Lock />} {st.blocked ? "Odblokovať" : "Zablokovať"}
@@ -161,12 +212,14 @@ function CardsPage() {
                   label="Denný limit platieb"
                   value={st.payLimit}
                   max={5000}
+                  disabled={!settingsReady}
                   onChange={(v) => save(c.id, { ...st, payLimit: v })}
                 />
                 <LimitRow
                   label="Denný limit výberov z bankomatu"
                   value={st.atmLimit}
                   max={2000}
+                  disabled={!settingsReady}
                   onChange={(v) => save(c.id, { ...st, atmLimit: v })}
                 />
               </section>
@@ -183,11 +236,13 @@ function LimitRow({
   value,
   max,
   onChange,
+  disabled = false,
 }: {
   label: string;
   value: number;
   max: number;
   onChange: (v: number) => void;
+  disabled?: boolean;
 }) {
   return (
     <div>
@@ -198,6 +253,7 @@ function LimitRow({
       <input
         type="range"
         aria-label={label}
+        disabled={disabled}
         className="h-11 w-full cursor-pointer accent-primary"
         value={value}
         min={0}
