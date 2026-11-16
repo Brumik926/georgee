@@ -258,7 +258,7 @@ export async function addGoal(name: string, target: number) {
 export async function depositToGoal(id: string, amount: number) {
   const userId = await currentUserId();
   if (!userId) throw new Error("Používateľ nie je prihlásený.");
-  if (!Number.isFinite(amount) || amount <= 0 || Math.round(amount * 100) !== amount * 100) {
+  if (!Number.isFinite(amount) || amount <= 0 || Math.abs(amount * 100 - Math.round(amount * 100)) > 0.000001) {
     throw new Error("Vklad musí byť kladná suma s najviac dvoma desatinnými miestami.");
   }
   if (amount > balance(state)) {
