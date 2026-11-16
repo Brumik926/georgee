@@ -64,7 +64,7 @@ export async function enableBiometric(userId: string, label: string): Promise<vo
   const credential = (await navigator.credentials.create({
     publicKey: {
       challenge: randomChallenge(),
-      rp: { name: "George · Slovenská sporiteľňa", id: window.location.hostname },
+      rp: { name: "George Demo · Banková simulácia", id: window.location.hostname },
       user: {
         id: new TextEncoder().encode(userId),
         name: label || "George",
