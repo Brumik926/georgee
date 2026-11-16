@@ -179,11 +179,16 @@ export async function notify(kind: NotifKind, title: string, body: string, expec
       : state.settings.onBudget;
   if (!enabled) return;
 
+  const userId = await currentUserId();
+  if (
+    !userId ||
+    (expectedUserId && userId !== expectedUserId) ||
+    generation !== notificationGeneration
+  ) return;
+
   if (state.settings.soundEnabled) playNotificationSound();
   toast(title, { description: body });
 
-  const userId = await currentUserId();
-  if (!userId || (expectedUserId && userId !== expectedUserId)) return;
   const { data, error } = await supabase
     .from("notifications")
     .insert({ user_id: userId, kind, title, body })
