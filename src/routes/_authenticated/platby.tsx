@@ -22,7 +22,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { AppShell } from "@/components/bank/AppShell";
-import { balance, formatDate, MONTHS, useBank, type Txn } from "@/lib/bank-store";
+import { balance, formatDate, MONTHS, sortTransactionsNewestFirst, useBank, type Txn } from "@/lib/bank-store";
 
 export const Route = createFileRoute("/_authenticated/platby")({
   head: () => ({
@@ -446,9 +446,7 @@ export default function UcetDetail() {
   const groupedTransactions = useMemo(() => {
     const groups: { [key: string]: { label: string; items: Txn[] } } = {};
 
-    let sorted = [...(s.transactions ?? [])].sort(
-      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-    );
+    let sorted = sortTransactionsNewestFirst(s.transactions ?? []);
 
     if (transactionFilter !== "all") {
       sorted = sorted.filter((t) => t.type === transactionFilter);
@@ -467,11 +465,12 @@ export default function UcetDetail() {
 
     sorted.forEach((txn) => {
       const d = new Date(txn.date);
+      const validDate = Number.isFinite(d.getTime());
       const monthIdx = d.getMonth();
       const year = d.getFullYear();
       const monthName = MONTHS[monthIdx] || "Neznámy";
-      const key = `${year}-${String(monthIdx).padStart(2, "0")}`;
-      const label = `${monthName} ${year}`;
+      const key = validDate ? `${year}-${String(monthIdx).padStart(2, "0")}` : "0000-00";
+      const label = validDate ? `${monthName} ${year}` : "Neznámy dátum";
 
       if (!groups[key]) {
         groups[key] = { label, items: [] };
