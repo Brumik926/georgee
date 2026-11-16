@@ -239,8 +239,8 @@ function ListItem({ icon: Icon, title, subtitle, badge, isLast, onClick }: ListI
           <div className="text-[15px] font-semibold text-gray-900 dark:text-white leading-tight">
             {title}
           </div>
-          {subtitle && (
-            <div className="text-[12px] text-gray-400 dark:text-muted-foreground mt-0.5">{subtitle}</div>
+          {(subtitle || !onClick) && (
+            <div className="text-[12px] text-gray-400 dark:text-muted-foreground mt-0.5">{subtitle || "V demo verzii nie je dostupné"}</div>
           )}
         </div>
       </div>
@@ -467,10 +467,9 @@ export function GeorgePrehladModern() {
           <div className="rounded-3xl px-5 py-1 shadow-sm border bg-surface border-border">
             <ListItem
               icon={CreditCard}
-              title="Google Pay"
-              subtitle="Nakupujte šikovnejšie"
+              title="Digitálna peňaženka"
+              subtitle="V demo verzii nie je dostupná"
               isLast={true}
-              onClick={() => navigate({ to: "/karty" })}
             />
           </div>
         </div>
