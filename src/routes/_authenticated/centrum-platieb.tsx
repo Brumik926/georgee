@@ -380,7 +380,7 @@ function CentrumPlatieb() {
                     <span className="block truncate text-[15px] font-semibold">{r.name}</span>
                     <span className="block truncate text-[12px] text-muted-foreground">{r.iban} · {r.count}×</span>
                   </span>
-                  <span className="ml-auto shrink-0 text-[13px] font-semibold text-primary">Zaplatiť</span>
+                  <span className="ml-auto shrink-0 text-[13px] font-semibold text-primary">Použiť v demo platbe</span>
                 </button>
               </li>
             ))}
