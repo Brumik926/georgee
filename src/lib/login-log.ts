@@ -53,10 +53,11 @@ export async function recordLogin(userId: string, email: string) {
 
 /** Načíta posledné prístupy cudzích používateľov. */
 export async function listLogins(): Promise<LoginEvent[]> {
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("login_events")
     .select("id,email,device,created_at")
     .order("created_at", { ascending: false })
     .limit(30);
+  if (error) throw error;
   return (data ?? []).filter((e) => !isPrimaryEmail(e.email));
 }
