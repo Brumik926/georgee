@@ -138,6 +138,8 @@ export async function loadAll() {
 
 export function hydrate() {
   if (!loadPromise) {
+    state = { ...state, loading: true, error: null };
+    emit();
     const pending = loadAll()
       .catch((error: unknown) => {
         console.error(error);
