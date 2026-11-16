@@ -46,7 +46,7 @@ function RozpocetPage() {
   const [formOpen, setFormOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<string | null>(null);
   const [category, setCategory] = useState(EXPENSE_CATEGORIES[0] ?? "Potraviny");
-  const [limitValue, setLimitValue] = useState("300");
+  const [limitValue, setLimitValue] = useState("");
   const [saving, setSaving] = useState(false);
 
   const [year, month] = selectedMonth.split("-").map(Number);
@@ -96,7 +96,7 @@ function RozpocetPage() {
     }
     setEditingCategory(null);
     setCategory(firstWithoutLimit);
-    setLimitValue("300");
+    setLimitValue("");
     setFormOpen(true);
   };
 
