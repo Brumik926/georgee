@@ -58,6 +58,7 @@ const empty: BankState = {
 let state: BankState = empty;
 const listeners = new Set<() => void>();
 let loadPromise: Promise<void> | null = null;
+let storeGeneration = 0;
 
 function emit() {
   state = { ...state };
@@ -75,7 +76,9 @@ async function currentUserId() {
 }
 
 export async function loadAll() {
+  const generation = storeGeneration;
   const userId = await currentUserId();
+  if (generation !== storeGeneration) return;
   if (!userId) {
     state = { ...empty, loading: false, error: null };
     emit();
@@ -91,6 +94,7 @@ export async function loadAll() {
     .maybeSingle();
 
   if (profileError) throw profileError;
+  if (generation !== storeGeneration) return;
 
   const [txns, goals, budgets] = await Promise.all([
     supabase
@@ -110,6 +114,7 @@ export async function loadAll() {
       .order("created_at", { ascending: true }),
   ]);
 
+  if (generation !== storeGeneration) return;
   const queryError = txns.error ?? goals.error ?? budgets.error;
   if (queryError) throw queryError;
 
@@ -139,10 +144,12 @@ export async function loadAll() {
 
 export function hydrate() {
   if (!loadPromise) {
+    const generation = storeGeneration;
     state = { ...state, loading: true, error: null };
     emit();
     const pending = loadAll()
       .catch((error: unknown) => {
+        if (generation !== storeGeneration) return;
         console.error(error);
         state = {
           ...empty,
@@ -160,6 +167,7 @@ export function hydrate() {
 }
 
 export function resetStore() {
+  storeGeneration += 1;
   loadPromise = null;
   state = empty;
   emit();
