@@ -408,19 +408,35 @@ function Nastavenia() {
 
 function LoginHistory() {
   const [items, setItems] = useState<LoginEvent[] | null>(null);
-  
+  const [loadError, setLoadError] = useState(false);
+
+  const load = () => {
+    setLoadError(false);
+    setItems(null);
+    void listLogins()
+      .then(setItems)
+      .catch((error: unknown) => {
+        console.error("Načítanie posledných prístupov zlyhalo:", error);
+        setItems([]);
+        setLoadError(true);
+      });
+  };
+
   useEffect(() => {
-    void listLogins().then(setItems);
+    load();
   }, []);
 
-  const fmt = (d: string) =>
-    new Date(d).toLocaleString("sk-SK", {
+  const fmt = (d: string) => {
+    const date = new Date(d);
+    if (!Number.isFinite(date.getTime())) return "Neznámy dátum";
+    return date.toLocaleString("sk-SK", {
       day: "numeric",
       month: "numeric",
       year: "numeric",
       hour: "2-digit",
       minute: "2-digit",
     });
+  };
 
   return (
     <div>
@@ -440,6 +456,11 @@ function LoginHistory() {
       <div className="rounded-3xl bg-surface shadow-sm border border-border divide-y divide-border overflow-hidden">
         {items === null ? (
           <p className="p-4 text-sm text-slate-400">Načítavam prístupy…</p>
+        ) : loadError ? (
+          <div className="flex flex-wrap items-center justify-between gap-3 p-4">
+            <p className="text-sm text-destructive">Posledné prístupy sa nepodarilo načítať.</p>
+            <button type="button" onClick={load} className="text-sm font-semibold text-primary">Skúsiť znova</button>
+          </div>
         ) : items.length === 0 ? (
           <p className="p-4 text-sm text-slate-400">Zatiaľ žiadne cudzie prístupy.</p>
         ) : (
