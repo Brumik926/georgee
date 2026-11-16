@@ -258,9 +258,16 @@ export async function addGoal(name: string, target: number) {
 export async function depositToGoal(id: string, amount: number) {
   const userId = await currentUserId();
   if (!userId) throw new Error("Používateľ nie je prihlásený.");
+  if (!Number.isFinite(amount) || amount <= 0 || Math.round(amount * 100) !== amount * 100) {
+    throw new Error("Vklad musí byť kladná suma s najviac dvoma desatinnými miestami.");
+  }
+  if (amount > balance(state)) {
+    throw new Error("Na tento vklad nemáte dostatočný dostupný zostatok.");
+  }
   const goal = state.goals.find((g) => g.id === id);
   if (!goal) throw new Error("Sporiaci cieľ sa nenašiel.");
-  const saved = goal.saved + amount;
+  const previousSaved = goal.saved;
+  const saved = Math.round((goal.saved + amount) * 100) / 100;
   const { data, error } = await supabase
     .from("goals")
     .update({ saved })
@@ -270,15 +277,35 @@ export async function depositToGoal(id: string, amount: number) {
     .maybeSingle();
   if (error) throw error;
   if (!data) throw new Error("Vklad sa nepodarilo uložiť.");
+
   state.goals = state.goals.map((g) => (g.id === id ? { ...g, saved } : g));
   emit();
-  await addTransaction({
-    type: "out",
-    counterparty: `Sporenie · ${goal.name}`,
-    amount,
-    date: new Date().toISOString(),
-    category: "Sporenie",
-  });
+  try {
+    await addTransaction({
+      type: "out",
+      counterparty: `Sporenie · ${goal.name}`,
+      amount,
+      date: new Date().toISOString(),
+      category: "Sporenie",
+    });
+  } catch (transactionError) {
+    const rollback = await supabase
+      .from("goals")
+      .update({ saved: previousSaved })
+      .eq("id", id)
+      .eq("user_id", userId)
+      .select("id")
+      .maybeSingle();
+    if (!rollback.error && rollback.data) {
+      state.goals = state.goals.map((g) => (g.id === id ? { ...g, saved: previousSaved } : g));
+      emit();
+    } else {
+      console.error("Vrátenie neúspešného vkladu do pôvodného stavu zlyhalo:", rollback.error);
+      await loadAll();
+      throw new Error("Transakcia vkladu zlyhala a stav cieľa sa nepodarilo bezpečne obnoviť. Údaje boli znovu načítané.");
+    }
+    throw transactionError;
+  }
 }
 
 export async function setBudget(category: string, limit: number) {
