@@ -45,39 +45,6 @@ export const CATEGORIES = [
   "Prevod",
 ];
 
-function iso(y: number, m: number, d: number) {
-  return new Date(Date.UTC(y, m - 1, d, 10, 0, 0)).toISOString();
-}
-
-function randomIban() {
-  let digits = "";
-  for (let i = 0; i < 16; i++) digits += Math.floor(Math.random() * 10);
-  const groups = digits.match(/.{1,4}/g) ?? [];
-  return `SK31 1200 ${groups.slice(0, 3).join(" ")}`;
-}
-
-function seedTransactions() {
-  const now = new Date();
-  const y = now.getFullYear();
-  const m = now.getMonth() + 1;
-  const pm = m === 1 ? 12 : m - 1;
-  const py = m === 1 ? y - 1 : y;
-
-  const rows: Omit<Txn, "id">[] = [
-    { type: "in", counterparty: "Počiatočný zostatok", amount: 41097.5, date: iso(py, pm, 1), category: "Ostatné príjmy" },
-    { type: "in", counterparty: "Mzda · Karavela s.r.o.", amount: 1840, date: iso(py, pm, 5), category: "Mzda" },
-    { type: "out", counterparty: "Nájom · Byt Petržalka", amount: 520, date: iso(py, pm, 8), category: "Bývanie" },
-    { type: "out", counterparty: "Kino Lumière", amount: 18, date: iso(py, pm, 19), category: "Zábava" },
-    { type: "out", counterparty: "Billa", amount: 68.4, date: iso(y, m, 1), category: "Potraviny" },
-    { type: "in", counterparty: "Mzda · Karavela s.r.o.", amount: 1840, date: iso(y, m, 2), category: "Mzda", vs: "0100" },
-    { type: "out", counterparty: "Nájom · Byt Petržalka", amount: 520, date: iso(y, m, 3), category: "Bývanie" },
-    { type: "in", counterparty: "Radina Olha", iban: "SK42 1100 0000 0029 3633 0786", amount: 120, date: iso(y, m, 4), category: "Ostatné príjmy", note: "Vrátenie pôžičky" },
-    { type: "out", counterparty: "Poplatok za vedenie účtu", amount: 7, date: iso(y, m, 5), category: "Poplatky", vs: "0898" },
-    { type: "out", counterparty: "Slovnaft", amount: 52.1, date: iso(y, m, 6), category: "Doprava" },
-  ];
-  return rows;
-}
-
 const empty: BankState = {
   owner: "",
   iban: "",
@@ -106,50 +73,6 @@ async function currentUserId() {
   return data.user?.id ?? null;
 }
 
-async function seedIfNeeded(userId: string) {
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("owner, iban, seeded")
-    .eq("id", userId)
-    .maybeSingle();
-
-  if (profile?.seeded) return profile;
-
-  const iban = profile?.iban && profile.iban.length > 0 ? profile.iban : randomIban();
-
-  await supabase.from("transactions").insert(
-    seedTransactions().map((t) => ({
-      user_id: userId,
-      type: t.type,
-      counterparty: t.counterparty,
-      iban: t.iban ?? null,
-      amount: t.amount,
-      date: t.date,
-      category: t.category,
-      note: t.note ?? null,
-      vs: t.vs ?? null,
-    })),
-  );
-  await supabase.from("goals").insert([
-    { user_id: userId, name: "Rezervný fond", target: 4000, saved: 2560 },
-    { user_id: userId, name: "Dovolenka", target: 1200, saved: 340 },
-  ]);
-  await supabase.from("budgets").insert([
-    { user_id: userId, category: "Potraviny", limit_amount: 400 },
-    { user_id: userId, category: "Bývanie", limit_amount: 600 },
-    { user_id: userId, category: "Doprava", limit_amount: 150 },
-    { user_id: userId, category: "Zábava", limit_amount: 120 },
-  ]);
-
-  const { data: updated } = await supabase
-    .from("profiles")
-    .upsert({ id: userId, owner: profile?.owner ?? "", iban, seeded: true })
-    .select("owner, iban, seeded")
-    .maybeSingle();
-
-  return updated ?? { owner: profile?.owner ?? "", iban, seeded: true };
-}
-
 export async function loadAll() {
   const userId = await currentUserId();
   if (!userId) {
@@ -158,7 +81,15 @@ export async function loadAll() {
     return;
   }
 
-  const profile = await seedIfNeeded(userId);
+  // Načítame iba existujúci profil a záznamy. Pri prihlásení sa nevytvárajú
+  // žiadne automatické demo transakcie, ciele, rozpočty ani fiktívny IBAN.
+  const { data: profile, error: profileError } = await supabase
+    .from("profiles")
+    .select("owner, iban")
+    .eq("id", userId)
+    .maybeSingle();
+
+  if (profileError) throw profileError;
 
   const [txns, goals, budgets] = await Promise.all([
     supabase
@@ -177,6 +108,9 @@ export async function loadAll() {
       .eq("user_id", userId)
       .order("created_at", { ascending: true }),
   ]);
+
+  const queryError = txns.error ?? goals.error ?? budgets.error;
+  if (queryError) throw queryError;
 
   state = {
     owner: profile?.owner ?? "",
