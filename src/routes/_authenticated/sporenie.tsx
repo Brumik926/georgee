@@ -62,6 +62,10 @@ function Sporenie() {
       return toast.error("Zadajte kladný vklad s najviac dvoma desatinnými miestami.");
     }
     if (value > availableBalance) return toast.error("Vklad je vyšší ako dostupný zostatok.");
+    const selectedGoal = s.goals.find((goal) => goal.id === goalId);
+    if (selectedGoal && value > selectedGoal.target - selectedGoal.saved) {
+      return toast.error("Vklad nemôže byť vyšší ako zostávajúca suma do cieľa.");
+    }
     setDepositingGoal(goalId);
     try {
       await depositToGoal(goalId, Math.round(value * 100) / 100);
