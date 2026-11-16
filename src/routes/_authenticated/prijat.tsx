@@ -188,7 +188,7 @@ export default function Prijat() {
             disabled={busy || s.loading || !!s.error}
             className="mt-2 flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-income text-[15px] font-semibold text-white shadow-md transition-opacity hover:opacity-95 disabled:opacity-50"
           >
-            <span>{busy ? "Ukladám príjem…" : s.loading ? "Načítavam údaje…" : s.error ? "Údaje nie sú dostupné" : "Pridať príjem na účet"}</span>
+            <span>{busy ? "Ukladám príjem…" : s.loading ? "Načítavam údaje…" : s.error ? "Údaje nie sú dostupné" : "Pridať demo príjem"}</span>
           </button>
         </form>
       </div>
