@@ -51,9 +51,12 @@ export default function Prijat() {
     e.preventDefault();
     setError("");
 
-    const value = Number(amount.replace(",", "."));
+    const normalizedAmount = amount.trim().replace(",", ".");
+    const value = Number(normalizedAmount);
     if (!name.trim()) return setError("Zadajte odosielateľa.");
-    if (!Number.isFinite(value) || value <= 0) return setError("Zadajte platnú sumu.");
+    if (!/^\d+(?:\.\d{1,2})?$/.test(normalizedAmount) || !Number.isFinite(value) || value <= 0) {
+      return setError("Zadajte platnú sumu.");
+    }
     if (Math.abs(value * 100 - Math.round(value * 100)) > 0.000001) {
       return setError("Suma môže obsahovať najviac dve desatinné miesta.");
     }
