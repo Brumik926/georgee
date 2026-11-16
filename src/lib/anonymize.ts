@@ -1,4 +1,4 @@
-import { Txn, Goal, BudgetLimit } from "./bank-store";
+import type { Txn, Goal, BudgetLimit } from "./bank-store";
 
 export function anonymizeFinances(
   txns: Txn[],
