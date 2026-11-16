@@ -157,7 +157,7 @@ function Detail() {
       <AppShell>
         <div className="px-5 py-16 text-center">
           <p className="text-sm text-muted-foreground" role="alert">{s.error}</p>
-          <Link to="/platby" className="mt-4 inline-block text-[13px] font-semibold text-primary">Späť na históriu</Link>
+          <Link to="/platby" search={{ q: search.q, filter: search.filter, searchOpen: search.searchOpen }} className="mt-4 inline-block text-[13px] font-semibold text-primary">Späť na históriu</Link>
         </div>
       </AppShell>
     );
@@ -168,7 +168,7 @@ function Detail() {
       <AppShell>
         <div className="px-5 py-16 text-center">
           <p className="text-sm text-muted-foreground">Transakcia sa nenašla v dostupnej histórii.</p>
-          <Link to="/platby" className="mt-4 inline-block text-[13px] font-semibold text-primary">Späť na históriu</Link>
+          <Link to="/platby" search={{ q: search.q, filter: search.filter, searchOpen: search.searchOpen }} className="mt-4 inline-block text-[13px] font-semibold text-primary">Späť na históriu</Link>
         </div>
       </AppShell>
     );
