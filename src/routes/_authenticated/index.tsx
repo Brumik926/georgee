@@ -28,7 +28,8 @@ import {
   LogOut,
   ChevronRight,
   Landmark,
-  MapPin
+  MapPin,
+  Plus
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -515,6 +516,38 @@ export function GeorgePrehladModern() {
 
           {/* Hlavný obsah */}
           <main className="px-4 -mt-12 relative z-10">
+            {/* Rýchle akcie – samostatná navigačná skupina pre najčastejšie úlohy */}
+            <section aria-label="Rýchle akcie" className="mb-5 grid grid-cols-4 gap-2">
+              <Link
+                to="/nova-platba"
+                className="flex min-w-0 flex-col items-center justify-center gap-2 rounded-2xl bg-surface px-2 py-3 text-center shadow-sm transition hover:bg-muted active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              >
+                <span className="grid size-10 place-items-center rounded-full bg-primary/10 text-primary"><Plus size={20} strokeWidth={2.2} /></span>
+                <span className="text-[11px] font-semibold leading-tight text-foreground">Nová platba</span>
+              </Link>
+              <Link
+                to="/platby"
+                className="flex min-w-0 flex-col items-center justify-center gap-2 rounded-2xl bg-surface px-2 py-3 text-center shadow-sm transition hover:bg-muted active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              >
+                <span className="grid size-10 place-items-center rounded-full bg-primary/10 text-primary"><Search size={19} /></span>
+                <span className="text-[11px] font-semibold leading-tight text-foreground">História</span>
+              </Link>
+              <Link
+                to="/karty"
+                className="flex min-w-0 flex-col items-center justify-center gap-2 rounded-2xl bg-surface px-2 py-3 text-center shadow-sm transition hover:bg-muted active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              >
+                <span className="grid size-10 place-items-center rounded-full bg-primary/10 text-primary"><CreditCard size={19} /></span>
+                <span className="text-[11px] font-semibold leading-tight text-foreground">Karty</span>
+              </Link>
+              <Link
+                to="/lokality"
+                className="flex min-w-0 flex-col items-center justify-center gap-2 rounded-2xl bg-surface px-2 py-3 text-center shadow-sm transition hover:bg-muted active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              >
+                <span className="grid size-10 place-items-center rounded-full bg-primary/10 text-primary"><MapPin size={19} /></span>
+                <span className="text-[11px] font-semibold leading-tight text-foreground">Pobočky</span>
+              </Link>
+            </section>
+
             {/* Sekcia: Výdavky a Príjmy za aktuálny mesiac */}
             <div className="grid grid-cols-2 gap-3 mb-5">
               <Link
