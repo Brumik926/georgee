@@ -28,7 +28,7 @@ export const Route = createFileRoute("/_authenticated/platby")({
   head: () => ({
     meta: [
       { title: "Účet a transakcie | Aplikácia" },
-      { name: "description", content: "História transakcií a správa účtu George" },
+      { name: "description", content: "História transakcií a správa demo účtu." },
     ],
   }),
   component: UcetDetail,
@@ -435,7 +435,11 @@ export default function UcetDetail() {
   // Reálny zostatok
   const currentBalance = balance(s);
   const balanceParts = splitAmount(currentBalance);
-  const formattedOwnResources = `${balanceParts.isNegative ? "-" : ""}${balanceParts.whole},${balanceParts.cents} € vlastné zdroje`;
+  const formattedOwnResources = s.loading
+    ? "Načítavam zostatok…"
+    : s.error
+      ? "Zostatok nie je dostupný"
+      : `${balanceParts.isNegative ? "-" : ""}${balanceParts.whole},${balanceParts.cents} € zostatok podľa dostupnej histórie`;
 
   // Dynamické zoskupenie transakcií podľa mesiaca a roka s voliteľným vyhľadávaním
   const groupedTransactions = useMemo(() => {
@@ -507,16 +511,20 @@ export default function UcetDetail() {
               <div>
                 <h1 className="text-[17px] font-medium text-foreground">Účet</h1>
                 
-                <div className={`mt-1 flex items-baseline tracking-tight ${balanceParts.isNegative ? "text-[#c8302f] dark:text-[#ff5a70]" : "text-foreground"}`}>
-                  <span className="text-[30px] font-bold leading-none">
-                    {balanceParts.isNegative ? "-" : ""}{balanceParts.whole},
-                  </span>
-                  <sup className="text-[15px] font-bold leading-none top-[-0.6em] ml-0.5 select-none">
-                    {balanceParts.cents}
-                  </sup>
-                  <span className="text-[28px] font-bold leading-none ml-1 select-none">
-                    €
-                  </span>
+                <div className={`mt-1 flex min-h-9 items-baseline tracking-tight ${balanceParts.isNegative ? "text-expense" : "text-foreground"}`} aria-live="polite">
+                  {s.loading || s.error ? (
+                    <span className="text-sm font-medium text-detail-muted">{s.loading ? "Načítavam…" : "Nedostupné"}</span>
+                  ) : (
+                    <>
+                      <span className="text-[30px] font-bold leading-none">
+                        {balanceParts.isNegative ? "-" : ""}{balanceParts.whole},
+                      </span>
+                      <sup className="top-[-0.6em] ml-0.5 text-[15px] font-bold leading-none select-none">
+                        {balanceParts.cents}
+                      </sup>
+                      <span className="ml-1 select-none text-[28px] font-bold leading-none">€</span>
+                    </>
+                  )}
                 </div>
 
                 <p className="mt-1.5 text-[14px] text-detail-muted">
@@ -528,14 +536,14 @@ export default function UcetDetail() {
           </div>
 
           {/* Záložky: Transakcie, Funkcie, Karty, Info */}
-          <div className="flex items-center justify-between gap-1 pt-1 pb-1 text-[14px]">
+          <div className="grid grid-cols-4 gap-1 pt-1 pb-1 text-[12px]">
             <button
               type="button"
               onClick={() => setActiveTab("transakcie")}
-              className={`rounded-full px-4 py-2 font-semibold transition ${
+              className={`min-w-0 whitespace-nowrap rounded-full px-1 py-2 text-center font-semibold transition ${
                 activeTab === "transakcie"
-                  ? "bg-[#eef3ff] dark:bg-[#242b3b] text-[#196ee6] dark:text-[#4f95ff]"
-                  : "text-[#196ee6] dark:text-[#4f95ff] hover:opacity-80"
+                  ? "bg-primary/10 text-primary"
+                  : "text-muted-foreground hover:bg-muted"
               }`}
             >
               Transakcie
@@ -543,10 +551,10 @@ export default function UcetDetail() {
             <button
               type="button"
               onClick={() => setActiveTab("funkcie")}
-              className={`rounded-full px-4 py-2 font-medium transition ${
+              className={`min-w-0 whitespace-nowrap rounded-full px-1 py-2 text-center font-semibold transition ${
                 activeTab === "funkcie"
-                  ? "bg-[#eef3ff] dark:bg-[#242b3b] text-[#196ee6] dark:text-[#4f95ff]"
-                  : "text-[#196ee6] dark:text-[#4f95ff] hover:opacity-80"
+                  ? "bg-primary/10 text-primary"
+                  : "text-muted-foreground hover:bg-muted"
               }`}
             >
               Funkcie
@@ -554,10 +562,10 @@ export default function UcetDetail() {
             <button
               type="button"
               onClick={() => setActiveTab("karty")}
-              className={`rounded-full px-4 py-2 font-medium transition ${
+              className={`min-w-0 whitespace-nowrap rounded-full px-1 py-2 text-center font-semibold transition ${
                 activeTab === "karty"
-                  ? "bg-[#eef3ff] dark:bg-[#242b3b] text-[#196ee6] dark:text-[#4f95ff]"
-                  : "text-[#196ee6] dark:text-[#4f95ff] hover:opacity-80"
+                  ? "bg-primary/10 text-primary"
+                  : "text-muted-foreground hover:bg-muted"
               }`}
             >
               Karty
@@ -565,10 +573,10 @@ export default function UcetDetail() {
             <button
               type="button"
               onClick={() => setActiveTab("info")}
-              className={`rounded-full px-4 py-2 font-medium transition ${
+              className={`min-w-0 whitespace-nowrap rounded-full px-1 py-2 text-center font-semibold transition ${
                 activeTab === "info"
-                  ? "bg-[#eef3ff] dark:bg-[#242b3b] text-[#196ee6] dark:text-[#4f95ff]"
-                  : "text-[#196ee6] dark:text-[#4f95ff] hover:opacity-80"
+                  ? "bg-primary/10 text-primary"
+                  : "text-muted-foreground hover:bg-muted"
               }`}
             >
               Info
@@ -604,23 +612,27 @@ export default function UcetDetail() {
 
               {/* Platobné príkazy a rezervácie */}
               <div className="flex items-center gap-4 rounded-3xl bg-detail-surface px-5 py-5 transition-colors">
-                <div className="text-[#196ee6] dark:text-[#4f95ff] shrink-0">
-                  <FileEdit className="w-6 h-6 stroke-[1.8]" />
+                <div className="shrink-0 text-detail-action">
+                  <FileEdit className="size-6 stroke-[1.8]" />
                 </div>
                 <div>
-                  <h3 className="text-[16px] font-medium text-foreground">
-                    Platobné príkazy a rezervácie
-                  </h3>
-                  <p className="text-[13px] text-detail-muted mt-0.5">
-                    0 nevykonaných platieb & 0 rezervácií
+                  <h3 className="text-[16px] font-medium text-foreground">História transakcií</h3>
+                  <p className="mt-0.5 text-[13px] text-detail-muted" aria-live="polite">
+                    {s.loading ? "Načítavam…" : s.error ? "História nie je dostupná" : `Dostupné záznamy: ${s.transactions.length}`}
                   </p>
                 </div>
               </div>
 
               {/* Transakcie zoskupené po mesiacoch */}
               {groupedTransactions.length === 0 ? (
-                <div className="rounded-3xl bg-detail-surface p-8 text-center text-detail-muted">
-                  {searchQuery ? "Nenašli sa žiadne vyhovujúce transakcie." : "Zatiaľ žiadne zaznamenané transakcie."}
+                <div className="rounded-3xl bg-detail-surface p-8 text-center text-detail-muted" role="status">
+                  {s.loading
+                    ? "Načítavam transakcie…"
+                    : s.error
+                      ? "Transakcie nie sú dostupné."
+                      : searchQuery
+                        ? "Nenašli sa žiadne vyhovujúce transakcie."
+                        : "Zatiaľ žiadne zaznamenané transakcie."}
                 </div>
               ) : (
                 groupedTransactions.map((group) => (
@@ -652,11 +664,7 @@ export default function UcetDetail() {
                                   {formatDate(t.date)}
                                 </p>
                                 {t.vs ? (
-                                  <p className="text-[12px] text-detail-muted">
-                                    VS: {t.vs}
-                                  </p>
-                                ) : t.category === "Poplatky" ? (
-                                  <p className="text-[12px] text-detail-muted">KS: 0898</p>
+                                  <p className="text-[12px] text-detail-muted">VS: {t.vs}</p>
                                 ) : null}
                                 <div className="mt-1">
                                   <span className="inline-block rounded-md border border-detail-muted/60 px-1.5 py-0 text-[11px] font-medium text-detail-muted">
@@ -768,7 +776,7 @@ export default function UcetDetail() {
               </div>
               <div>
                 <p className="text-[12px] text-detail-muted">Názov účtu</p>
-                <p className="text-[15px] font-medium text-foreground">SPACE účet</p>
+                <p className="text-[15px] font-medium text-foreground">Demo účet</p>
               </div>
               <div className="flex items-center justify-between">
                 <div>
