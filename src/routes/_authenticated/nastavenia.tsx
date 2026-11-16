@@ -359,20 +359,26 @@ function Nastavenia() {
             {isEditing ? (
               <div className="space-y-3">
                 <div>
-                  <label className="text-xs text-muted-foreground font-medium">Meno majiteľa</label>
+                  <label htmlFor="profile-owner" className="text-xs text-muted-foreground font-medium">Meno majiteľa</label>
                   <input
+                    id="profile-owner"
                     type="text"
                     value={owner}
                     onChange={(e) => setOwner(e.target.value)}
+                    maxLength={100}
+                    autoComplete="name"
                     className="mt-1 w-full rounded-xl border border-border bg-transparent px-3 py-2 text-sm text-foreground outline-none focus:border-primary"
                   />
                 </div>
                 <div>
-                  <label className="text-xs text-muted-foreground font-medium">IBAN</label>
+                  <label htmlFor="profile-iban" className="text-xs text-muted-foreground font-medium">IBAN</label>
                   <input
+                    id="profile-iban"
                     type="text"
                     value={iban}
                     onChange={(e) => setIban(e.target.value)}
+                    maxLength={42}
+                    autoComplete="off"
                     className="mt-1 w-full rounded-xl border border-border bg-transparent px-3 py-2 text-sm text-foreground outline-none focus:border-[#196ee6]"
                   />
                 </div>
