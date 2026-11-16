@@ -33,7 +33,7 @@ jobs:
 
       - name: Run ESLint (excluding repository-wide Prettier formatting debt)
         id: lint
-        run: bun run lint -- --rule 'prettier/prettier: off'
+        run: "bun run lint -- --rule 'prettier/prettier: off'"
         continue-on-error: true
 
       - name: Build production app
