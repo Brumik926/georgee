@@ -331,7 +331,7 @@ export function GeorgePrehladModern() {
       style={{ fontFamily: "'Mulish', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}
     >
       <main className="px-4 max-w-md mx-auto pt-6">
-        <div className="flex justify-between items-center pb-4 mb-2">
+        <div className="flex justify-between items-center gap-3 pb-4 mb-2">
           <button
             type="button"
             onClick={() => setCurrentViewMode("dashboard")}
