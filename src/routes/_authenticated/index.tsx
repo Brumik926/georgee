@@ -749,23 +749,22 @@ export function GeorgePrehladModern() {
                 <div className="pr-3">
                   <h3 className="text-[16px] font-semibold text-foreground">Ponuky a odmeny</h3>
                   <span className="mt-1.5 inline-block rounded-full bg-primary/10 px-2.5 py-0.5 text-[11px] font-semibold text-primary">
-                    Ukážkové ponuky
+                    Nedostupné
                   </span>
                   <p className="mt-2 text-[13px] text-muted-foreground leading-normal">
-                    Aktivujte si modelové ponuky. Odmeny nemajú skutočnú peňažnú hodnotu.
+                    Databáza odmien nie je v tejto verzii pripojená. Nezobrazujeme vymyslené zľavy.
                   </p>
                 </div>
                 <div className="w-13 h-13 shrink-0 rounded-full flex items-center justify-center bg-[#fbeefc] dark:bg-[#3a2340] text-[#a94fb5]">
                   <ShoppingBag size={22} />
                 </div>
               </div>
-              <button
-                type="button"
-                onClick={() => toast.info("Ukážková sekcia odmien zatiaľ nie je dostupná.")}
+              <Link
+                to="/odmeny"
                 className="mt-4 inline-flex min-h-10 items-center rounded-full bg-primary/10 px-5 py-2 text-[13px] font-medium text-primary transition-colors hover:bg-primary/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
-                Zobraziť ukážkové ponuky
-              </button>
+                Zobraziť stav odmien
+              </Link>
             </div>
 
             {/* Sekcia: Posledné pohyby */}
