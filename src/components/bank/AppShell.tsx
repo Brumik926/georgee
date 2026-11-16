@@ -28,7 +28,7 @@ export function PersistentBottomNav() {
   const path = useRouterState({ select: (s) => s.location.pathname });
 
   // Skryť navigáciu počas zadávania platby a v obrazovkách s vlastnou navigáciou.
-  if (path.startsWith("/nova-platba") || path.startsWith("/transakcia/") || path === "/platby") {
+  if (path.startsWith("/nova-platba") || path.startsWith("/transakcia/") || path === "/platby" || path === "/prijat") {
     return null;
   }
 
