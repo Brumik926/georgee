@@ -155,7 +155,7 @@ function CentrumPlatieb() {
   const addTemplate = async () => {
     const normalizedAmount = form.amount.trim().replace(",", ".");
     const amount = Number(normalizedAmount);
-    if (!form.name.trim() || !form.iban.trim() || !/^\\d+(?:\\.\\d{1,2})?$/.test(normalizedAmount) || !Number.isFinite(amount) || amount <= 0) {
+    if (!form.name.trim() || !form.iban.trim() || !/^\d+(?:\.\d{1,2})?$/.test(normalizedAmount) || !Number.isFinite(amount) || amount <= 0) {
       toast.error("Zadajte príjemcu a platnú sumu s najviac dvoma desatinnými miestami.");
       return;
     }
@@ -170,7 +170,7 @@ function CentrumPlatieb() {
         id: crypto.randomUUID(),
         title: form.title || form.name,
         name: form.name.trim(),
-        iban: form.iban.replace(/\\s/g, "").toUpperCase(),
+        iban: form.iban.replace(/\s/g, "").toUpperCase(),
         amount: amount.toFixed(2),
         vs: form.vs || undefined,
       },
