@@ -8,8 +8,8 @@ import { toast } from "sonner";
 export const Route = createFileRoute("/_authenticated/prijat")({
   head: () => ({
     meta: [
-      { title: "Prijať peniaze | George" },
-      { name: "description", content: "Zaevidujte prijatý prevod alebo zdieľajte svoj IBAN pre platbu." },
+      { title: "Údaje na prijatie platby | George Demo" },
+      { name: "description", content: "Zdieľajte IBAN a vytvorte manuálny demo záznam. Aplikácia neoveruje skutočné prijatie platby." },
     ],
   }),
   component: Prijat,
@@ -73,7 +73,7 @@ export default function Prijat() {
         date: new Date().toISOString(),
         category,
       });
-      toast.success("Prijatý prevod bol zaevidovaný");
+      toast.success("Demo príjem bol zaevidovaný v histórii.");
       navigate({ to: "/platby" });
     } catch (err) {
       console.error(err);
@@ -86,8 +86,8 @@ export default function Prijat() {
   return (
     <AppShell>
       <BrandHeader
-        title="Prijať peniaze"
-        subtitle="Váš účet pre príchodzie platby"
+        title="Údaje na prijatie platby"
+        subtitle="IBAN z profilu a manuálne demo záznamy"
         back
       />
 
@@ -132,8 +132,11 @@ export default function Prijat() {
         <form onSubmit={submit} className="space-y-3 rounded-3xl bg-surface p-5 shadow-sm">
           <div className="flex items-center gap-2 pb-1 text-[15px] font-bold text-foreground">
             <ArrowDownLeft className="size-4.5 text-income" />
-            <span>Zaevidovať prijatý prevod</span>
+            <span>Zaevidovať demo príjem</span>
           </div>
+          <p className="rounded-xl bg-muted/50 p-3 text-xs leading-5 text-muted-foreground">
+            Formulár iba pridá záznam do demo histórie. Nepotvrdzuje, že peniaze skutočne dorazili na účet.
+          </p>
 
           <label className="block">
             <span className="text-[12px] text-muted-foreground">Odosielateľ</span>
