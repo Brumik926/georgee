@@ -110,7 +110,7 @@ function RozpocetPage() {
   const saveLimit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const parsed = Number(limitValue.replace(",", "."));
-    if (!Number.isFinite(parsed) || parsed <= 0 || parsed > 1000000 || Math.round(parsed * 100) !== parsed * 100) {
+    if (!Number.isFinite(parsed) || parsed <= 0 || parsed > 1000000 || Math.abs(parsed * 100 - Math.round(parsed * 100)) > 0.000001) {
       toast.error("Zadajte platný limit do 1 000 000 € s najviac dvoma desatinnými miestami.");
       return;
     }
