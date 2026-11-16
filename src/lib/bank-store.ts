@@ -284,18 +284,29 @@ async function announceTransaction(t: Txn, generation: number, userId: string) {
 }
 
 export async function addGoal(name: string, target: number) {
+  const normalizedName = name.trim();
+  if (
+    !normalizedName ||
+    normalizedName.length > 60 ||
+    !Number.isFinite(target) ||
+    target <= 0 ||
+    target > 1_000_000 ||
+    Math.abs(target * 100 - Math.round(target * 100)) > 0.000001
+  ) {
+    throw new Error("Zadajte názov cieľa do 60 znakov a sumu do 1 000 000 € s najviac dvoma desatinnými miestami.");
+  }
   const generation = storeGeneration;
   const userId = await currentUserId();
   if (!userId) throw new Error("Používateľ nie je prihlásený.");
   const { data, error } = await supabase
     .from("goals")
-    .insert({ user_id: userId, name, target, saved: 0 })
+    .insert({ user_id: userId, name: normalizedName, target, saved: 0 })
     .select("id")
     .maybeSingle();
   if (error) throw error;
   if (!data?.id) throw new Error("Sporiaci cieľ sa nepodarilo vytvoriť.");
   if (generation !== storeGeneration) return;
-  state.goals = [...state.goals, { id: data.id, name, target, saved: 0 }];
+  state.goals = [...state.goals, { id: data.id, name: normalizedName, target, saved: 0 }];
   emit();
 }
 
@@ -382,7 +393,7 @@ export async function setBudget(category: string, limit: number) {
   const generation = storeGeneration;
   const userId = await currentUserId();
   if (!userId) throw new Error("Používateľ nie je prihlásený.");
-  if (!category.trim() || !Number.isFinite(limit) || limit <= 0 || Math.abs(limit * 100 - Math.round(limit * 100)) > 0.000001) {
+  if (!category.trim() || category.trim().length > 60 || !Number.isFinite(limit) || limit <= 0 || limit > 1_000_000 || Math.abs(limit * 100 - Math.round(limit * 100)) > 0.000001) {
     throw new Error("Kategória a kladný limit s najviac dvoma desatinnými miestami sú povinné.");
   }
   const { error } = await supabase
