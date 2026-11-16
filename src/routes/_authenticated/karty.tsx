@@ -6,7 +6,7 @@ export const Route = createFileRoute("/_authenticated/karty")({
   head: () => ({
     meta: [
       { title: "Moje karty | George Demo" },
-      { name: "description", content: "Prehľad kariet dostupných v demo databáze." },
+      { name: "description", content: "Karty zatiaľ nie sú pripojené k databáze demo simulácie; nezobrazujú sa vymyslené kartové údaje." },
     ],
   }),
   component: CardsPage,
