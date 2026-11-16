@@ -398,12 +398,12 @@ function Detail() {
               <button
                 className="flex w-full items-center gap-4 rounded-2xl px-2 py-3 text-[16px]"
                 onClick={async () => {
-                  try { await exportReceipt(s, t); toast.success("Potvrdenie o platbe bolo stiahnuté"); }
+                  try { await exportReceipt(s, t); toast.success("Demo potvrdenie bolo stiahnuté"); }
                   catch (e) { console.error(e); toast.error("Potvrdenie sa nepodarilo vytvoriť"); }
                   setShareOpen(false);
                 }}
               >
-                <Download className="size-6 text-detail-action" /> Stiahnuť potvrdenie (PDF)
+                <Download className="size-6 text-detail-action" /> Stiahnuť demo potvrdenie (PDF)
               </button>
             </div>
           </div>
