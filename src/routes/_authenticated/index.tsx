@@ -681,37 +681,51 @@ export function GeorgePrehladModern() {
                 </Link>
               </div>
 
-              {/* Plastová karta s jemným odleskom */}
+              {/* Vlastný vizuál syntetickej platobnej karty */}
               <Link
                 to="/karty"
-                className="group relative block w-full rounded-3xl text-white shadow-md transition-all duration-300 hover:shadow-xl active:scale-[0.99] overflow-hidden border border-white/10"
+                aria-label="Otvoriť detail demo karty"
+                className="group relative block aspect-[1.586] w-full overflow-hidden rounded-3xl border border-white/15 bg-gradient-to-br from-slate-800 via-indigo-950 to-slate-950 p-5 text-left text-white shadow-lg transition duration-300 hover:shadow-xl active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
               >
-                <div className="relative aspect-[909/566] w-full overflow-hidden bg-gradient-to-br from-slate-700 via-slate-800 to-slate-950" role="img" aria-label="Demo karta"><span className="absolute right-5 top-5 rounded-full border border-white/30 bg-white/10 px-3 py-1 text-[10px] font-bold tracking-widest text-white">DEMO</span><span className="absolute -right-8 -top-12 size-56 rounded-full border border-white/10 bg-white/5" /><span className="absolute -bottom-24 left-1/3 size-64 rounded-full border border-white/10" /></div>
-                <div className="relative bg-card p-4 text-card-foreground">
-                <div className="pointer-events-none absolute -inset-full bg-gradient-to-tr from-transparent via-white/10 to-transparent rotate-45 transform transition-transform duration-1000 group-hover:translate-x-full" />
+                <span aria-hidden="true" className="pointer-events-none absolute -right-16 -top-24 size-72 rounded-full border border-white/10 bg-white/[0.03]" />
+                <span aria-hidden="true" className="pointer-events-none absolute -bottom-36 left-1/3 size-72 rounded-full border border-white/10" />
+                <span aria-hidden="true" className="pointer-events-none absolute inset-0 bg-gradient-to-tr from-transparent via-white/[0.07] to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
 
-                <div className="relative z-10 mt-2.5 mb-3">
-                  <div className="font-mono text-[16px] tracking-[0.2em] text-card-foreground drop-shadow-sm font-medium">
-                    •••• •••• •••• {cardLastFour}
+                <div className="relative z-10 flex h-full flex-col justify-between">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-white/65">Platobná karta</p>
+                      <p className="mt-1 text-[13px] font-semibold tracking-[0.12em] text-white">DEMO CARD</p>
+                    </div>
+                    <span className="rounded-full border border-white/30 bg-white/10 px-3 py-1 text-[9px] font-bold tracking-[0.2em] text-white">DEMO</span>
                   </div>
-                </div>
 
-                <div className="flex items-end justify-between relative z-10 pt-1">
+                  <div className="flex items-center gap-3">
+                    <span aria-hidden="true" className="grid h-8 w-10 grid-cols-2 gap-px overflow-hidden rounded-md border border-white/30 bg-white/25 p-1">
+                      <span className="rounded-sm bg-white/55" />
+                      <span className="rounded-sm bg-white/35" />
+                      <span className="rounded-sm bg-white/35" />
+                      <span className="rounded-sm bg-white/55" />
+                    </span>
+                    <span className="text-[10px] font-semibold tracking-[0.16em] text-white/75">VIRTUÁLNA SIMULÁCIA</span>
+                  </div>
+
                   <div>
-                    <p className="text-[9px] uppercase tracking-wider text-muted-foreground">Držiteľ karty</p>
-                    <p className="text-[12px] font-semibold tracking-wide text-card-foreground uppercase mt-0.5">
-                      {userName}
+                    <p className="font-mono text-[clamp(13px,3.8vw,17px)] font-semibold tracking-[0.16em] text-white drop-shadow-sm">
+                      •••• •••• •••• {cardLastFour}
                     </p>
+                    <div className="mt-3 flex items-end justify-between gap-3">
+                      <div className="min-w-0">
+                        <p className="text-[8px] uppercase tracking-[0.18em] text-white/55">Držiteľ karty</p>
+                        <p className="mt-1 truncate text-[11px] font-semibold uppercase tracking-[0.12em] text-white">{userName}</p>
+                      </div>
+                      <div className="shrink-0 text-right">
+                        <p className="text-[8px] uppercase tracking-[0.18em] text-white/55">Platnosť</p>
+                        <p className="mt-1 font-mono text-[11px] font-semibold text-white">10/31</p>
+                      </div>
+                    </div>
                   </div>
-
-                  <div className="text-right">
-                    <p className="text-[9px] uppercase tracking-wider text-muted-foreground">Platnosť</p>
-                    <p className="text-[11px] font-mono text-card-foreground mt-0.5">10/31</p>
-                  </div>
-
-
                 </div>
-              </div>
               </Link>
             </div>
 
