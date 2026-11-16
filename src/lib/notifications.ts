@@ -45,7 +45,8 @@ function emit() {
 }
 
 async function currentUserId(): Promise<string | null> {
-  const { data } = await supabase.auth.getUser();
+  const { data, error } = await supabase.auth.getUser();
+  if (error) throw error;
   return data.user?.id ?? null;
 }
 
