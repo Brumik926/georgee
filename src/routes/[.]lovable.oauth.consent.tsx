@@ -2,7 +2,15 @@ import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
-type OAuthResult = { data: any; error: { message: string } | null };
+type OAuthClient = { name?: string | null; redirect_uri?: string | null };
+type OAuthData = {
+  redirect_url?: string | null;
+  redirect_to?: string | null;
+  redirect_uri?: string | null;
+  scope?: string | null;
+  client?: OAuthClient | null;
+};
+type OAuthResult = { data: OAuthData | null; error: { message: string } | null };
 type OAuthApi = {
   getAuthorizationDetails: (id: string) => Promise<OAuthResult>;
   approveAuthorization: (id: string) => Promise<OAuthResult>;
@@ -59,7 +67,7 @@ function Consent() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const client = details?.client?.name ?? "Aplikácia";
-  const redirectUri: string | undefined = details?.redirect_uri ?? details?.client?.redirect_uri;
+  const redirectUri = details?.redirect_uri ?? details?.client?.redirect_uri ?? undefined;
   const scopes: string[] = String(details?.scope ?? "").split(" ").filter(Boolean);
   const label = (s: string) =>
     s === "openid" ? "Overenie totožnosti" : s === "email" ? "Vaša e-mailová adresa" : s === "profile" ? "Základný profil" : `Ďalšie oprávnenie: ${s}`;
