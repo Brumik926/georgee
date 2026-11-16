@@ -130,8 +130,8 @@ export default function NovaPlatba() {
       navigate({ to: "/platby" });
     } catch (err) {
       console.error(err);
-      toast.error("Odoslanie platby zlyhalo");
-      setError("Nastala neočakávaná chyba pri odosielaní platby.");
+      toast.error("Zaevidovanie demo platby zlyhalo.");
+      setPinError("Demo platbu sa nepodarilo zaevidovať. Skontrolujte pripojenie a skúste znova.");
     } finally {
       submissionRef.current = false;
       setBusy(false);
@@ -159,6 +159,7 @@ export default function NovaPlatba() {
   }
 
   async function confirmDemoPayment() {
+    setPinError("");
     if (bioSupported && isBiometricEnabled(user.id)) {
       await confirmWithBiometrics();
       return;
