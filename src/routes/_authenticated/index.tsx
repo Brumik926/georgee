@@ -219,7 +219,7 @@ function MerchantLogo({ counterparty, category }: { counterparty: string; catego
 }
 
 interface ListItemProps {
-  icon: any;
+  icon: LucideIcon;
   title: string;
   subtitle?: string;
   badge?: string;
@@ -288,7 +288,9 @@ export function GeorgePrehladModern() {
       const next = !prev;
       try {
         localStorage.setItem("george-hide-balance", next ? "1" : "0");
-      } catch {}
+      } catch {
+        // Úložisko môže byť v prehliadači vypnuté; zobrazenie zostatku zostane dostupné.
+      }
       return next;
     });
   }
