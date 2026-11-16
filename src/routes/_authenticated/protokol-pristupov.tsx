@@ -17,9 +17,9 @@ export const Route = createFileRoute("/_authenticated/protokol-pristupov")({
   },
   head: () => ({
     meta: [
-      { title: "Protokol prístupov · George" },
-      { name: "description", content: "Súkromný prehľad všetkých prihlásení do internetbankingu George." },
-      { property: "og:title", content: "Protokol prístupov · George" },
+      { title: "Protokol prístupov · George Demo" },
+      { name: "description", content: "Administrátorský prehľad prístupov do demo finančnej simulácie." },
+      { property: "og:title", content: "Protokol prístupov · George Demo" },
       { property: "og:description", content: "Súkromný prehľad všetkých prihlásení do internetbankingu George." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
