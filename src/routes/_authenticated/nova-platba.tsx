@@ -17,6 +17,7 @@ import { RecipientPicker } from "@/components/bank/RecipientPicker";
 import {
   addTransaction,
   balance,
+  hydrate,
   CATEGORIES,
   formatEur,
   useBank,
@@ -470,6 +471,14 @@ export default function NovaPlatba() {
               <span>{error}</span>
             </div>
           ) : null}
+          {s.error && (
+            <div className="rounded-2xl bg-destructive/5 p-3">
+              <p className="text-sm text-destructive">{s.error}</p>
+              <button type="button" onClick={() => void hydrate()} className="mt-2 text-xs font-semibold text-primary underline">
+                Skúsiť znova načítať údaje
+              </button>
+            </div>
+          )}
 
           <button
             type="submit"
