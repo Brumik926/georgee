@@ -72,7 +72,9 @@ export default function NovaPlatba() {
     void isBiometricSupported().then(setBioSupported);
   }, [user.id]);
 
-  const value = Number(amount.replace(",", "."));
+  const normalizedAmount = amount.trim().replace(",", ".");
+  const value = Number(normalizedAmount);
+  const amountValid = /^\\d+(?:\\.\\d{1,2})?$/.test(normalizedAmount) && Number.isFinite(value) && value > 0;
 
   function handleInitiatePayment(e: React.FormEvent) {
     e.preventDefault();
@@ -80,7 +82,7 @@ export default function NovaPlatba() {
     setPinError("");
 
     if (!name.trim()) return setError("Zadajte meno príjemcu.");
-    if (!Number.isFinite(value) || value <= 0) return setError("Zadajte platnú sumu.");
+    if (!amountValid) return setError("Zadajte kladnú sumu s najviac dvoma desatinnými miestami.");
     if (value > balance(s)) return setError("Nedostatočný zostatok na účte.");
 
     const ibanCheck = validateIban(iban);
@@ -93,6 +95,17 @@ export default function NovaPlatba() {
   }
 
   async function executePayment() {
+    if (busy) return;
+    if (!amountValid) {
+      setStep("form");
+      setError("Zadajte kladnú sumu s najviac dvoma desatinnými miestami.");
+      return;
+    }
+    if (Math.round(value * 100) / 100 > balance(s)) {
+      setStep("form");
+      setError("Zostatok sa zmenil. Na účte už nie je dostatok prostriedkov.");
+      return;
+    }
     setBusy(true);
     try {
       await addTransaction({
