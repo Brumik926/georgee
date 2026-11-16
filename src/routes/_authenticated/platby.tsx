@@ -50,6 +50,11 @@ function splitAmount(val: number) {
   };
 }
 
+// Vyhľadávanie ignoruje veľkosť písmen aj slovenskú diakritiku.
+function normalizeSearchValue(value: string): string {
+  return value.normalize("NFD").replace(/[\\u0300-\\u036f]/g, "").toLocaleLowerCase("sk-SK").trim();
+}
+
 // Spoľahlivé vygenerovanie iniciál pre akýkoľvek názov/meno
 function getInitials(name?: string | null): string {
   if (!name) return "??";
@@ -460,14 +465,14 @@ export default function UcetDetail() {
     }
 
     if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase().trim();
-      sorted = sorted.filter((t) => 
-        (t.counterparty || "").toLowerCase().includes(q) ||
-        (t.category || "").toLowerCase().includes(q) ||
-        (t.note || "").toLowerCase().includes(q) ||
-        (t.vs || "").toLowerCase().includes(q) ||
-        String(t.amount).includes(q)
-      );
+      const q = normalizeSearchValue(searchQuery);
+      sorted = sorted.filter((t) => {
+        const textMatches = [t.counterparty, t.category, t.note ?? "", t.vs ?? ""]
+          .some((value) => normalizeSearchValue(value).includes(q));
+        const amountMatches = [String(t.amount), t.amount.toFixed(2), t.amount.toFixed(2).replace(".", ",")]
+          .some((value) => value.includes(q));
+        return textMatches || amountMatches;
+      });
     }
 
     sorted.forEach((txn) => {
@@ -612,6 +617,7 @@ export default function UcetDetail() {
                   <input
                     type="text"
                     autoFocus
+                    aria-label="Hľadať transakcie"
                     placeholder="Hľadať obchodníka, sumu, kategóriu..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
@@ -620,6 +626,7 @@ export default function UcetDetail() {
                   {searchQuery && (
                     <button
                       type="button"
+                      aria-label="Vymazať vyhľadávanie"
                       onClick={() => setSearchQuery("")}
                       className="absolute right-3.5 top-1/2 -translate-y-1/2 text-detail-muted hover:text-foreground"
                     >
