@@ -148,7 +148,7 @@ export async function exportStatement(s: BankState, txns: Txn[]) {
   doc.setFont("DejaVu", "bold");
   doc.setFontSize(14);
   doc.setTextColor(0, 0, 0);
-  doc.text("Výpis z účtu", 15, 48);
+  doc.text("Demo prehľad transakcií", 15, 48);
 
   doc.setFontSize(9);
   doc.setFont("DejaVu", "normal");
