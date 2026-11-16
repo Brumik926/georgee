@@ -93,6 +93,21 @@ describe("Obrazovka Prijať peniaze", () => {
     expect(addTransactionMock).not.toHaveBeenCalled();
   });
 
+  it("odmietne vedecký zápis sumy", async () => {
+    const user = userEvent.setup();
+    render(<Prijat />);
+
+    await user.type(
+      screen.getByPlaceholderText("Meno odosielateľa alebo spoločnosti"),
+      "Testovací odosielateľ",
+    );
+    await user.type(screen.getByPlaceholderText("0,00"), "1e3");
+    await user.click(screen.getByRole("button", { name: /Pridať príjem na účet/i }));
+
+    expect(await screen.findByText("Zadajte platnú sumu.")).toBeInTheDocument();
+    expect(addTransactionMock).not.toHaveBeenCalled();
+  });
+
   it("odmietne sumu s viac ako dvoma desatinnými miestami", async () => {
     const user = userEvent.setup();
     render(<Prijat />);
