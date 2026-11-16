@@ -198,6 +198,7 @@ function CardsPage() {
                 <Button
                   variant={st.blocked ? "default" : "secondary"}
                   className="h-12 rounded-2xl"
+                  disabled={!settingsReady}
                   onClick={() => {
                     if (save(c.id, { ...st, blocked: !st.blocked })) {
                       toast.success(st.blocked ? "Karta odblokovaná" : "Karta dočasne zablokovaná");
