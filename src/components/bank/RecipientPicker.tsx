@@ -1,14 +1,31 @@
 import { useEffect, useMemo, useState } from "react";
 import { Star, Clock } from "lucide-react";
-import type { Txn } from "@/lib/bank-store";
+import { sortTransactionsNewestFirst, type Txn } from "@/lib/bank-store";
+import { toast } from "sonner";
 
 export type Recipient = { name: string; iban: string; category?: string };
 
 const key = (uid: string) => `george-fav-recipients:${uid}`;
 
+function normalizeIban(iban: string): string {
+  return iban.replace(/\s/g, "").toUpperCase();
+}
+
 function loadFavs(uid: string): Recipient[] {
   try {
-    return JSON.parse(localStorage.getItem(key(uid)) ?? "[]") as Recipient[];
+    const parsed: unknown = JSON.parse(localStorage.getItem(key(uid)) ?? "[]");
+    if (!Array.isArray(parsed)) return [];
+    const seen = new Set<string>();
+    return parsed.flatMap((item): Recipient[] => {
+      if (!item || typeof item !== "object") return [];
+      const value = item as Record<string, unknown>;
+      if (typeof value.name !== "string" || typeof value.iban !== "string") return [];
+      const name = value.name.trim();
+      const iban = normalizeIban(value.iban);
+      if (!name || iban.length < 15 || seen.has(iban)) return [];
+      seen.add(iban);
+      return [{ name, iban, ...(typeof value.category === "string" ? { category: value.category } : {}) }];
+    });
   } catch {
     return [];
   }
@@ -33,24 +50,30 @@ export function RecipientPicker({
   const recent = useMemo(() => {
     const seen = new Set<string>();
     const out: Recipient[] = [];
-    for (const t of [...transactions].sort((a, b) => b.date.localeCompare(a.date))) {
+    for (const t of sortTransactionsNewestFirst(transactions)) {
       if (t.type !== "out" || !t.iban) continue;
-      const k = t.iban.replace(/\s/g, "");
+      const k = normalizeIban(t.iban);
       if (seen.has(k)) continue;
       seen.add(k);
-      out.push({ name: t.counterparty, iban: t.iban, category: t.category });
+      out.push({ name: t.counterparty, iban: k, category: t.category });
       if (out.length >= 8) break;
     }
     return out;
   }, [transactions]);
 
-  const norm = (i: string) => i.replace(/\s/g, "").toUpperCase();
-  const isFav = (i: string) => favs.some((f) => norm(f.iban) === norm(i));
+  const isFav = (i: string) => favs.some((f) => normalizeIban(f.iban) === normalizeIban(i));
 
   function toggle(r: Recipient) {
-    const next = isFav(r.iban) ? favs.filter((f) => norm(f.iban) !== norm(r.iban)) : [...favs, r];
-    setFavs(next);
-    localStorage.setItem(key(userId), JSON.stringify(next));
+    const normalized = normalizeIban(r.iban);
+    const next = isFav(normalized)
+      ? favs.filter((f) => normalizeIban(f.iban) !== normalized)
+      : [...favs, { ...r, iban: normalized }];
+    try {
+      localStorage.setItem(key(userId), JSON.stringify(next));
+      setFavs(next);
+    } catch {
+      toast.error("Zmenu obľúbených príjemcov sa nepodarilo uložiť v tomto zariadení.");
+    }
   }
 
   const list = tab === "recent" ? recent : favs;
