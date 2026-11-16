@@ -1,7 +1,7 @@
 {
-  "name": "George",
-  "short_name": "George",
-  "description": "Prevody, história platieb, sporenie a rozpočet.",
+  "name": "George Demo · Banková simulácia",
+  "short_name": "George Demo",
+  "description": "Demo finančná simulácia. Nevykonáva bankové operácie.",
   "lang": "sk",
   "start_url": "/",
   "scope": "/",
