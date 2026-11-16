@@ -120,7 +120,12 @@ export default function Prijat() {
           <p className="mt-3 font-mono text-[17px] font-bold tracking-wide text-foreground">
             {s.iban || (s.loading ? "Načítavam IBAN..." : s.error ? "IBAN nie je dostupný" : "IBAN nie je nastavený")}
           </p>
-          <p className="mt-1 text-[13px] text-muted-foreground">{s.owner || "Klient George"}</p>
+          <p className="mt-1 text-[13px] text-muted-foreground">{s.owner || "Majiteľ účtu"}</p>
+          {s.error && (
+            <button type="button" onClick={() => void hydrate()} className="mt-2 text-xs font-semibold text-primary underline">
+              Skúsiť znova načítať údaje
+            </button>
+          )}
         </section>
 
         {/* Formulár pre zaevidovanie platby */}
