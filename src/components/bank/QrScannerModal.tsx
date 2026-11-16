@@ -53,8 +53,9 @@ export function QrScannerModal({ open, onClose, onScanSuccess }: Props) {
       }
       try {
         const barcodes = await detector.detect(video);
-        if (barcodes.length > 0) {
-          const parsed = parsePaymentQr(barcodes[0].rawValue);
+        const barcode = barcodes[0];
+        if (barcode) {
+          const parsed = parsePaymentQr(barcode.rawValue);
           if (parsed && (parsed.iban || parsed.amount)) {
             stopCamera();
             navigator.vibrate?.(50);
@@ -135,8 +136,9 @@ export function QrScannerModal({ open, onClose, onScanSuccess }: Props) {
       img.src = objectUrl;
       await img.decode();
       const barcodes = await detector.detect(img);
-      if (barcodes.length > 0) {
-        const parsed = parsePaymentQr(barcodes[0].rawValue);
+      const barcode = barcodes[0];
+      if (barcode) {
+        const parsed = parsePaymentQr(barcode.rawValue);
         if (parsed && (parsed.iban || parsed.amount)) {
           toast.success("Údaje z QR kódu boli načítané");
           onScanSuccess(parsed);
