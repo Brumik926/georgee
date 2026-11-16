@@ -135,7 +135,7 @@ function InvestovaniePage() {
 
       <p className="mt-5 flex gap-2 rounded-2xl bg-muted/50 p-4 text-xs leading-5 text-muted-foreground">
         <Info className="mt-0.5 size-4 shrink-0" />
-        <span>Všetky portfóliá, výnosy aj zostatky sú vymyslené. Funkcia nevykonáva nákup cenných papierov, neprijíma vklady a neposkytuje investičné odporúčania.</span>
+        <span>Modelové profily sú iba vzdelávacie príklady. Zadaná suma sa uchováva len počas aktuálnej relácie a neukladá sa do databázy. Funkcia nevykonáva nákup cenných papierov, neprijíma vklady a neposkytuje investičné odporúčania.</span>
       </p>
     </main>
   );
