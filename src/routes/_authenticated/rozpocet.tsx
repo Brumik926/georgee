@@ -50,7 +50,14 @@ function RozpocetPage() {
   const [limitValue, setLimitValue] = useState("");
   const [saving, setSaving] = useState(false);
 
-  const [year, month] = selectedMonth.split("-").map(Number);
+  const [yearPart = "", monthPart = ""] = selectedMonth.split("-");
+  const now = new Date();
+  const parsedYear = Number(yearPart);
+  const parsedMonth = Number(monthPart);
+  const year = Number.isFinite(parsedYear) && parsedYear > 0 ? parsedYear : now.getFullYear();
+  const month = Number.isFinite(parsedMonth) && parsedMonth >= 1 && parsedMonth <= 12
+    ? parsedMonth
+    : now.getMonth() + 1;
   const monthLabel = new Intl.DateTimeFormat("sk-SK", {
     month: "long",
     year: "numeric",
