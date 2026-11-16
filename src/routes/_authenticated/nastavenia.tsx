@@ -320,7 +320,6 @@ function Nastavenia() {
 
               <button
                 type="button"
-                type="button"
                 role="switch"
                 aria-checked={bioUnlockOn}
                 aria-label="Odomknutie biometriou"
