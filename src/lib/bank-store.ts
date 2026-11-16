@@ -205,7 +205,11 @@ export async function addTransaction(t: Omit<Txn, "id">) {
   state.transactions = sortTransactionsNewestFirst([newTxn, ...state.transactions]);
   emit();
 
-  void announceTransaction(newTxn);
+  // Uloženie transakcie je hlavná operácia; zlyhanie vedľajšieho upozornenia
+  // nesmie vytvoriť neobslúžené odmietnutie ani zneplatniť uložený záznam.
+  void announceTransaction(newTxn).catch((error: unknown) => {
+    console.error("Oznámenie o uloženej transakcii sa nepodarilo spracovať:", error);
+  });
   return newTxn;
 }
 
