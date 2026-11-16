@@ -64,6 +64,7 @@ export default function NovaPlatba() {
   const [bioSupported, setBioSupported] = useState(false);
   const [pinError, setPinError] = useState("");
   const [scannerOpen, setScannerOpen] = useState(false);
+  const submissionRef = useRef(false);
 
   // Kroky formulára a potvrdenia simulovanej platby
   const [step, setStep] = useState<"form" | "sepa_summary" | "confirm_card">("form");
@@ -94,14 +95,19 @@ export default function NovaPlatba() {
     setStep("sepa_summary");
   }
 
-  async function executePayment() {
-    if (busy) return;
+  async function executePayment(alreadyProcessing = false) {
+    if (submissionRef.current && !alreadyProcessing) return;
+    if (!alreadyProcessing) submissionRef.current = true;
     if (!amountValid) {
+      submissionRef.current = false;
+      setBusy(false);
       setStep("form");
       setError("Zadajte kladnú sumu s najviac dvoma desatinnými miestami.");
       return;
     }
     if (Math.round(value * 100) / 100 > balance(s)) {
+      submissionRef.current = false;
+      setBusy(false);
       setStep("form");
       setError("Zostatok sa zmenil. Na účte už nie je dostatok prostriedkov.");
       return;
@@ -127,11 +133,14 @@ export default function NovaPlatba() {
       toast.error("Odoslanie platby zlyhalo");
       setError("Nastala neočakávaná chyba pri odosielaní platby.");
     } finally {
+      submissionRef.current = false;
       setBusy(false);
     }
   }
 
   async function confirmWithBiometrics() {
+    if (submissionRef.current) return;
+    submissionRef.current = true;
     setBusy(true);
     setPinError("");
 
@@ -140,9 +149,10 @@ export default function NovaPlatba() {
         const verified = await verifyBiometric(user.id);
         if (!verified) throw new Error("Overenie nebolo úspešné.");
       }
-      await executePayment();
+      await executePayment(true);
     } catch (err) {
       console.error(err);
+      submissionRef.current = false;
       setPinError("Overenie zámkom telefónu zlyhalo alebo bolo zrušené. Skúste znova.");
       setBusy(false);
     }
