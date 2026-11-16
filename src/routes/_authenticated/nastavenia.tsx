@@ -320,6 +320,10 @@ function Nastavenia() {
 
               <button
                 type="button"
+                type="button"
+                role="switch"
+                aria-checked={bioUnlockOn}
+                aria-label="Odomknutie biometriou"
                 onClick={toggleBioUnlock}
                 disabled={bioBusy || !userId || !bioSupported}
                 className={`w-12 h-7 rounded-full p-1 transition-colors ${
