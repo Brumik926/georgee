@@ -3,6 +3,10 @@ import { useMemo, useState } from "react";
 import { ArrowLeft, MapPin, Search, Building2, Banknote, MapPinned, ExternalLink } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/lokality")({
+  head: () => ({ meta: [
+    { title: "Vyhľadávanie miest · George Demo" },
+    { name: "description", content: "Externé vyhľadávanie pobočiek a bankomatov cez mapovú službu; George Demo nie je ich prevádzkovateľ." },
+  ] }),
   component: LokalityPage,
 });
 
