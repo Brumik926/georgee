@@ -255,6 +255,22 @@ export async function addGoal(name: string, target: number) {
   emit();
 }
 
+export async function removeGoal(id: string) {
+  const userId = await currentUserId();
+  if (!userId) throw new Error("Používateľ nie je prihlásený.");
+  const { data, error } = await supabase
+    .from("goals")
+    .delete()
+    .eq("id", id)
+    .eq("user_id", userId)
+    .select("id")
+    .maybeSingle();
+  if (error) throw error;
+  if (!data) throw new Error("Sporiaci cieľ sa nenašiel alebo ho nie je možné odstrániť.");
+  state.goals = state.goals.filter((goal) => goal.id !== id);
+  emit();
+}
+
 export async function depositToGoal(id: string, amount: number) {
   const userId = await currentUserId();
   if (!userId) throw new Error("Používateľ nie je prihlásený.");
