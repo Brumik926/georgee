@@ -1,9 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { Target, Plus, PiggyBank, ArrowUpRight } from "lucide-react";
+import { Target, Plus, PiggyBank, ArrowUpRight, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { AppShell, BrandHeader } from "@/components/bank/AppShell";
-import { addGoal, balance, depositToGoal, formatEur, useBank } from "@/lib/bank-store";
+import { addGoal, balance, depositToGoal, formatEur, removeGoal, useBank } from "@/lib/bank-store";
 
 export const Route = createFileRoute("/_authenticated/sporenie")({
   head: () => ({
@@ -28,6 +28,7 @@ function Sporenie() {
   const [deposit, setDeposit] = useState<Record<string, string>>({});
   const [savingGoal, setSavingGoal] = useState(false);
   const [depositingGoal, setDepositingGoal] = useState<string | null>(null);
+  const [removingGoal, setRemovingGoal] = useState<string | null>(null);
   const availableBalance = balance(s);
   const saved = useMemo(() => s.goals.reduce((sum, goal) => sum + goal.saved, 0), [s.goals]);
   const targetTotal = useMemo(() => s.goals.reduce((sum, goal) => sum + goal.target, 0), [s.goals]);
@@ -123,7 +124,31 @@ function Sporenie() {
                   <h3 className="truncate text-base font-bold">{goal.name}</h3>
                   <p className="mt-1 text-xs text-muted-foreground">{formatEur(goal.saved)} z {formatEur(goal.target)}</p>
                 </div>
-                <span className="rounded-full bg-income/10 px-2.5 py-1 text-xs font-bold text-income">{Math.round(pct)} %</span>
+                <div className="flex shrink-0 items-center gap-2">
+                  <span className="rounded-full bg-income/10 px-2.5 py-1 text-xs font-bold text-income">{Math.round(pct)} %</span>
+                  <button
+                    type="button"
+                    aria-label={`Odstrániť cieľ ${goal.name}`}
+                    title="Odstrániť cieľ"
+                    disabled={removingGoal === goal.id || depositingGoal === goal.id}
+                    onClick={async () => {
+                      if (!window.confirm(`Naozaj odstrániť cieľ „${goal.name}“? Už zaznamenané pohyby v histórii zostanú zachované.`)) return;
+                      setRemovingGoal(goal.id);
+                      try {
+                        await removeGoal(goal.id);
+                        toast.success("Sporiaci cieľ bol odstránený.");
+                      } catch (error) {
+                        console.error("Odstránenie sporiaceho cieľa zlyhalo:", error);
+                        toast.error(error instanceof Error ? error.message : "Cieľ sa nepodarilo odstrániť.");
+                      } finally {
+                        setRemovingGoal(null);
+                      }
+                    }}
+                    className="grid size-9 place-items-center rounded-full text-destructive transition hover:bg-destructive/10 disabled:opacity-50"
+                  >
+                    <Trash2 className="size-4" />
+                  </button>
+                </div>
               </div>
               <div className="mt-3 h-2 overflow-hidden rounded-full bg-surface-2">
                 <div className="h-full rounded-full bg-income transition-[width] duration-500" style={{ width: `${pct}%` }} />
