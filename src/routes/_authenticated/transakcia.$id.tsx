@@ -302,8 +302,12 @@ function Detail() {
                       const link = document.createElement("a");
                       link.href = url;
                       link.download = extra.attachment || "priloha";
+                      link.style.display = "none";
+                      document.body.appendChild(link);
                       link.click();
-                      URL.revokeObjectURL(url);
+                      link.remove();
+                      // Niektoré mobilné prehliadače začnú sťahovanie až po návrate z event handlera.
+                      window.setTimeout(() => URL.revokeObjectURL(url), 1000);
                     } catch (error) {
                       console.error(error);
                       toast.error(error instanceof Error ? error.message : "Prílohu sa nepodarilo stiahnuť.");
