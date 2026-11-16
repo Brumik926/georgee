@@ -37,7 +37,12 @@ export function PersistentBottomNav() {
     {
       to: "/centrum-platieb",
       label: "Platby",
-      active: path === "/centrum-platieb" || path.startsWith("/centrum-platieb/") || path === "/prijat",
+      active:
+        path === "/centrum-platieb" ||
+        path.startsWith("/centrum-platieb/") ||
+        path === "/prijat" ||
+        path === "/vypisy" ||
+        path.startsWith("/vypisy/"),
       icon: ArrowLeftRight,
     },
     { to: "/karty", label: "Karty", active: path === "/karty" || path.startsWith("/karty/"), icon: CreditCard },
