@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { formatDate, groupByMonth, type Txn } from "@/lib/bank-store";
+import { formatDate, groupByMonth, sortTransactionsNewestFirst, type Txn } from "@/lib/bank-store";
 
 describe("História transakcií a radenie", () => {
   it("zoradí transakcie od najnovšej po najstaršiu", () => {
@@ -46,4 +46,15 @@ describe("História transakcií a radenie", () => {
 
     expect(all[0]!.counterparty).toBe("Dnešná platba");
   });
+  it("neplatné dátumy zobrazí bezpečne a odsunie ich na koniec histórie", () => {
+    const items: Txn[] = [
+      { id: "bad", type: "out", counterparty: "Neplatný dátum", amount: 1, date: "nie-je-dátum", category: "Ostatné" },
+      { id: "new", type: "in", counterparty: "Novšia platba", amount: 2, date: "2026-10-07T12:00:00Z", category: "Príjem" },
+    ];
+
+    expect(formatDate("nie-je-dátum")).toBe("Neznámy dátum");
+    expect(sortTransactionsNewestFirst(items).map((item) => item.id)).toEqual(["new", "bad"]);
+    expect(groupByMonth(items).map(([month]) => month)).toEqual(["Október 2026", "Neznámy dátum"]);
+  });
+
 });
