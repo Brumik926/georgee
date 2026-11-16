@@ -73,7 +73,7 @@ function VypisyPage() {
           <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
             Modelový zostatok
           </p>
-          <p className="mt-2 text-3xl font-bold tabular-nums">{formatEur(balance(s))}</p>
+          <p className="mt-2 text-3xl font-bold tabular-nums">{s.loading || s.error ? "—" : formatEur(balance(s))}</p>
           <p className="mt-1 text-xs text-muted-foreground">
             Súčet evidovaných demo príjmov a výdavkov
           </p>
@@ -85,14 +85,14 @@ function VypisyPage() {
               <TrendingUp className="size-4 text-income" />
               Príjmy spolu
             </div>
-            <p className="mt-2 text-lg font-bold tabular-nums text-income">{formatEur(totals.income)}</p>
+            <p className="mt-2 text-lg font-bold tabular-nums text-income">{s.loading || s.error ? "—" : formatEur(totals.income)}</p>
           </section>
           <section className="rounded-2xl border border-border bg-surface p-4">
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
               <TrendingDown className="size-4 text-expense" />
               Výdavky spolu
             </div>
-            <p className="mt-2 text-lg font-bold tabular-nums">{formatEur(totals.expense)}</p>
+            <p className="mt-2 text-lg font-bold tabular-nums">{s.loading || s.error ? "—" : formatEur(totals.expense)}</p>
           </section>
         </div>
 
@@ -100,7 +100,7 @@ function VypisyPage() {
           <div className="mb-3 flex items-center justify-between gap-3">
             <div>
               <h2 className="font-bold">História transakcií</h2>
-              <p className="mt-1 text-xs text-muted-foreground">{transactions.length} záznamov</p>
+              <p className="mt-1 text-xs text-muted-foreground">{s.loading || s.error ? "—" : transactions.length} záznamov</p>
             </div>
             <FileText className="size-5 text-primary" />
           </div>
