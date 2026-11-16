@@ -10,15 +10,15 @@ export const Route = createFileRoute("/auth")({
     typeof s["next"] === "string" ? { next: s["next"] } : {},
   head: () => ({
     meta: [
-      { title: "Prihlásenie · Internetbanking George" },
+      { title: "Prihlásenie · George Demo" },
       {
         name: "description",
-        content: "Prihláste sa do internetbankingu George a majte svoje platby, sporenie a rozpočet vždy po ruke.",
+        content: "Prihláste sa do demo finančnej simulácie George. Aplikácia nevykonáva skutočné bankové prevody.",
       },
-      { property: "og:title", content: "Prihlásenie · Internetbanking George" },
+      { property: "og:title", content: "Prihlásenie · George Demo" },
       {
         property: "og:description",
-        content: "Prihláste sa do internetbankingu George a majte svoje platby, sporenie a rozpočet vždy po ruke.",
+        content: "Prihláste sa do demo finančnej simulácie George. Aplikácia nevykonáva skutočné bankové prevody.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -151,7 +151,7 @@ function AuthPage() {
   return (
     <div className="mx-auto min-h-screen w-full max-w-[430px] bg-background">
       <header className="brand-header px-5 pb-14 pt-10 text-brand-foreground">
-        <p className="text-[13px] font-semibold tracking-wide opacity-90">George · Slovenská sporiteľňa</p>
+        <p className="text-[13px] font-semibold tracking-wide opacity-90">George Demo · Banková simulácia</p>
         <h1 className="mt-3 text-[34px] font-bold leading-none">
           {isRecovery
             ? "Nové heslo"
@@ -340,10 +340,7 @@ function AuthPage() {
         </div>
 
         <p className="mt-6 text-center text-xs text-muted-foreground">
-          Potrebujete pomôcť s prihlásením?{" "}
-          <a href="tel:0850111888" className="text-primary hover:underline">
-            Klientske centrum 0850 111 888
-          </a>
+          Demo aplikácia nie je prepojená s bankovým klientskym centrom a neposkytuje bankové služby.
         </p>
       </div>
     </div>
