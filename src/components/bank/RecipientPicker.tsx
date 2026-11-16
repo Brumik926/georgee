@@ -19,12 +19,12 @@ function loadFavs(uid: string): Recipient[] {
     return parsed.flatMap((item): Recipient[] => {
       if (!item || typeof item !== "object") return [];
       const value = item as Record<string, unknown>;
-      if (typeof value.name !== "string" || typeof value.iban !== "string") return [];
-      const name = value.name.trim();
-      const iban = normalizeIban(value.iban);
+      if (typeof value["name"] !== "string" || typeof value["iban"] !== "string") return [];
+      const name = value["name"].trim();
+      const iban = normalizeIban(value["iban"]);
       if (!name || iban.length < 15 || seen.has(iban)) return [];
       seen.add(iban);
-      return [{ name, iban, ...(typeof value.category === "string" ? { category: value.category } : {}) }];
+      return [{ name, iban, ...(typeof value["category"] === "string" ? { category: value["category"] } : {}) }];
     });
   } catch {
     return [];
