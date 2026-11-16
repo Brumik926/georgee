@@ -756,12 +756,12 @@ export default function UcetDetail() {
             <div className="space-y-5">
               <div className="overflow-hidden rounded-3xl bg-detail-surface divide-y divide-detail-action-surface">
                 {[
-                  { title: "Trvalé príkazy", icon: RefreshCw, to: "/centrum-platieb" },
+                  { title: "Šablóny platieb", icon: RefreshCw, to: "/centrum-platieb" },
                   { title: "Výber z bankomatu mobilom", icon: Landmark },
                   { title: "Výpisy z účtu", icon: FileText, to: "/vypisy" },
-                  { title: "Limit pre okamžité platby (SEPA)", desc: "Bez limitu", icon: Zap },
+                  { title: "Limit pre okamžité platby (SEPA)", desc: "Nedostupné v demo simulácii", icon: Zap },
                   { title: "Súhlasy s inkasom", icon: ClipboardCheck },
-                  { title: "Vytvoriť payme link / QR kód", icon: QrCode, to: "/prijat" },
+                  { title: "Údaje na prijatie platby", icon: QrCode, to: "/prijat" },
                   { title: "Dobiť kredit", icon: Smartphone },
                 ].map((f) => (
                   <button
