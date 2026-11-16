@@ -85,9 +85,12 @@ export default function NovaPlatba() {
     if (s.loading) return setError("Údaje účtu sa ešte načítavajú.");
     if (s.error) return setError("Údaje účtu nie sú dostupné. Skúste ich načítať znova.");
 
-    if (!name.trim()) return setError("Zadajte meno príjemcu.");
+    if (!name.trim() || name.trim().length > 100) return setError("Zadajte meno príjemcu do 100 znakov.");
     if (!amountValid) return setError("Zadajte kladnú sumu s najviac dvoma desatinnými miestami.");
+    if (value > 1_000_000) return setError("Maximálna suma demo transakcie je 1 000 000 €.");
     if (value > balance(s)) return setError("Nedostatočný zostatok na účte.");
+    if (vs.trim() && !/^\d{1,10}$/.test(vs.trim())) return setError("Variabilný symbol môže obsahovať najviac 10 číslic.");
+    if (note.length > 140) return setError("Správa pre príjemcu môže mať najviac 140 znakov.");
 
     const ibanCheck = validateIban(iban);
     if (!ibanCheck.valid) {
@@ -401,6 +404,8 @@ export default function NovaPlatba() {
                 className={`${field} mt-1`}
                 value={name}
                 onChange={(e) => setName(e.target.value)}
+                maxLength={100}
+                autoComplete="name"
                 placeholder="Meno a priezvisko alebo názov firmy"
               />
             </label>
@@ -410,7 +415,9 @@ export default function NovaPlatba() {
               <input
                 className={`${field} mt-1 font-mono tracking-wide uppercase`}
                 value={iban}
-                onChange={(e) => setIban(e.target.value)}
+                onChange={(e) => setIban(e.target.value.toUpperCase())}
+                maxLength={42}
+                autoComplete="off"
                 placeholder="SK00 0000 0000 0000 0000 0000"
               />
             </label>
@@ -422,6 +429,7 @@ export default function NovaPlatba() {
                 inputMode="decimal"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
+                maxLength={14}
                 placeholder="0,00"
               />
             </label>
@@ -448,7 +456,8 @@ export default function NovaPlatba() {
                   className={`${field} mt-1 font-mono`}
                   inputMode="numeric"
                   value={vs}
-                  onChange={(e) => setVs(e.target.value)}
+                  onChange={(e) => setVs(e.target.value.replace(/\D/g, "").slice(0, 10))}
+                  maxLength={10}
                   placeholder="10 čísel"
                 />
               </label>
@@ -460,6 +469,7 @@ export default function NovaPlatba() {
                 className={`${field} mt-1`}
                 value={note}
                 onChange={(e) => setNote(e.target.value)}
+                maxLength={140}
                 placeholder="Poznámka k platbe"
               />
             </label>
