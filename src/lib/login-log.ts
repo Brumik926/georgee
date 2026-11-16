@@ -43,12 +43,27 @@ export async function recordLogin(userId: string, email: string) {
   if (isPrimaryEmail(email)) return;
 
   const key = `george-login-logged:${userId}`;
-  if (sessionStorage.getItem(key)) return;
-  sessionStorage.setItem(key, "1");
+  try {
+    if (sessionStorage.getItem(key)) return;
+    sessionStorage.setItem(key, "1");
+  } catch {
+    // Ak úložisko relácie nie je dostupné, záznam prístupu sa aj tak pokúsi uložiť.
+  }
+
   const device = describeDevice(navigator.userAgent);
-  await supabase
-    .from("login_events")
-    .insert({ user_id: userId, email, device });
+  try {
+    const { error } = await supabase
+      .from("login_events")
+      .insert({ user_id: userId, email, device });
+    if (error) throw error;
+  } catch (error) {
+    console.error("Záznam prihlásenia sa nepodarilo uložiť:", error);
+    try {
+      sessionStorage.removeItem(key);
+    } catch {
+      // Zlyhanie úložiska nemá prerušiť prihlásenie.
+    }
+  }
 }
 
 /** Načíta posledné prístupy cudzích používateľov. */
