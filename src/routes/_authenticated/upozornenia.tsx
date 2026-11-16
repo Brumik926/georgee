@@ -64,6 +64,7 @@ function Toggle({
 
 function timeAgo(iso: string) {
   const d = new Date(iso);
+  if (!Number.isFinite(d.getTime())) return "Neznámy dátum";
   return `${String(d.getDate()).padStart(2, "0")}.${String(d.getMonth() + 1).padStart(2, "0")}.${d.getFullYear()} ${String(
     d.getHours(),
   ).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
