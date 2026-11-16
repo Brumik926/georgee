@@ -8,9 +8,9 @@ import { addGoal, balance, depositToGoal, formatEur, hydrate, removeGoal, useBan
 export const Route = createFileRoute("/_authenticated/sporenie")({
   head: () => ({
     meta: [
-      { title: "Sporenie | Aplikácia" },
+      { title: "Sporenie · George Demo" },
       { name: "description", content: "Prehľad sporiacich cieľov a ich napĺňania." },
-      { property: "og:title", content: "Sporenie | Aplikácia" },
+      { property: "og:title", content: "Sporenie · George Demo" },
       { property: "og:description", content: "Prehľad sporiacich cieľov a ich napĺňania." },
       { property: "og:type", content: "website" },
     ],
