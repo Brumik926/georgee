@@ -50,10 +50,10 @@ import {
 export const Route = createFileRoute("/_authenticated/")({
   head: () => ({
     meta: [
-      { title: "Prehľad účtu | Aplikácia" },
-      { name: "description", content: "Prehľad účtu a osobných financií." },
-      { property: "og:title", content: "Prehľad účtu | Aplikácia" },
-      { property: "og:description", content: "Prehľad účtu a osobných financií." },
+      { title: "Prehľad účtu · George Demo" },
+      { name: "description", content: "Prehľad osobných financií v samostatnej demo simulácii." },
+      { property: "og:title", content: "Prehľad účtu · George Demo" },
+      { property: "og:description", content: "Prehľad osobných financií v samostatnej demo simulácii." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
