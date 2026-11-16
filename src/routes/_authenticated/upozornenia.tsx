@@ -43,7 +43,6 @@ function Toggle({
   return (
     <button
       type="button"
-      type="button"
       role="switch"
       aria-checked={checked}
       onClick={() => onChange(!checked)}
