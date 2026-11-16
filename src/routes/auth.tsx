@@ -33,7 +33,7 @@ function AuthPage() {
   const next = oauthReturnPath(rawNext);
   const goNext = useCallback(() => {
     void navigate({ to: next, replace: true });
-  }, [goNext]);
+  }, [navigate, next]);
 
   const [mode, setMode] = useState<"in" | "up" | "reset">("in");
   const [owner, setOwner] = useState("");
@@ -72,7 +72,7 @@ function AuthPage() {
       active = false;
       authListener.subscription.unsubscribe();
     };
-  }, [navigate, next]);
+  }, [goNext]);
 
   async function submitNewPassword(e: React.FormEvent) {
     e.preventDefault();
