@@ -93,6 +93,36 @@ describe("Obrazovka Prijať peniaze", () => {
     expect(addTransactionMock).not.toHaveBeenCalled();
   });
 
+  it("odmietne sumu s viac ako dvoma desatinnými miestami", async () => {
+    const user = userEvent.setup();
+    render(<Prijat />);
+
+    await user.type(
+      screen.getByPlaceholderText("Meno odosielateľa alebo spoločnosti"),
+      "Testovací odosielateľ",
+    );
+    await user.type(screen.getByPlaceholderText("0,00"), "12,345");
+    await user.click(screen.getByRole("button", { name: /Pridať príjem na účet/i }));
+
+    expect(await screen.findByText("Suma môže obsahovať najviac dve desatinné miesta.")).toBeInTheDocument();
+    expect(addTransactionMock).not.toHaveBeenCalled();
+  });
+
+  it("odmietne príjem nad maximálny limit simulácie", async () => {
+    const user = userEvent.setup();
+    render(<Prijat />);
+
+    await user.type(
+      screen.getByPlaceholderText("Meno odosielateľa alebo spoločnosti"),
+      "Testovací odosielateľ",
+    );
+    await user.type(screen.getByPlaceholderText("0,00"), "1000000,01");
+    await user.click(screen.getByRole("button", { name: /Pridať príjem na účet/i }));
+
+    expect(await screen.findByText("Maximálna evidovaná suma je 1 000 000 €.")).toBeInTheDocument();
+    expect(addTransactionMock).not.toHaveBeenCalled();
+  });
+
   it("uloží príjem a presmeruje na /platby", async () => {
     const user = userEvent.setup();
     render(<Prijat />);
