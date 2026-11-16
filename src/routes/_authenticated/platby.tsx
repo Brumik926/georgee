@@ -52,7 +52,7 @@ function splitAmount(val: number) {
 
 // Vyhľadávanie ignoruje veľkosť písmen aj slovenskú diakritiku.
 function normalizeSearchValue(value: string): string {
-  return value.normalize("NFD").replace(/[\\u0300-\\u036f]/g, "").toLocaleLowerCase("sk-SK").trim();
+  return value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase("sk-SK").trim();
 }
 
 // Spoľahlivé vygenerovanie iniciál pre akýkoľvek názov/meno
