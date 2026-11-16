@@ -148,8 +148,9 @@ export async function updateNotifSettings(patch: Partial<NotifSettings>) {
     });
     if (error) throw error;
   } catch (error) {
+    if (generation !== notificationGeneration) return;
     console.error("Uloženie nastavení upozornení zlyhalo:", error);
-    if (generation === notificationGeneration && state.settings === next) {
+    if (state.settings === next) {
       state = { ...state, settings: previous };
       emit();
     }
