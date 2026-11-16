@@ -674,13 +674,24 @@ export default function UcetDetail() {
               {/* Transakcie zoskupené po mesiacoch */}
               {groupedTransactions.length === 0 ? (
                 <div className="rounded-3xl bg-detail-surface p-8 text-center text-detail-muted" role="status">
-                  {s.loading
-                    ? "Načítavam transakcie…"
-                    : s.error
-                      ? "Transakcie nie sú dostupné."
-                      : searchQuery || transactionFilter !== "all"
-                        ? "Pre zvolené vyhľadávanie a filter sa nenašli žiadne transakcie."
-                        : "Zatiaľ žiadne zaznamenané transakcie."}
+                  {s.loading ? (
+                    "Načítavam transakcie…"
+                  ) : s.error ? (
+                    <>
+                      <p>Transakcie nie sú dostupné.</p>
+                      <button
+                        type="button"
+                        onClick={() => void hydrate()}
+                        className="mt-3 text-sm font-semibold text-primary underline"
+                      >
+                        Skúsiť znova
+                      </button>
+                    </>
+                  ) : searchQuery || transactionFilter !== "all" ? (
+                    "Pre zvolené vyhľadávanie a filter sa nenašli žiadne transakcie."
+                  ) : (
+                    "Zatiaľ žiadne zaznamenané transakcie."
+                  )}
                 </div>
               ) : (
                 groupedTransactions.map((group) => (
