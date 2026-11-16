@@ -37,10 +37,17 @@ function Sporenie() {
   async function createGoal() {
     const normalized = target.replace(/\s/g, "").replace(",", ".");
     const value = Number(normalized);
-    if (!name.trim()) return toast.error("Zadajte názov sporiaceho cieľa.");
-    if (name.trim().length > 60) return toast.error("Názov cieľa môže mať najviac 60 znakov.");
+    if (!name.trim()) {
+      toast.error("Zadajte názov sporiaceho cieľa.");
+      return;
+    }
+    if (name.trim().length > 60) {
+      toast.error("Názov cieľa môže mať najviac 60 znakov.");
+      return;
+    }
     if (!/^(?:\d+)(?:\.\d{1,2})?$/.test(normalized) || !Number.isFinite(value) || value <= 0 || value > 1000000) {
-      return toast.error("Zadajte platnú cieľovú sumu do 1 000 000 € s najviac dvoma desatinnými miestami.");
+      toast.error("Zadajte platnú cieľovú sumu do 1 000 000 € s najviac dvoma desatinnými miestami.");
+      return;
     }
     setSavingGoal(true);
     try {
@@ -60,12 +67,17 @@ function Sporenie() {
     const normalized = (deposit[goalId] ?? "").replace(/\s/g, "").replace(",", ".");
     const value = Number(normalized);
     if (!/^(?:\d+)(?:\.\d{1,2})?$/.test(normalized) || !Number.isFinite(value) || value <= 0) {
-      return toast.error("Zadajte kladný vklad s najviac dvoma desatinnými miestami.");
+      toast.error("Zadajte kladný vklad s najviac dvoma desatinnými miestami.");
+      return;
     }
-    if (value > availableBalance) return toast.error("Vklad je vyšší ako dostupný zostatok.");
+    if (value > availableBalance) {
+      toast.error("Vklad je vyšší ako dostupný zostatok.");
+      return;
+    }
     const selectedGoal = s.goals.find((goal) => goal.id === goalId);
     if (selectedGoal && value > selectedGoal.target - selectedGoal.saved) {
-      return toast.error("Vklad nemôže byť vyšší ako zostávajúca suma do cieľa.");
+      toast.error("Vklad nemôže byť vyšší ako zostávajúca suma do cieľa.");
+      return;
     }
     setDepositingGoal(goalId);
     try {
