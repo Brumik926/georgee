@@ -3,6 +3,10 @@ import { useMemo, useState } from "react";
 import { ArrowLeft, TrendingUp, ShieldCheck, PlusCircle, Info } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/investovanie")({
+  head: () => ({ meta: [
+    { title: "Investičná simulácia · George Demo" },
+    { name: "description", content: "Vzdelávacie modelové portfóliá v samostatnej demo finančnej simulácii." },
+  ] }),
   component: InvestovaniePage,
 });
 
