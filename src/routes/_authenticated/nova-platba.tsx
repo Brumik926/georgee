@@ -28,10 +28,10 @@ import { toast } from "sonner";
 export const Route = createFileRoute("/_authenticated/nova-platba")({
   head: () => ({
     meta: [
-      { title: "Nová platba | Aplikácia" },
-      { name: "description", content: "Vyskúšajte simulovaný prevod, QR formulár a lokálne potvrdenie." },
-      { property: "og:title", content: "Nová platba | Aplikácia" },
-      { property: "og:description", content: "Vyskúšajte simulovaný prevod, QR formulár a lokálne potvrdenie." },
+      { title: "Nová platba · George Demo" },
+      { name: "description", content: "Vytvorte iba demo záznam prevodu. Aplikácia neposiela skutočné platby." },
+      { property: "og:title", content: "Nová platba · George Demo" },
+      { property: "og:description", content: "Vytvorte iba demo záznam prevodu. Aplikácia neposiela skutočné platby." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
