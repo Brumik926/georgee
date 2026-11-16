@@ -8,7 +8,6 @@ import {
   TrendingUp,
   ArrowLeft,
   Plane,
-  Heart,
   ShoppingBag,
   Medal,
   Calculator,
@@ -353,7 +352,6 @@ export function GeorgePrehladModern() {
           </h2>
           <div className="rounded-3xl px-5 py-1 shadow-sm border bg-surface border-border">
             <ListItem icon={Plane} title="Travel Hub" />
-            <ListItem icon={Heart} title="Odporučte Georgea" />
             <ListItem
               icon={ShoppingBag}
               title="Ponuky a odmeny"
@@ -712,7 +710,7 @@ export function GeorgePrehladModern() {
               </Link>
             </div>
 
-            {/* Karta: Moneyback */}
+            {/* Karta: Ponuky a odmeny */}
             <div className="rounded-3xl p-5 mb-4 relative overflow-hidden bg-surface shadow-sm">
               <div className="absolute top-0 left-0 w-full h-1 bg-[#a94fb5]" />
               <div className="flex justify-between items-start mt-0.5">
