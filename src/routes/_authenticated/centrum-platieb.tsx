@@ -10,9 +10,9 @@ import { supabase } from "@/integrations/supabase/client";
 export const Route = createFileRoute("/_authenticated/centrum-platieb")({
   head: () => ({
     meta: [
-      { title: "Centrum platieb | Aplikácia" },
+      { title: "Centrum platieb · George Demo" },
       { name: "description", content: "Uložení príjemcovia a šablóny platieb na opakovanie jedným ťuknutím." },
-      { property: "og:title", content: "Centrum platieb | Aplikácia" },
+      { property: "og:title", content: "Centrum platieb · George Demo" },
       { property: "og:description", content: "Uložení príjemcovia a šablóny platieb na opakovanie jedným ťuknutím." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
