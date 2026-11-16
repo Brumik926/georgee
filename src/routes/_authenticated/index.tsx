@@ -608,7 +608,7 @@ export function GeorgePrehladModern() {
             </h2>
 
             {/* KARTA: ÚČET */}
-            <div className="rounded-3xl p-5 mb-4 relative overflow-hidden bg-surface shadow-sm">
+            <div className="rounded-3xl p-5 mb-4 relative overflow-hidden bg-surface shadow-sm" aria-busy={s.loading}>
               <div className="absolute top-0 left-0 w-full h-1 bg-[#2d2a8f]" />
 
               <div className="mt-0.5 flex items-start justify-between gap-3">
@@ -619,6 +619,7 @@ export function GeorgePrehladModern() {
                   <div className="mt-1 flex items-baseline gap-1">
                     <Link
                       to="/platby"
+                      aria-label={`Otvoriť detail účtu. ${s.loading ? "Zostatok sa načítava" : s.error ? "Zostatok nie je dostupný" : hidden ? "Zostatok je skrytý" : `Zostatok ${formatEur(total)}`}`}
                       className={`min-w-0 text-[25px] font-bold tracking-tight ${
                         totalParts.isNegative ? "text-expense" : "text-foreground"
                       }`}
@@ -810,6 +811,7 @@ export function GeorgePrehladModern() {
                         key={tx.id}
                         to="/transakcia/$id"
                         params={{ id: tx.id }}
+                        aria-label={`${isIncome ? "Prijatá platba" : "Odoslaná platba"}: ${tx.counterparty || "Platba"}, ${formatEur(tx.amount)}, ${formatDate(tx.date)}, kategória ${tx.category}`}
                         className="flex items-center justify-between p-3.5 transition hover:bg-gray-50 active:bg-gray-100 dark:hover:bg-white/5 dark:active:bg-white/10"
                       >
                         <div className="flex items-center gap-3 min-w-0 pr-2">
