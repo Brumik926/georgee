@@ -28,6 +28,7 @@ function formatIban(iban: string) {
 }
 function formatDay(iso: string) {
   const d = new Date(iso);
+  if (!Number.isFinite(d.getTime())) return "Neznámy dátum";
   return `${String(d.getDate()).padStart(2, "0")}.${String(d.getMonth() + 1).padStart(2, "0")}.${d.getFullYear()}`;
 }
 
@@ -56,9 +57,9 @@ function Detail() {
   }, [id]);
 
   const save = (next: Extra) => {
-    setExtra(next);
     try {
       localStorage.setItem(extraKey(id), JSON.stringify(next));
+      setExtra(next);
     } catch {
       toast.error("Zmena sa nepodarila uložiť v tomto zariadení.");
     }
@@ -97,7 +98,16 @@ function Detail() {
   }
 
   const income = t.type === "in";
-  const ordered = [...s.transactions].sort((a, b) => a.date.localeCompare(b.date) || a.id.localeCompare(b.id));
+  const ordered = [...s.transactions].sort((a, b) => {
+    const aTime = Date.parse(a.date);
+    const bTime = Date.parse(b.date);
+    const aValid = Number.isFinite(aTime);
+    const bValid = Number.isFinite(bTime);
+    if (!aValid && !bValid) return a.id.localeCompare(b.id);
+    if (!aValid) return 1;
+    if (!bValid) return -1;
+    return aTime - bTime || a.id.localeCompare(b.id);
+  });
   const index = ordered.findIndex((x) => x.id === t.id);
   const runningBalance = ordered.slice(0, index + 1).reduce((sum, x) => sum + (x.type === "in" ? x.amount : -x.amount), 0);
   const [whole, cents] = t.amount.toFixed(2).split(".");
