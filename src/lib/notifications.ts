@@ -80,6 +80,9 @@ export async function hydrateNotifications() {
         .limit(50),
     ]);
 
+    if (settingsRes.error) throw settingsRes.error;
+    if (itemsRes.error) throw itemsRes.error;
+
     let settings = defaultSettings;
     if (settingsRes.data) {
       settings = {
@@ -89,7 +92,8 @@ export async function hydrateNotifications() {
         soundEnabled: settingsRes.data.sound_enabled,
       };
     } else {
-      await supabase.from("notification_settings").insert({ user_id: userId });
+      const { error } = await supabase.from("notification_settings").insert({ user_id: userId });
+      if (error) throw error;
     }
 
     const items: NotifItem[] = (itemsRes.data ?? []).map((n) => ({
@@ -116,19 +120,30 @@ export function resetNotifications() {
 }
 
 export async function updateNotifSettings(patch: Partial<NotifSettings>) {
-  const next = { ...state.settings, ...patch };
+  const previous = state.settings;
+  const next = { ...previous, ...patch };
   state = { ...state, settings: next };
   emit();
 
-  const userId = await currentUserId();
-  if (!userId) return;
-  await supabase.from("notification_settings").upsert({
-    user_id: userId,
-    on_incoming: next.onIncoming,
-    on_outgoing: next.onOutgoing,
-    on_budget: next.onBudget,
-    sound_enabled: next.soundEnabled,
-  });
+  try {
+    const userId = await currentUserId();
+    if (!userId) throw new Error("Používateľ nie je prihlásený.");
+    const { error } = await supabase.from("notification_settings").upsert({
+      user_id: userId,
+      on_incoming: next.onIncoming,
+      on_outgoing: next.onOutgoing,
+      on_budget: next.onBudget,
+      sound_enabled: next.soundEnabled,
+    });
+    if (error) throw error;
+  } catch (error) {
+    console.error("Uloženie nastavení upozornení zlyhalo:", error);
+    if (state.settings === next) {
+      state = { ...state, settings: previous };
+      emit();
+    }
+    toast.error("Nastavenie upozornení sa nepodarilo uložiť.");
+  }
 }
 
 export function playNotificationSound() {
@@ -180,19 +195,37 @@ export async function notify(kind: NotifKind, title: string, body: string) {
 }
 
 export async function markAllRead() {
-  state = { ...state, items: state.items.map((n) => ({ ...n, read: true })) };
+  const previous = state.items;
+  state = { ...state, items: previous.map((n) => ({ ...n, read: true })) };
   emit();
-  const userId = await currentUserId();
-  if (!userId) return;
-  await supabase.from("notifications").update({ read: true }).eq("user_id", userId).eq("read", false);
+  try {
+    const userId = await currentUserId();
+    if (!userId) throw new Error("Používateľ nie je prihlásený.");
+    const { error } = await supabase.from("notifications").update({ read: true }).eq("user_id", userId).eq("read", false);
+    if (error) throw error;
+  } catch (error) {
+    console.error("Označenie upozornení ako prečítaných zlyhalo:", error);
+    state = { ...state, items: previous };
+    emit();
+    toast.error("Upozornenia sa nepodarilo označiť ako prečítané.");
+  }
 }
 
 export async function clearNotifications() {
+  const previous = state.items;
   state = { ...state, items: [] };
   emit();
-  const userId = await currentUserId();
-  if (!userId) return;
-  await supabase.from("notifications").delete().eq("user_id", userId);
+  try {
+    const userId = await currentUserId();
+    if (!userId) throw new Error("Používateľ nie je prihlásený.");
+    const { error } = await supabase.from("notifications").delete().eq("user_id", userId);
+    if (error) throw error;
+  } catch (error) {
+    console.error("Vymazanie upozornení zlyhalo:", error);
+    state = { ...state, items: previous };
+    emit();
+    toast.error("Upozornenia sa nepodarilo vymazať.");
+  }
 }
 
 export function unreadCount(s: NotifState): number {
