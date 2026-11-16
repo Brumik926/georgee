@@ -3,7 +3,7 @@ import { useMemo, useState } from "react";
 import { Target, Plus, PiggyBank, ArrowUpRight } from "lucide-react";
 import { toast } from "sonner";
 import { AppShell, BrandHeader } from "@/components/bank/AppShell";
-import { addGoal, depositToGoal, formatEur, useBank } from "@/lib/bank-store";
+import { addGoal, balance, depositToGoal, formatEur, useBank } from "@/lib/bank-store";
 
 export const Route = createFileRoute("/_authenticated/sporenie")({
   head: () => ({
@@ -26,14 +26,22 @@ function Sporenie() {
   const [name, setName] = useState("");
   const [target, setTarget] = useState("");
   const [deposit, setDeposit] = useState<Record<string, string>>({});
+  const [savingGoal, setSavingGoal] = useState(false);
+  const [depositingGoal, setDepositingGoal] = useState<string | null>(null);
+  const availableBalance = balance(s);
   const saved = useMemo(() => s.goals.reduce((sum, goal) => sum + goal.saved, 0), [s.goals]);
   const targetTotal = useMemo(() => s.goals.reduce((sum, goal) => sum + goal.target, 0), [s.goals]);
   const overallProgress = targetTotal > 0 ? Math.min(100, (saved / targetTotal) * 100) : 0;
 
   async function createGoal() {
-    const value = Number(target.replace(",", "."));
+    const normalized = target.replace(/\s/g, "").replace(",", ".");
+    const value = Number(normalized);
     if (!name.trim()) return toast.error("Zadajte názov sporiaceho cieľa.");
-    if (!Number.isFinite(value) || value <= 0) return toast.error("Zadajte platnú cieľovú sumu.");
+    if (name.trim().length > 60) return toast.error("Názov cieľa môže mať najviac 60 znakov.");
+    if (!/^(?:\d+)(?:\.\d{1,2})?$/.test(normalized) || !Number.isFinite(value) || value <= 0 || value > 1000000) {
+      return toast.error("Zadajte platnú cieľovú sumu do 1 000 000 € s najviac dvoma desatinnými miestami.");
+    }
+    setSavingGoal(true);
     try {
       await addGoal(name.trim(), Math.round(value * 100) / 100);
       setName("");
@@ -42,19 +50,28 @@ function Sporenie() {
     } catch (error) {
       console.error("Vytvorenie sporiaceho cieľa zlyhalo:", error);
       toast.error("Sporiaci cieľ sa nepodarilo uložiť.");
+    } finally {
+      setSavingGoal(false);
     }
   }
 
   async function addDeposit(goalId: string) {
-    const value = Number((deposit[goalId] ?? "").replace(",", "."));
-    if (!Number.isFinite(value) || value <= 0) return toast.error("Zadajte platnú sumu vkladu.");
+    const normalized = (deposit[goalId] ?? "").replace(/\s/g, "").replace(",", ".");
+    const value = Number(normalized);
+    if (!/^(?:\d+)(?:\.\d{1,2})?$/.test(normalized) || !Number.isFinite(value) || value <= 0) {
+      return toast.error("Zadajte kladný vklad s najviac dvoma desatinnými miestami.");
+    }
+    if (value > availableBalance) return toast.error("Vklad je vyšší ako dostupný zostatok.");
+    setDepositingGoal(goalId);
     try {
       await depositToGoal(goalId, Math.round(value * 100) / 100);
       setDeposit((current) => ({ ...current, [goalId]: "" }));
       toast.success("Vklad bol pridaný do cieľa.");
     } catch (error) {
       console.error("Vklad do sporiaceho cieľa zlyhal:", error);
-      toast.error("Vklad sa nepodarilo uložiť.");
+      toast.error(error instanceof Error ? error.message : "Vklad sa nepodarilo uložiť.");
+    } finally {
+      setDepositingGoal(null);
     }
   }
 
@@ -116,10 +133,11 @@ function Sporenie() {
                     inputMode="decimal"
                     aria-label={`Vklad do cieľa ${goal.name}`}
                     placeholder="Vklad (€)"
+                    max={availableBalance}
                     value={deposit[goal.id] ?? ""}
                     onChange={(event) => setDeposit((current) => ({ ...current, [goal.id]: event.target.value }))}
                   />
-                  <button type="button" onClick={() => void addDeposit(goal.id)} className="inline-flex shrink-0 items-center gap-1 rounded-2xl bg-primary px-4 text-sm font-semibold text-primary-foreground transition hover:opacity-90">
+                  <button type="button" disabled={depositingGoal !== null} onClick={() => void addDeposit(goal.id)} className="inline-flex shrink-0 items-center gap-1 rounded-2xl bg-primary px-4 text-sm font-semibold text-primary-foreground transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50">
                     <ArrowUpRight className="size-4" /> Vložiť
                   </button>
                 </div>
@@ -136,7 +154,7 @@ function Sporenie() {
           <div className="space-y-3">
             <label className="block"><span className="mb-1 block text-xs font-medium text-muted-foreground">Názov cieľa</span><input className={field} value={name} onChange={(event) => setName(event.target.value)} placeholder="Napr. Dovolenka" /></label>
             <label className="block"><span className="mb-1 block text-xs font-medium text-muted-foreground">Cieľová suma (€)</span><input className={field} inputMode="decimal" value={target} onChange={(event) => setTarget(event.target.value)} placeholder="2 000,00" /></label>
-            <button type="button" onClick={createGoal} className="flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-primary text-sm font-bold text-primary-foreground transition hover:opacity-90"><Plus className="size-4" /> Vytvoriť cieľ</button>
+            <button type="button" disabled={savingGoal} onClick={createGoal} className="flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-primary text-sm font-bold text-primary-foreground transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"><Plus className="size-4" /> {savingGoal ? "Ukladám…" : "Vytvoriť cieľ"}</button>
           </div>
         </section>
       </div>
