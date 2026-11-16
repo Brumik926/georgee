@@ -173,7 +173,7 @@ function RozpocetPage() {
             <div className="flex justify-between gap-2 text-xs text-muted-foreground">
               <span>Čerpanie kategórií s nastaveným limitom</span>
               <span className="font-semibold text-foreground">
-                {totalLimit > 0 ? `${overallProgress} %` : "Bez limitov"}
+                {bank.loading || bank.error ? "—" : totalLimit > 0 ? `${overallProgress} %` : "Bez limitov"}
               </span>
             </div>
             <div
@@ -190,9 +190,13 @@ function RozpocetPage() {
               />
             </div>
             <p className="text-[11px] text-muted-foreground">
-              {totalLimit > 0
-                ? `Z celkového limitu ${formatEur(totalLimit)} · výdavky bez limitu nie sú započítané`
-                : "Pridajte limit aspoň jednej kategórii, aby sa zobrazilo čerpanie rozpočtu."}
+              {bank.loading
+                ? "Načítavam rozpočtové údaje…"
+                : bank.error
+                  ? "Rozpočtové údaje nie sú dostupné."
+                  : totalLimit > 0
+                    ? `Z celkového limitu ${formatEur(totalLimit)} · výdavky bez limitu nie sú započítané`
+                    : "Pridajte limit aspoň jednej kategórii, aby sa zobrazilo čerpanie rozpočtu."}
             </p>
           </div>
         </section>
