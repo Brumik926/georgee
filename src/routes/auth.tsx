@@ -136,16 +136,18 @@ function AuthPage() {
 
   async function google() {
     setBusy(true);
-    const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.origin + "/auth",
-    });
-    if (result.error) {
-      setBusy(false);
+    try {
+      const result = await lovable.auth.signInWithOAuth("google", {
+        redirect_uri: window.location.origin + "/auth",
+      });
+      if (result.error) throw result.error;
+      if (result.redirected) return;
+      goNext();
+    } catch (error) {
+      console.error("Prihlásenie cez Google zlyhalo:", error);
       toast.error("Prihlásenie cez Google sa nepodarilo.");
-      return;
+      setBusy(false);
     }
-    if (result.redirected) return;
-    goNext();
   }
 
   return (
