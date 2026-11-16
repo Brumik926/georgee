@@ -167,7 +167,7 @@ export function playNotificationSound() {
   }
 }
 
-export async function notify(kind: NotifKind, title: string, body: string) {
+export async function notify(kind: NotifKind, title: string, body: string, expectedUserId?: string) {
   const generation = notificationGeneration;
   const enabled =
     kind === "in"
@@ -183,7 +183,7 @@ export async function notify(kind: NotifKind, title: string, body: string) {
   toast(title, { description: body });
 
   const userId = await currentUserId();
-  if (!userId) return;
+  if (!userId || (expectedUserId && userId !== expectedUserId)) return;
   const { data, error } = await supabase
     .from("notifications")
     .insert({ user_id: userId, kind, title, body })
