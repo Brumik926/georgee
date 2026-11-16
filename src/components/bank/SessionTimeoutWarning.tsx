@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import { ShieldAlert, Clock, LogOut, RefreshCw } from "lucide-react";
 
 // Doba nečinnosti: 5 minút (300 sekúnd), varovanie sa zobrazí 60 sekúnd pred koncom
@@ -13,6 +14,7 @@ export function SessionTimeoutWarning() {
   const [showWarning, setShowWarning] = useState<boolean>(false);
   const [isExpired, setIsExpired] = useState<boolean>(false);
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
+  const [sessionError, setSessionError] = useState<string | null>(null);
 
   const lastActivityRef = useRef<number>(Date.now());
 
@@ -51,7 +53,17 @@ export function SessionTimeoutWarning() {
         // Relácia vypršala
         setIsExpired(true);
         setShowWarning(false);
-        supabase.auth.signOut({ scope: "local" }).catch(() => {});
+        void supabase.auth.signOut({ scope: "local" }).then(({ error }) => {
+          if (error) {
+            console.error("Automatické odhlásenie zlyhalo:", error);
+            setSessionError("Reláciu sa nepodarilo bezpečne ukončiť. Skúste sa odhlásiť znova.");
+          } else {
+            void navigate({ to: "/auth" });
+          }
+        }).catch((error: unknown) => {
+          console.error("Automatické odhlásenie zlyhalo:", error);
+          setSessionError("Reláciu sa nepodarilo bezpečne ukončiť. Skúste sa odhlásiť znova.");
+        });
       }
     }, 1000);
 
@@ -62,12 +74,15 @@ export function SessionTimeoutWarning() {
   const handleStaySignedIn = async () => {
     try {
       setIsRefreshing(true);
-      await supabase.auth.refreshSession();
+      const { data, error } = await supabase.auth.refreshSession();
+      if (error || !data.session) throw error ?? new Error("Reláciu sa nepodarilo obnoviť.");
       lastActivityRef.current = Date.now();
+      setSessionError(null);
       setSecondsRemaining(INACTIVITY_TIMEOUT_SEC);
       setShowWarning(false);
-    } catch {
-      // Ak obnovenie zlyhá, odhlásiť
+    } catch (error) {
+      console.error("Obnovenie relácie zlyhalo:", error);
+      setSessionError("Reláciu sa nepodarilo obnoviť. Prihláste sa znova.");
       setIsExpired(true);
       setShowWarning(false);
     } finally {
@@ -77,8 +92,16 @@ export function SessionTimeoutWarning() {
 
   // Okamžité odhlásenie
   const handleLogout = async () => {
-    await supabase.auth.signOut({ scope: "local" }).catch(() => {});
-    navigate({ to: "/auth" });
+    try {
+      const { error } = await supabase.auth.signOut({ scope: "local" });
+      if (error) throw error;
+      setSessionError(null);
+      await navigate({ to: "/auth" });
+    } catch (error) {
+      console.error("Odhlásenie zlyhalo:", error);
+      setSessionError("Odhlásenie sa nepodarilo. Skúste to znova.");
+      toast.error("Odhlásenie sa nepodarilo.");
+    }
   };
 
   // Ak nevyskočilo varovanie ani vypršanie, nič nerenderovať
@@ -97,11 +120,11 @@ export function SessionTimeoutWarning() {
             </div>
             <h2 className="text-[19px] font-bold">Relácia vypršala</h2>
             <p className="mt-2 text-[14px] text-detail-muted leading-relaxed">
-              Z bezpečnostných dôvodov ste boli odhlásený kvôli nečinnosti. Prihláste sa prosím znova.
+              {sessionError ?? "Relácia vypršala z dôvodu nečinnosti. Prihláste sa prosím znova."}
             </p>
             <button
               type="button"
-              onClick={() => navigate({ to: "/auth" })}
+              onClick={() => void handleLogout()}
               className="mt-6 w-full rounded-2xl bg-[#196ee6] py-3.5 text-[15px] font-bold text-white shadow-lg shadow-[#196ee6]/25 transition active:scale-95"
             >
               Prihlásiť sa znova
