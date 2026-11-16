@@ -280,7 +280,9 @@ export function GeorgePrehladModern() {
   useEffect(() => {
     try {
       setHidden(localStorage.getItem("george-hide-balance") === "1");
-    } catch {}
+    } catch {
+      // Pri vypnutom úložisku ponecháme predvolený stav zobrazenia zostatku.
+    }
   }, []);
 
   function toggleHidden() {
