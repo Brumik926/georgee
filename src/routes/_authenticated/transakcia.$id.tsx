@@ -109,7 +109,10 @@ function Detail() {
     return aTime - bTime || a.id.localeCompare(b.id);
   });
   const index = ordered.findIndex((x) => x.id === t.id);
-  const runningBalance = ordered.slice(0, index + 1).reduce((sum, x) => sum + (x.type === "in" ? x.amount : -x.amount), 0);
+  const hasValidTransactionDate = Number.isFinite(Date.parse(t.date));
+  const runningBalance = hasValidTransactionDate
+    ? ordered.slice(0, index + 1).reduce((sum, x) => sum + (x.type === "in" ? x.amount : -x.amount), 0)
+    : null;
   const [whole, cents] = t.amount.toFixed(2).split(".");
   const note = extra.note ?? t.note;
   const pill = "h-10 rounded-full bg-detail-action-surface px-5 text-[15px] font-semibold text-detail-action active:opacity-80";
@@ -230,7 +233,9 @@ function Detail() {
             <Row label="Dátum spracovania">{formatDay(t.date)}</Row>
             <Row label="Typ transakcie">{income ? "Prijatý demo prevod" : "Odoslaný demo prevod"}</Row>
             {t.vs ? <Row label="Variabilný symbol">{t.vs}</Row> : null}
-            <Row label="Zostatok podľa dostupnej histórie">{formatEur(runningBalance)}</Row>
+            <Row label="Zostatok podľa dostupnej histórie">
+              {runningBalance === null ? "Nedostupný – transakcia nemá platný dátum" : formatEur(runningBalance)}
+            </Row>
           </dl>
 
           <button
