@@ -390,21 +390,22 @@ export async function depositToGoal(id: string, amount: number) {
 }
 
 export async function setBudget(category: string, limit: number) {
+  const normalizedCategory = category.trim();
   const generation = storeGeneration;
   const userId = await currentUserId();
   if (!userId) throw new Error("Používateľ nie je prihlásený.");
-  if (!category.trim() || category.trim().length > 60 || !Number.isFinite(limit) || limit <= 0 || limit > 1_000_000 || Math.abs(limit * 100 - Math.round(limit * 100)) > 0.000001) {
+  if (!normalizedCategory || normalizedCategory.length > 60 || !Number.isFinite(limit) || limit <= 0 || limit > 1_000_000 || Math.abs(limit * 100 - Math.round(limit * 100)) > 0.000001) {
     throw new Error("Kategória a kladný limit s najviac dvoma desatinnými miestami sú povinné.");
   }
   const { error } = await supabase
     .from("budgets")
-    .upsert({ user_id: userId, category, limit_amount: limit }, { onConflict: "user_id,category" });
+    .upsert({ user_id: userId, category: normalizedCategory, limit_amount: limit }, { onConflict: "user_id,category" });
   if (error) throw error;
   if (generation !== storeGeneration) return;
-  const exists = state.budgets.some((b) => b.category === category);
+  const exists = state.budgets.some((b) => b.category === normalizedCategory);
   state.budgets = exists
-    ? state.budgets.map((b) => (b.category === category ? { category, limit } : b))
-    : [...state.budgets, { category, limit }];
+    ? state.budgets.map((b) => (b.category === normalizedCategory ? { category: normalizedCategory, limit } : b))
+    : [...state.budgets, { category: normalizedCategory, limit }];
   emit();
 }
 
