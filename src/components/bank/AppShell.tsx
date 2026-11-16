@@ -105,7 +105,7 @@ export function BrandHeader({
     <header className="px-5 pt-6 pb-4">
       <div className="flex items-center justify-between">
         {back ? (
-          <Link to="/" className="p-2 -ml-2 rounded-full hover:bg-muted text-foreground">
+          <Link to="/" aria-label="Späť na prehľad" className="p-2 -ml-2 rounded-full hover:bg-muted text-foreground">
             <ArrowLeft className="size-5" />
           </Link>
         ) : (
