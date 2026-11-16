@@ -22,7 +22,7 @@ export function SessionTimeoutWarning() {
   const recordActivity = useCallback(() => {
     if (isExpired) return;
     lastActivityRef.current = Date.now();
-  }, [isExpired, navigate]);
+  }, [isExpired]);
 
   // Sledovanie interakcií používateľa
   useEffect(() => {
@@ -68,7 +68,7 @@ export function SessionTimeoutWarning() {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [isExpired]);
+  }, [isExpired, navigate]);
 
   // Predĺženie relácie
   const handleStaySignedIn = async () => {
