@@ -704,9 +704,9 @@ export function GeorgePrehladModern() {
               </div>
               <Link
                 to="/sporenie"
-                className="mt-4 px-5 py-2 rounded-full font-medium text-[13px] inline-block bg-primary/10 text-primary"
+                className="mt-4 inline-flex min-h-10 items-center rounded-full bg-primary/10 px-5 py-2 text-[13px] font-medium text-primary transition-colors hover:bg-primary/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
-                Vyhľadať a kúpiť
+                Zobraziť ciele
               </Link>
             </div>
 
