@@ -37,16 +37,28 @@ export async function isBiometricSupported(): Promise<boolean> {
 
 export function isBiometricEnabled(userId: string): boolean {
   if (typeof window === "undefined") return false;
-  return !!window.localStorage.getItem(KEY_PREFIX + userId);
+  try {
+    return !!window.localStorage.getItem(KEY_PREFIX + userId);
+  } catch {
+    return false;
+  }
 }
 
 export function isUnlocked(userId: string): boolean {
   if (typeof window === "undefined") return true;
-  return window.sessionStorage.getItem(UNLOCK_PREFIX + userId) === "1";
+  try {
+    return window.sessionStorage.getItem(UNLOCK_PREFIX + userId) === "1";
+  } catch {
+    return true;
+  }
 }
 
 export function markUnlocked(userId: string) {
-  window.sessionStorage.setItem(UNLOCK_PREFIX + userId, "1");
+  try {
+    window.sessionStorage.setItem(UNLOCK_PREFIX + userId, "1");
+  } catch {
+    // Nedostupné session úložisko nesmie zablokovať demo aplikáciu.
+  }
 }
 
 export function clearUnlocked(userId?: string) {
