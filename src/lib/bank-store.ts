@@ -188,6 +188,21 @@ export function useBank() {
 }
 
 export async function addTransaction(t: Omit<Txn, "id">, expectedUserId?: string) {
+  if (!t.counterparty.trim() || !t.category.trim()) {
+    throw new Error("Príjemca a kategória transakcie sú povinné.");
+  }
+  if (
+    !Number.isFinite(t.amount) ||
+    t.amount <= 0 ||
+    t.amount > 1_000_000 ||
+    Math.abs(t.amount * 100 - Math.round(t.amount * 100)) > 0.000001
+  ) {
+    throw new Error("Suma transakcie musí byť kladná, najviac 1 000 000 € a s najviac dvoma desatinnými miestami.");
+  }
+  if (!Number.isFinite(Date.parse(t.date))) {
+    throw new Error("Transakcia musí mať platný dátum.");
+  }
+
   const generation = storeGeneration;
   const userId = await currentUserId();
   if (!userId || (expectedUserId && userId !== expectedUserId)) {
