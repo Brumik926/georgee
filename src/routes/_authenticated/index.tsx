@@ -1,5 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { Eye, EyeOff, BarChart3 } from "lucide-react";
 import {
   Search,
@@ -365,7 +366,7 @@ export function GeorgePrehladModern() {
               title="Ponuky a odmeny"
               subtitle="Ukážkové ponuky"
               badge="Demo"
-              onClick={() => navigate({ to: "/odmeny" })}
+              onClick={() => toast.info("Ukážková sekcia odmien zatiaľ nie je dostupná.")}
             />
             <ListItem
               icon={Medal}
@@ -377,14 +378,14 @@ export function GeorgePrehladModern() {
               icon={MapPin}
               title="Pobočky a bankomaty"
               subtitle="Vyhľadať v externých mapách"
-              onClick={() => navigate({ to: "/lokality" })}
+              onClick={() => toast.info("Vyhľadávanie pobočiek a bankomatov zatiaľ nie je dostupné.")}
             />
             <ListItem
               icon={TrendingUp}
               title="Ponuka investícií"
               subtitle="Ukážkové portfóliá"
               isLast={true}
-              onClick={() => navigate({ to: "/investovanie" })}
+              onClick={() => toast.info("Ukážková sekcia investícií zatiaľ nie je dostupná.")}
             />
           </div>
         </div>
@@ -547,7 +548,7 @@ export function GeorgePrehladModern() {
                 <span className="text-[11px] font-semibold leading-tight text-foreground">Karty</span>
               </Link>
               <Link
-                to="/lokality"
+                onClick={() => toast.info("Vyhľadávanie pobočiek a bankomatov zatiaľ nie je dostupné.")}
                 className="flex min-w-0 flex-col items-center justify-center gap-2 rounded-2xl bg-surface px-2 py-3 text-center shadow-sm transition hover:bg-muted active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
                 <span className="grid size-10 place-items-center rounded-full bg-primary/10 text-primary"><MapPin size={19} /></span>
