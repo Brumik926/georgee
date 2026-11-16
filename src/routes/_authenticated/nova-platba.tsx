@@ -160,11 +160,18 @@ export default function NovaPlatba() {
 
   async function confirmDemoPayment() {
     setPinError("");
-    if (bioSupported && isBiometricEnabled(user.id)) {
-      await confirmWithBiometrics();
-      return;
+    try {
+      if (bioSupported && isBiometricEnabled(user.id)) {
+        await confirmWithBiometrics();
+        return;
+      }
+      await executePayment();
+    } catch (error) {
+      console.error("Potvrdenie demo platby zlyhalo:", error);
+      submissionRef.current = false;
+      setBusy(false);
+      setPinError("Potvrdenie sa nepodarilo. Skúste znova.");
     }
-    await executePayment();
   }
 
   const [whole, cents] = (Number.isFinite(value) ? value : 0).toFixed(2).split(".");
