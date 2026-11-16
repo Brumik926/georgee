@@ -83,17 +83,24 @@ function Nastavenia() {
   useEffect(() => {
     let active = true;
     (async () => {
-      const { data } = await supabase.auth.getUser();
-      const uid = data.user?.id ?? null;
-      if (!active) return;
-      setUserId(uid);
+      try {
+        const { data, error } = await supabase.auth.getUser();
+        if (error) throw error;
+        const uid = data.user?.id ?? null;
+        if (!active) return;
+        setUserId(uid);
 
-      const supported = await isBiometricSupported();
-      if (!active) return;
-      setBioSupported(supported);
+        const supported = await isBiometricSupported();
+        if (!active) return;
+        setBioSupported(supported);
 
-      if (uid) {
-        setBioUnlockOn(isBiometricEnabled(uid));
+        if (uid) setBioUnlockOn(isBiometricEnabled(uid));
+      } catch (error) {
+        console.error("Načítanie nastavenia biometrie zlyhalo:", error);
+        if (active) {
+          setBioSupported(false);
+          toast.error("Nastavenie biometrie sa nepodarilo načítať.");
+        }
       }
     })();
     return () => {
@@ -107,18 +114,17 @@ function Nastavenia() {
     try {
       if (bioUnlockOn) {
         disableBiometric(userId);
-        clearUnlocked();
+        clearUnlocked(userId);
         setBioUnlockOn(false);
         toast.success("Odomknutie biometriou bolo vypnuté");
       } else {
-        const ok = await enableBiometric(userId, "Banková simulácia").then(() => true, () => false);
-        if (ok) {
-          setBioUnlockOn(true);
-          toast.success("Odomknutie biometriou bolo aktivované");
-        } else {
-          toast.error("Biometrické overenie zlyhalo");
-        }
+        await enableBiometric(userId, "George Demo");
+        setBioUnlockOn(true);
+        toast.success("Odomknutie biometriou bolo aktivované");
       }
+    } catch (error) {
+      console.error("Zmena nastavenia biometrie zlyhala:", error);
+      toast.error("Nastavenie biometrie sa nepodarilo zmeniť.");
     } finally {
       setBioBusy(false);
     }
