@@ -371,7 +371,7 @@ export function GeorgePrehladModern() {
             <ListItem
               icon={Medal}
               title="Moja odmena"
-              onClick={() => navigate({ to: "/odmeny" })}
+              onClick={() => toast.info("Ukážková sekcia odmien zatiaľ nie je dostupná.")}
             />
             <ListItem icon={Calculator} title="Menová kalkulačka" />
             <ListItem
@@ -547,13 +547,14 @@ export function GeorgePrehladModern() {
                 <span className="grid size-10 place-items-center rounded-full bg-primary/10 text-primary"><CreditCard size={19} /></span>
                 <span className="text-[11px] font-semibold leading-tight text-foreground">Karty</span>
               </Link>
-              <Link
+              <button
+                type="button"
                 onClick={() => toast.info("Vyhľadávanie pobočiek a bankomatov zatiaľ nie je dostupné.")}
                 className="flex min-w-0 flex-col items-center justify-center gap-2 rounded-2xl bg-surface px-2 py-3 text-center shadow-sm transition hover:bg-muted active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
                 <span className="grid size-10 place-items-center rounded-full bg-primary/10 text-primary"><MapPin size={19} /></span>
                 <span className="text-[11px] font-semibold leading-tight text-foreground">Pobočky</span>
-              </Link>
+              </button>
             </section>
 
             {/* Sekcia: Výdavky a Príjmy za aktuálny mesiac */}
@@ -783,12 +784,13 @@ export function GeorgePrehladModern() {
                   <ShoppingBag size={22} />
                 </div>
               </div>
-              <Link
-                to="/odmeny"
+              <button
+                type="button"
+                onClick={() => toast.info("Ukážková sekcia odmien zatiaľ nie je dostupná.")}
                 className="mt-4 inline-flex min-h-10 items-center rounded-full bg-primary/10 px-5 py-2 text-[13px] font-medium text-primary transition-colors hover:bg-primary/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
                 Zobraziť ukážkové ponuky
-              </Link>
+              </button>
             </div>
 
             {/* Sekcia: Posledné pohyby */}
