@@ -387,8 +387,13 @@ function Detail() {
             className="flex w-full items-center justify-center gap-2 py-3 text-[15px] font-semibold text-destructive"
             onClick={async () => {
               if (!window.confirm("Naozaj odstrániť túto transakciu?")) return;
-              try { await removeTransaction(t.id); toast.success("Transakcia odstránená"); navigate({ to: "/platby", search: { q: search.q, filter: search.filter, searchOpen: search.searchOpen } }); }
-              catch (e) { console.error(e); toast.error("Transakciu sa nepodarilo odstrániť"); }
+              try {
+                await removeTransaction(t.id);
+                try { await deleteAttachment(t.id); } catch (attachmentError) { console.warn("Lokálnu prílohu sa nepodarilo odstrániť:", attachmentError); }
+                try { localStorage.removeItem(extraKey(t.id)); } catch (storageError) { console.warn("Metadáta transakcie sa nepodarilo odstrániť:", storageError); }
+                toast.success("Transakcia odstránená");
+                navigate({ to: "/platby", search: { q: search.q, filter: search.filter, searchOpen: search.searchOpen } });
+              } catch (e) { console.error(e); toast.error("Transakciu sa nepodarilo odstrániť"); }
             }}
           >
             <Trash2 className="size-5" /> Odstrániť transakciu
