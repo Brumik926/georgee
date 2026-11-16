@@ -799,7 +799,7 @@ export default function UcetDetail() {
         {/* Plávajúci oválny panel (Floating Bottom Action Bar pripnutý priamo do body cez Portal) */}
         {typeof document !== "undefined" &&
           createPortal(
-            <div className="fixed inset-x-0 bottom-5 z-50 mx-auto w-full max-w-[420px] px-4 pointer-events-none">
+            <div className="fixed inset-x-0 bottom-[calc(env(safe-area-inset-bottom)+1rem)] z-50 mx-auto w-full max-w-[420px] px-4 pointer-events-none">
               <div className="pointer-events-auto flex items-center justify-between gap-2.5 rounded-full bg-detail-surface/95 p-2 shadow-[0_8px_30px_rgba(0,0,0,0.12)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.6)] border border-detail-action-surface backdrop-blur-xl">
                 {/* Dve kruhové tlačidlá: Lupa/Vyhľadávanie a Štatistiky/Grafy */}
                 <div className="flex items-center gap-2">
