@@ -727,11 +727,11 @@ export function GeorgePrehladModern() {
                     <div className="mt-3 flex items-end justify-between gap-3">
                       <div className="min-w-0">
                         <p className="text-[8px] uppercase tracking-[0.18em] text-white/55">Držiteľ karty</p>
-                        <p className="mt-1 truncate text-[11px] font-semibold uppercase tracking-[0.12em] text-white">{userName}</p>
+                        <p className="mt-1 truncate text-[11px] font-semibold uppercase tracking-[0.12em] text-white">{userName || "Majiteľ účtu"}</p>
                       </div>
                       <div className="shrink-0 text-right">
                         <p className="text-[8px] uppercase tracking-[0.18em] text-white/55">Platnosť</p>
-                        <p className="mt-1 font-mono text-[11px] font-semibold text-white">10/31</p>
+                        <p className="mt-1 font-mono text-[11px] font-semibold text-white">12/30</p>
                       </div>
                     </div>
                   </div>
