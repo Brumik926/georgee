@@ -63,7 +63,7 @@ describe("Obrazovka Prijať peniaze", () => {
 
   it("zobrazí nadpis a IBAN používateľa", () => {
     render(<Prijat />);
-    expect(screen.getByText("Prijať peniaze")).toBeInTheDocument();
+    expect(screen.getByText("Údaje na prijatie platby")).toBeInTheDocument();
     expect(screen.getByText("SK0987654321098765432100")).toBeInTheDocument();
   });
 
@@ -119,7 +119,7 @@ describe("Obrazovka Prijať peniaze", () => {
     await user.type(screen.getByPlaceholderText("0,00"), "12,345");
     await user.click(screen.getByRole("button", { name: /Pridať demo príjem/i }));
 
-    expect(await screen.findByText("Suma môže obsahovať najviac dve desatinné miesta.")).toBeInTheDocument();
+    expect(await screen.findByText("Zadajte platnú sumu.")).toBeInTheDocument();
     expect(addTransactionMock).not.toHaveBeenCalled();
   });
 
