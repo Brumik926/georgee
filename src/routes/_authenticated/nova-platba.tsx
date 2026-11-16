@@ -619,6 +619,10 @@ function QrScannerModal({
       setErrorMsg("Vyberte obrázok obsahujúci QR kód.");
       return;
     }
+    if (file.size > 20 * 1024 * 1024) {
+      setErrorMsg("Obrázok môže mať najviac 20 MB.");
+      return;
+    }
     const detector = getDetector();
     if (!detector) {
       setErrorMsg("Tento prehliadač nepodporuje čítanie QR kódov z obrázka.");
@@ -676,7 +680,7 @@ function QrScannerModal({
           <label className="mt-4 flex min-h-40 cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-border bg-surface-2 p-5 text-center">
             <QrCode className="size-9 text-primary" />
             <span className="text-sm font-semibold">{scanningFile ? "Čítam QR kód…" : "Vybrať obrázok QR kódu"}</span>
-            <span className="text-xs text-muted-foreground">Podporované sú obrázky z galérie alebo súborov.</span>
+            <span className="text-xs text-muted-foreground">Obrázky z galérie alebo súborov, maximálne 20 MB.</span>
             <input type="file" accept="image/*" className="sr-only" disabled={scanningFile} onChange={(event) => void handleFileChange(event)} />
           </label>
         )}
