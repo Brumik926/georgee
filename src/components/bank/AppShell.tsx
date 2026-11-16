@@ -59,7 +59,7 @@ export function PersistentBottomNav() {
   ] as const;
 
   return createPortal(
-    <nav className="fixed inset-x-0 bottom-0 z-50 mx-auto w-full max-w-[430px] border-t border-border bg-background/95 pb-[max(0.6rem,env(safe-area-inset-bottom))] pt-2 backdrop-blur-xl transition-colors">
+    <nav aria-label="Hlavná navigácia" className="fixed inset-x-0 bottom-0 z-50 mx-auto w-full max-w-[430px] border-t border-border bg-background/95 pb-[max(0.6rem,env(safe-area-inset-bottom))] pt-2 backdrop-blur-xl transition-colors">
       <div className="grid grid-cols-5 items-end px-1">
         {tabs.map((t) => {
           const Icon = t.icon;
