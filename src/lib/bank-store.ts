@@ -127,7 +127,7 @@ export async function loadAll() {
         note: r.note ?? undefined,
         vs: r.vs ?? undefined,
       }))
-      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()),
+      .pipe(sortTransactionsNewestFirst),
     goals: (goals.data ?? []).map((g) => ({ id: g.id, name: g.name, target: num(g.target), saved: num(g.saved) })),
     budgets: (budgets.data ?? []).map((b) => ({ category: b.category, limit: num(b.limit_amount) })),
     loading: false,
@@ -202,9 +202,7 @@ export async function addTransaction(t: Omit<Txn, "id">) {
 
   // 2. Priradíme skutočné ID z databázy
   const newTxn: Txn = { ...t, id: data.id };
-  state.transactions = [newTxn, ...state.transactions].sort(
-    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-  );
+  state.transactions = sortTransactionsNewestFirst([newTxn, ...state.transactions]);
   emit();
 
   void announceTransaction(newTxn);
@@ -331,7 +329,7 @@ export function balance(s: BankState) {
 
 export function inMonth(t: Txn, d = new Date()) {
   const x = new Date(t.date);
-  return x.getFullYear() === d.getFullYear() && x.getMonth() === d.getMonth();
+  return Number.isFinite(x.getTime()) && x.getFullYear() === d.getFullYear() && x.getMonth() === d.getMonth();
 }
 
 export function isExcludedFromOverview(transaction: Pick<Txn, "id">) {
@@ -375,19 +373,36 @@ export function formatEur(n: number) {
   return new Intl.NumberFormat("sk-SK", { style: "currency", currency: "EUR" }).format(n);
 }
 
+function transactionTimestamp(date: string): number | null {
+  const timestamp = Date.parse(date);
+  return Number.isFinite(timestamp) ? timestamp : null;
+}
+
+export function sortTransactionsNewestFirst<T extends Pick<Txn, "date">>(transactions: T[]): T[] {
+  return [...transactions].sort((a, b) => {
+    const aTime = transactionTimestamp(a.date);
+    const bTime = transactionTimestamp(b.date);
+    if (aTime === null && bTime === null) return 0;
+    if (aTime === null) return 1;
+    if (bTime === null) return -1;
+    return bTime - aTime;
+  });
+}
+
 export function formatDate(iso: string) {
   const d = new Date(iso);
+  if (!Number.isFinite(d.getTime())) return "Neznámy dátum";
   return `${String(d.getDate()).padStart(2, "0")}.${String(d.getMonth() + 1).padStart(2, "0")}.${d.getFullYear()}`;
 }
 
 export function groupByMonth(txns: Txn[]) {
   const map = new Map<string, Txn[]>();
-  const sorted = [...txns].sort(
-    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-  );
+  const sorted = sortTransactionsNewestFirst(txns);
   for (const t of sorted) {
     const d = new Date(t.date);
-    const key = `${MONTHS[d.getMonth()]} ${d.getFullYear()}`;
+    const key = Number.isFinite(d.getTime())
+      ? `${MONTHS[d.getMonth()]} ${d.getFullYear()}`
+      : "Neznámy dátum";
     if (!map.has(key)) map.set(key, []);
     map.get(key)!.push(t);
   }
