@@ -190,8 +190,21 @@ function CentrumPlatieb() {
     }
     const normalizedAmount = form.amount.trim().replace(",", ".");
     const amount = Number(normalizedAmount);
-    if (!form.name.trim() || !form.iban.trim() || !/^\d+(?:\.\d{1,2})?$/.test(normalizedAmount) || !Number.isFinite(amount) || amount <= 0) {
+    if (
+      !form.name.trim() ||
+      form.name.trim().length > 100 ||
+      form.title.trim().length > 60 ||
+      !form.iban.trim() ||
+      !/^\d+(?:\.\d{1,2})?$/.test(normalizedAmount) ||
+      !Number.isFinite(amount) ||
+      amount <= 0 ||
+      amount > 1_000_000
+    ) {
       toast.error("Zadajte príjemcu a platnú sumu s najviac dvoma desatinnými miestami.");
+      return;
+    }
+    if (form.vs.trim() && !/^\d{1,10}$/.test(form.vs.trim())) {
+      toast.error("Variabilný symbol môže obsahovať najviac 10 číslic.");
       return;
     }
     const ibanCheck = validateIban(form.iban);
@@ -203,7 +216,7 @@ function CentrumPlatieb() {
       ...templates,
       {
         id: crypto.randomUUID(),
-        title: form.title || form.name,
+        title: form.title.trim() || form.name.trim(),
         name: form.name.trim(),
         iban: form.iban.replace(/\s/g, "").toUpperCase(),
         amount: amount.toFixed(2),
@@ -244,12 +257,12 @@ function CentrumPlatieb() {
 
           {open && (
             <div className="mb-3 space-y-2">
-              <input className={field} placeholder="Názov šablóny (napr. Nájom)" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} />
-              <input className={field} placeholder="Príjemca" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
-              <input className={field} placeholder="IBAN" value={form.iban} onChange={(e) => setForm({ ...form, iban: e.target.value.toUpperCase() })} />
+              <input className={field} maxLength={60} placeholder="Názov šablóny" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} />
+              <input className={field} maxLength={100} autoComplete="name" placeholder="Príjemca" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+              <input className={field} maxLength={42} autoComplete="off" placeholder="IBAN" value={form.iban} onChange={(e) => setForm({ ...form, iban: e.target.value.toUpperCase() })} />
               <div className="flex gap-2">
-                <input className={field} inputMode="decimal" placeholder="Suma €" value={form.amount} onChange={(e) => setForm({ ...form, amount: e.target.value })} />
-                <input className={field} inputMode="numeric" placeholder="VS" value={form.vs} onChange={(e) => setForm({ ...form, vs: e.target.value })} />
+                <input className={field} inputMode="decimal" maxLength={14} placeholder="Suma €" value={form.amount} onChange={(e) => setForm({ ...form, amount: e.target.value })} />
+                <input className={field} inputMode="numeric" maxLength={10} placeholder="VS" value={form.vs} onChange={(e) => setForm({ ...form, vs: e.target.value.replace(/\D/g, "").slice(0, 10) })} />
               </div>
               <button onClick={() => void addTemplate()} disabled={savingTemplates} className="w-full rounded-2xl bg-primary py-3 font-semibold text-primary-foreground disabled:opacity-50">
                 {savingTemplates ? "Ukladám…" : "Uložiť šablónu"}
