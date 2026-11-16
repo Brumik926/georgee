@@ -36,9 +36,9 @@ import {
 export const Route = createFileRoute("/_authenticated/nastavenia")({
   head: () => ({
     meta: [
-      { title: "Nastavenia | Aplikácia" },
+      { title: "Nastavenia · George Demo" },
       { name: "description", content: "Nastavenia účtu, zabezpečenia a vzhľadu aplikácie." },
-      { property: "og:title", content: "Nastavenia | Aplikácia" },
+      { property: "og:title", content: "Nastavenia · George Demo" },
       { property: "og:description", content: "Nastavenia účtu, zabezpečenia a vzhľadu aplikácie." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
