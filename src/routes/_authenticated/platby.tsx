@@ -33,7 +33,7 @@ export const Route = createFileRoute("/_authenticated/platby")({
   }),
   head: () => ({
     meta: [
-      { title: "Účet a transakcie | Aplikácia" },
+      { title: "Účet a transakcie · George Demo" },
       { name: "description", content: "História transakcií a správa demo účtu." },
     ],
   }),
