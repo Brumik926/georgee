@@ -19,8 +19,10 @@ function InvestovaniePage() {
   const [message, setMessage] = useState("");
 
   const selected = useMemo(() => funds.find((fund) => fund.id === selectedId) ?? funds[1]!, [selectedId]);
-  const numericAmount = Number(amount.replace(",", "."));
+  const normalizedAmount = amount.trim().replace(",", ".");
+  const numericAmount = Number(normalizedAmount);
   const canAdd =
+    /^\d+(?:\.\d{1,2})?$/.test(normalizedAmount) &&
     Number.isFinite(numericAmount) &&
     numericAmount > 0 &&
     numericAmount <= 10000 &&
