@@ -23,7 +23,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { AppShell } from "@/components/bank/AppShell";
-import { balance, formatDate, MONTHS, sortTransactionsNewestFirst, useBank, type Txn } from "@/lib/bank-store";
+import { balance, formatDate, hydrate, MONTHS, sortTransactionsNewestFirst, useBank, type Txn } from "@/lib/bank-store";
 
 export const Route = createFileRoute("/_authenticated/platby")({
   validateSearch: z.object({
