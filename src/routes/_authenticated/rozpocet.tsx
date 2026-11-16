@@ -67,10 +67,18 @@ function RozpocetPage() {
 
   const totalSpent = expenses.reduce((sum, transaction) => sum + transaction.amount, 0);
   const totalLimit = bank.budgets.reduce((sum, budget) => sum + budget.limit, 0);
+  const budgetedSpent = expenses
+    .filter((transaction) => bank.budgets.some((budget) => budget.category === transaction.category))
+    .reduce((sum, transaction) => sum + transaction.amount, 0);
   const overallProgress =
-    totalLimit > 0 ? Math.min(100, Math.round((totalSpent / totalLimit) * 100)) : 0;
+    totalLimit > 0 ? Math.min(100, Math.round((budgetedSpent / totalLimit) * 100)) : 0;
 
-  const categoryTotals = EXPENSE_CATEGORIES.map((name) => {
+  const categoryNames = [...new Set([
+    ...EXPENSE_CATEGORIES,
+    ...bank.budgets.map((budget) => budget.category),
+    ...expenses.map((transaction) => transaction.category),
+  ])].filter((name) => !["Mzda", "Ostatné príjmy"].includes(name));
+  const categoryTotals = categoryNames.map((name) => {
     const amount = expenses
       .filter((transaction) => transaction.category === name)
       .reduce((sum, transaction) => sum + transaction.amount, 0);
@@ -79,11 +87,14 @@ function RozpocetPage() {
   }).filter((item) => item.amount > 0 || item.limit > 0);
 
   const openAddForm = () => {
+    const firstWithoutLimit = EXPENSE_CATEGORIES.find(
+      (item) => !bank.budgets.some((budget) => budget.category === item),
+    );
+    if (!firstWithoutLimit) {
+      toast.error("Všetky dostupné kategórie už majú nastavený limit.");
+      return;
+    }
     setEditingCategory(null);
-    const firstWithoutLimit =
-      EXPENSE_CATEGORIES.find((item) => !bank.budgets.some((budget) => budget.category === item)) ??
-      EXPENSE_CATEGORIES[0] ??
-      "Potraviny";
     setCategory(firstWithoutLimit);
     setLimitValue("300");
     setFormOpen(true);
@@ -99,8 +110,12 @@ function RozpocetPage() {
   const saveLimit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const parsed = Number(limitValue.replace(",", "."));
-    if (!Number.isFinite(parsed) || parsed <= 0 || parsed > 1000000) {
-      toast.error("Zadajte platný limit vyšší ako 0 €.");
+    if (!Number.isFinite(parsed) || parsed <= 0 || parsed > 1000000 || Math.round(parsed * 100) !== parsed * 100) {
+      toast.error("Zadajte platný limit do 1 000 000 € s najviac dvoma desatinnými miestami.");
+      return;
+    }
+    if (!editingCategory && bank.budgets.some((budget) => budget.category === category)) {
+      toast.error("Táto kategória už má nastavený limit. Upravte existujúci limit.");
       return;
     }
     setSaving(true);
@@ -150,7 +165,7 @@ function RozpocetPage() {
           </div>
           <div className="mt-4 space-y-1.5">
             <div className="flex justify-between gap-2 text-xs text-muted-foreground">
-              <span>Vyčerpané z nastavených limitov</span>
+              <span>Čerpanie kategórií s nastaveným limitom</span>
               <span className="font-semibold text-foreground">
                 {totalLimit > 0 ? `${overallProgress} %` : "Bez limitov"}
               </span>
@@ -170,7 +185,7 @@ function RozpocetPage() {
             </div>
             <p className="text-[11px] text-muted-foreground">
               {totalLimit > 0
-                ? `Z celkového limitu ${formatEur(totalLimit)}`
+                ? `Z celkového limitu ${formatEur(totalLimit)} · výdavky bez limitu nie sú započítané`
                 : "Pridajte limit aspoň jednej kategórii, aby sa zobrazilo čerpanie rozpočtu."}
             </p>
           </div>
