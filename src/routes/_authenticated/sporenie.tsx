@@ -3,7 +3,7 @@ import { useMemo, useState } from "react";
 import { Target, Plus, PiggyBank, ArrowUpRight, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { AppShell, BrandHeader } from "@/components/bank/AppShell";
-import { addGoal, balance, depositToGoal, formatEur, removeGoal, useBank } from "@/lib/bank-store";
+import { addGoal, balance, depositToGoal, formatEur, hydrate, removeGoal, useBank } from "@/lib/bank-store";
 
 export const Route = createFileRoute("/_authenticated/sporenie")({
   head: () => ({
@@ -88,8 +88,8 @@ function Sporenie() {
           <div className="flex items-start justify-between gap-3">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.13em] text-muted-foreground">Nasporené spolu</p>
-              <p className="mt-2 text-3xl font-bold tracking-tight text-income">{formatEur(saved)}</p>
-              <p className="mt-1 text-sm text-muted-foreground">z plánovaných {formatEur(targetTotal)}</p>
+              <p className="mt-2 text-3xl font-bold tracking-tight text-income">{s.loading || s.error ? "—" : formatEur(saved)}</p>
+              <p className="mt-1 text-sm text-muted-foreground">{s.loading ? "Načítavam ciele…" : s.error ? "Údaje nie sú dostupné" : `z plánovaných ${formatEur(targetTotal)}`}</p>
             </div>
             <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-income/10 text-income">
               <PiggyBank className="size-6" />
@@ -109,7 +109,16 @@ function Sporenie() {
           <Target className="size-5 text-primary" />
         </div>
 
-        {s.goals.length === 0 ? (
+        {s.loading ? (
+          <p className="rounded-2xl bg-muted/50 p-5 text-center text-sm text-muted-foreground">Načítavam sporiace ciele…</p>
+        ) : s.error ? (
+          <section className="rounded-2xl border border-destructive/20 bg-destructive/5 p-4">
+            <p role="alert" className="text-sm text-destructive">{s.error}</p>
+            <button type="button" onClick={() => void hydrate()} className="mt-3 text-sm font-semibold text-primary underline">
+              Skúsiť znova
+            </button>
+          </section>
+        ) : s.goals.length === 0 ? (
           <section className="rounded-3xl border border-dashed border-border bg-surface p-6 text-center">
             <span className="mx-auto grid size-12 place-items-center rounded-2xl bg-primary/10 text-primary"><Target className="size-6" /></span>
             <h3 className="mt-3 font-semibold">Zatiaľ nemáte žiadny cieľ</h3>
@@ -183,7 +192,7 @@ function Sporenie() {
           <div className="space-y-3">
             <label className="block"><span className="mb-1 block text-xs font-medium text-muted-foreground">Názov cieľa</span><input className={field} value={name} onChange={(event) => setName(event.target.value)} placeholder="Napr. Dovolenka" /></label>
             <label className="block"><span className="mb-1 block text-xs font-medium text-muted-foreground">Cieľová suma (€)</span><input className={field} inputMode="decimal" value={target} onChange={(event) => setTarget(event.target.value)} placeholder="Zadajte sumu" /></label>
-            <button type="button" disabled={savingGoal} onClick={createGoal} className="flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-primary text-sm font-bold text-primary-foreground transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"><Plus className="size-4" /> {savingGoal ? "Ukladám…" : "Vytvoriť cieľ"}</button>
+            <button type="button" disabled={savingGoal || s.loading || !!s.error} onClick={createGoal} className="flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-primary text-sm font-bold text-primary-foreground transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"><Plus className="size-4" /> {savingGoal ? "Ukladám…" : "Vytvoriť cieľ"}</button>
           </div>
         </section>
       </div>
