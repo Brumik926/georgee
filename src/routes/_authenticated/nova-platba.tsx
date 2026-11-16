@@ -1,6 +1,6 @@
 import { validateIban, formatIban } from "@/lib/iban-validator";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   Fingerprint,
   ShieldCheck,
@@ -501,7 +501,7 @@ function QrScannerModal({
   onCloseRef.current = onClose;
   onScanSuccessRef.current = onScanSuccess;
 
-  function stopCamera() {
+  const stopCamera = useCallback(() => {
     runningRef.current = false;
     if (frameRef.current !== null) {
       cancelAnimationFrame(frameRef.current);
@@ -510,15 +510,15 @@ function QrScannerModal({
     streamRef.current?.getTracks().forEach((track) => track.stop());
     streamRef.current = null;
     if (videoRef.current) videoRef.current.srcObject = null;
-  }
+  }, []);
 
-  function getDetector(): Detector | null {
+  const getDetector = useCallback((): Detector | null => {
     const DetectorApi = (window as unknown as { BarcodeDetector?: DetectorConstructor }).BarcodeDetector;
     if (!DetectorApi) return null;
     return new DetectorApi({ formats: ["qr_code"] });
-  }
+  }, []);
 
-  function acceptRawValue(raw: string): boolean {
+  const acceptRawValue = useCallback((raw: string): boolean => {
     const parsed = parsePaymentQr(raw);
     if (!parsed) {
       setErrorMsg("QR kód neobsahuje podporované platobné údaje.");
@@ -527,7 +527,7 @@ function QrScannerModal({
     onScanSuccessRef.current(parsed);
     onCloseRef.current();
     return true;
-  }
+  }, []);
 
   useEffect(() => {
     if (!open || mode !== "camera") {
@@ -570,6 +570,7 @@ function QrScannerModal({
           try {
             if (video.readyState >= 2) {
               const codes = await detector.detect(video);
+              if (cancelled || !runningRef.current) return;
               const raw = codes.find((code) => typeof code.rawValue === "string" && code.rawValue.trim())?.rawValue;
               if (raw && acceptRawValue(raw)) {
                 runningRef.current = false;
@@ -597,7 +598,7 @@ function QrScannerModal({
       cancelled = true;
       stopCamera();
     };
-  }, [open, mode]);
+  }, [open, mode, stopCamera, getDetector, acceptRawValue]);
 
   async function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
