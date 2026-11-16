@@ -14,7 +14,7 @@ export function anonymizeFinances(
     popis: ["Billa", "Slovnaft", "Nájom", "Kino"].some((b) => t.counterparty.includes(b))
       ? t.counterparty
       : t.type === "in" ? "Prichádzajúca platba" : "Platba kartou",
-    den_v_mesiaci: new Date(t.date).getDate(),
+    den_v_mesiaci: Number.isFinite(new Date(t.date).getTime()) ? new Date(t.date).getDate() : null,
   }));
 
   const sanitizedBudgets = budgets.map((b) => ({
@@ -22,8 +22,8 @@ export function anonymizeFinances(
     limit_eur: b.limit,
   }));
 
-  const sanitizedGoals = goals.map((g) => ({
-    ciel: g.name,
+  const sanitizedGoals = goals.map((g, index) => ({
+    ciel: `Cieľ ${index + 1}`,
     nasporene_eur: g.saved,
     cielova_suma_eur: g.target,
   }));
