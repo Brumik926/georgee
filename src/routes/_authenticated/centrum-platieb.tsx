@@ -4,6 +4,7 @@ import { Repeat, Star, Trash2, Plus, User } from "lucide-react";
 import { toast } from "sonner";
 import { AppShell, BrandHeader } from "@/components/bank/AppShell";
 import { formatEur, useBank } from "@/lib/bank-store";
+import { validateIban } from "@/lib/iban-validator";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/_authenticated/centrum-platieb")({
@@ -66,27 +67,52 @@ function CentrumPlatieb() {
   }, []);
 
   useEffect(() => {
-    supabase
-      .from("payment_templates")
-      .select("*")
-      .order("created_at")
-      .then(({ data }) =>
-        setTemplates(
-          (data ?? []).map((r) => ({ id: r.id, title: r.title, name: r.name, iban: r.iban, amount: Number(r.amount).toFixed(2), vs: r.vs ?? undefined })),
-        ),
-      );
+    let active = true;
+    void supabase.auth.getUser()
+      .then(async ({ data, error: authError }) => {
+        if (authError) throw authError;
+        const id = data.user?.id;
+        if (!id) return [];
+        const { data: rows, error } = await supabase
+          .from("payment_templates")
+          .select("*")
+          .eq("user_id", id)
+          .order("created_at");
+        if (error) throw error;
+        return rows ?? [];
+      })
+      .then((rows) => {
+        if (!active) return;
+        setTemplates(rows.map((r) => ({
+          id: r.id,
+          title: r.title,
+          name: r.name,
+          iban: r.iban,
+          amount: Number(r.amount).toFixed(2),
+          vs: r.vs ?? undefined,
+        })));
+      })
+      .catch((error: unknown) => {
+        console.error("Nepodarilo sa načítať šablóny platieb:", error);
+        if (active) toast.error("Šablóny platieb sa nepodarilo načítať.");
+      });
+    return () => { active = false; };
   }, []);
 
   const save = async (list: Template[]) => {
+    if (!userId) {
+      toast.error("Používateľská relácia nie je pripravená.");
+      return false;
+    }
     const removed = templates.filter((t) => !list.some((l) => l.id === t.id));
     const added = list.filter((l) => !templates.some((t) => t.id === l.id));
     try {
       for (const r of removed) {
-        const { error } = await supabase.from("payment_templates").delete().eq("id", r.id);
+        const { error } = await supabase.from("payment_templates").delete().eq("id", r.id).eq("user_id", userId);
         if (error) throw error;
       }
       for (const a of added) {
-        const { error } = await supabase.from("payment_templates").insert({ id: a.id, title: a.title, name: a.name, iban: a.iban, amount: Number(a.amount), vs: a.vs ?? null });
+        const { error } = await supabase.from("payment_templates").insert({ user_id: userId, id: a.id, title: a.title, name: a.name, iban: a.iban, amount: Number(a.amount), vs: a.vs ?? null });
         if (error) throw error;
       }
       setTemplates(list);
@@ -117,14 +143,25 @@ function CentrumPlatieb() {
     if (!userId) return;
     const normalized = iban.replace(/\s/g, "").toUpperCase();
     const next = favorites.filter((item) => item.iban.replace(/\s/g, "").toUpperCase() !== normalized);
-    setFavorites(next);
-    localStorage.setItem(favoritesKey(userId), JSON.stringify(next));
-    toast.success("Príjemca bol odstránený z obľúbených.");
+    try {
+      localStorage.setItem(favoritesKey(userId), JSON.stringify(next));
+      setFavorites(next);
+      toast.success("Príjemca bol odstránený z obľúbených.");
+    } catch {
+      toast.error("Príjemcu sa nepodarilo odstrániť z tohto zariadenia.");
+    }
   };
 
   const addTemplate = async () => {
-    if (!form.name || !form.iban || !(Number(form.amount.replace(",", ".")) > 0)) {
-      toast.error("Vyplňte príjemcu, IBAN a sumu");
+    const normalizedAmount = form.amount.trim().replace(",", ".");
+    const amount = Number(normalizedAmount);
+    if (!form.name.trim() || !form.iban.trim() || !/^\\d+(?:\\.\\d{1,2})?$/.test(normalizedAmount) || !Number.isFinite(amount) || amount <= 0) {
+      toast.error("Zadajte príjemcu a platnú sumu s najviac dvoma desatinnými miestami.");
+      return;
+    }
+    const ibanCheck = validateIban(form.iban);
+    if (!ibanCheck.valid) {
+      toast.error(ibanCheck.error ?? "Zadajte platný IBAN.");
       return;
     }
     const saved = await save([
@@ -132,9 +169,9 @@ function CentrumPlatieb() {
       {
         id: crypto.randomUUID(),
         title: form.title || form.name,
-        name: form.name,
-        iban: form.iban,
-        amount: Number(form.amount.replace(",", ".")).toFixed(2),
+        name: form.name.trim(),
+        iban: form.iban.replace(/\\s/g, "").toUpperCase(),
+        amount: amount.toFixed(2),
         vs: form.vs || undefined,
       },
     ]);
