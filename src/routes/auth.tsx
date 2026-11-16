@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
@@ -31,9 +31,9 @@ function AuthPage() {
   const navigate = useNavigate();
   const { next: rawNext } = Route.useSearch();
   const next = oauthReturnPath(rawNext);
-  const goNext = () => {
-    navigate({ to: next, replace: true });
-  };
+  const goNext = useCallback(() => {
+    void navigate({ to: next, replace: true });
+  }, [goNext]);
 
   const [mode, setMode] = useState<"in" | "up" | "reset">("in");
   const [owner, setOwner] = useState("");
