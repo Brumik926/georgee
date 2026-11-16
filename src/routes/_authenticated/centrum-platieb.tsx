@@ -35,6 +35,7 @@ function CentrumPlatieb() {
   const [templatesLoading, setTemplatesLoading] = useState(true);
   const [templatesError, setTemplatesError] = useState(false);
   const [templatesReload, setTemplatesReload] = useState(0);
+  const [savingTemplates, setSavingTemplates] = useState(false);
   const [form, setForm] = useState({ title: "", name: "", iban: "", amount: "", vs: "" });
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState("");
@@ -112,6 +113,7 @@ function CentrumPlatieb() {
   }, [templatesReload]);
 
   const save = async (list: Template[]) => {
+    if (savingTemplates) return false;
     if (templatesLoading || templatesError) {
       toast.error("Šablóny ešte nie sú načítané. Skúste to znova.");
       return false;
@@ -120,6 +122,7 @@ function CentrumPlatieb() {
       toast.error("Používateľská relácia nie je pripravená.");
       return false;
     }
+    setSavingTemplates(true);
     const removed = templates.filter((t) => !list.some((l) => l.id === t.id));
     const added = list.filter((l) => !templates.some((t) => t.id === l.id));
     try {
@@ -136,7 +139,10 @@ function CentrumPlatieb() {
     } catch (error) {
       console.error("Nepodarilo sa uložiť šablónu platby:", error);
       toast.error("Zmeny šablón sa nepodarilo uložiť.");
+      setTemplatesReload((value) => value + 1);
       return false;
+    } finally {
+      setSavingTemplates(false);
     }
   };
 
@@ -220,7 +226,7 @@ function CentrumPlatieb() {
             </h2>
             <button
               onClick={() => setOpen((v) => !v)}
-              disabled={templatesLoading || templatesError}
+              disabled={templatesLoading || templatesError || savingTemplates}
               className="flex items-center gap-1 rounded-full bg-primary px-3 py-1.5 text-[13px] font-semibold text-primary-foreground disabled:cursor-not-allowed disabled:opacity-50"
             >
               <Plus className="h-4 w-4" /> Nová
@@ -236,8 +242,8 @@ function CentrumPlatieb() {
                 <input className={field} inputMode="decimal" placeholder="Suma €" value={form.amount} onChange={(e) => setForm({ ...form, amount: e.target.value })} />
                 <input className={field} inputMode="numeric" placeholder="VS" value={form.vs} onChange={(e) => setForm({ ...form, vs: e.target.value })} />
               </div>
-              <button onClick={addTemplate} className="w-full rounded-2xl bg-primary py-3 font-semibold text-primary-foreground">
-                Uložiť šablónu
+              <button onClick={() => void addTemplate()} disabled={savingTemplates} className="w-full rounded-2xl bg-primary py-3 font-semibold text-primary-foreground disabled:opacity-50">
+                {savingTemplates ? "Ukladám…" : "Uložiť šablónu"}
               </button>
             </div>
           )}
@@ -258,7 +264,7 @@ function CentrumPlatieb() {
           <ul className="divide-y divide-border">
             {templates.filter(match).map((t) => (
               <li key={t.id} className="flex items-center gap-3 py-3">
-                <button onClick={() => pay(t)} className="flex min-w-0 flex-1 items-center gap-3 text-left">
+                <button onClick={() => pay(t)} disabled={savingTemplates} className="flex min-w-0 flex-1 items-center gap-3 text-left disabled:opacity-50">
                   <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-primary/15 text-primary">
                     <Repeat className="h-5 w-5" />
                   </span>
@@ -268,7 +274,7 @@ function CentrumPlatieb() {
                   </span>
                   <span className="ml-auto shrink-0 text-[15px] font-bold">{formatEur(Number(t.amount))}</span>
                 </button>
-                <button aria-label="Odstrániť šablónu" onClick={() => void save(templates.filter((x) => x.id !== t.id))} className="p-2 text-muted-foreground">
+                <button aria-label="Odstrániť šablónu" disabled={savingTemplates} onClick={() => void save(templates.filter((x) => x.id !== t.id))} className="p-2 text-muted-foreground disabled:opacity-50">
                   <Trash2 className="h-4 w-4" />
                 </button>
               </li>
