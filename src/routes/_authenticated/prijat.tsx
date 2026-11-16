@@ -28,12 +28,23 @@ export default function Prijat() {
   const [copied, setCopied] = useState(false);
   const [busy, setBusy] = useState(false);
 
-  function copyIban() {
-    if (!s.iban) return;
-    navigator.clipboard.writeText(s.iban);
-    setCopied(true);
-    toast.success("IBAN bol skopírovaný do schránky");
-    setTimeout(() => setCopied(false), 2000);
+  async function copyIban() {
+    if (!s.iban) {
+      toast.error("IBAN zatiaľ nie je dostupný.");
+      return;
+    }
+    try {
+      if (!navigator.clipboard?.writeText) {
+        throw new Error("Schránka nie je v tomto prehliadači dostupná.");
+      }
+      await navigator.clipboard.writeText(s.iban);
+      setCopied(true);
+      toast.success("IBAN bol skopírovaný do schránky");
+      window.setTimeout(() => setCopied(false), 2000);
+    } catch (error) {
+      console.error("Kopírovanie IBAN-u zlyhalo:", error);
+      toast.error("IBAN sa nepodarilo skopírovať. Označte ho a skopírujte ručne.");
+    }
   }
 
   async function submit(e: React.FormEvent) {
@@ -43,6 +54,10 @@ export default function Prijat() {
     const value = Number(amount.replace(",", "."));
     if (!name.trim()) return setError("Zadajte odosielateľa.");
     if (!Number.isFinite(value) || value <= 0) return setError("Zadajte platnú sumu.");
+    if (Math.abs(value * 100 - Math.round(value * 100)) > 0.000001) {
+      return setError("Suma môže obsahovať najviac dve desatinné miesta.");
+    }
+    if (value > 1_000_000) return setError("Maximálna evidovaná suma je 1 000 000 €.");
 
     setBusy(true);
     try {
@@ -80,8 +95,9 @@ export default function Prijat() {
             </p>
             <button
               type="button"
-              onClick={copyIban}
-              className="flex items-center gap-1.5 rounded-full border border-border bg-surface-2 px-3 py-1 text-xs font-semibold text-foreground transition hover:bg-border/40"
+              onClick={() => void copyIban()}
+              disabled={!s.iban || s.loading}
+              className="flex items-center gap-1.5 rounded-full border border-border bg-surface-2 px-3 py-1 text-xs font-semibold text-foreground transition hover:bg-border/40 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {copied ? (
                 <>
@@ -115,6 +131,8 @@ export default function Prijat() {
               className={`${field} mt-1`}
               value={name}
               onChange={(e) => setName(e.target.value)}
+              maxLength={100}
+              autoComplete="name"
               placeholder="Meno odosielateľa alebo spoločnosti"
             />
           </label>
@@ -126,6 +144,7 @@ export default function Prijat() {
               inputMode="decimal"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
+              maxLength={14}
               placeholder="0,00"
             />
           </label>
