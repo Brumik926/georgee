@@ -3,5 +3,7 @@ export function triggerHaptic(duration = 12) {
     if (typeof window !== "undefined" && window.navigator && window.navigator.vibrate) {
       window.navigator.vibrate(duration);
     }
-  } catch {}
+  } catch {
+    // Vibrácie nie sú podporované alebo sú blokované prehliadačom.
+  }
 }
