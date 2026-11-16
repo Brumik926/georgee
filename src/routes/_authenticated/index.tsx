@@ -226,13 +226,8 @@ interface ListItemProps {
 }
 
 function ListItem({ icon: Icon, title, subtitle, badge, isLast, onClick }: ListItemProps) {
-  return (
-    <div
-      onClick={onClick}
-      className={`flex items-center justify-between py-3.5 cursor-pointer active:opacity-60 transition-opacity ${
-        !isLast ? "border-b border-border" : ""
-      }`}
-    >
+  const content = (
+    <>
       <div className="flex items-center gap-3.5">
         <div className="text-muted-foreground">
           <Icon size={22} strokeWidth={1.8} />
@@ -252,8 +247,21 @@ function ListItem({ icon: Icon, title, subtitle, badge, isLast, onClick }: ListI
             {badge}
           </span>
         )}
-        <ChevronRight size={18} className="text-gray-300 dark:text-gray-600" />
+        {onClick && <ChevronRight size={18} className="text-gray-300 dark:text-gray-600" />}
       </div>
+    </>
+  );
+  const className = `flex items-center justify-between py-3.5 transition-opacity ${
+    !isLast ? "border-b border-border" : ""
+  }`;
+
+  return onClick ? (
+    <button type="button" onClick={onClick} className={`${className} w-full text-left active:opacity-60`}>
+      {content}
+    </button>
+  ) : (
+    <div aria-disabled="true" className={`${className} cursor-default`}>
+      {content}
     </div>
   );
 }
