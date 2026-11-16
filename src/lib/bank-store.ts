@@ -127,7 +127,7 @@ export async function loadAll() {
         note: r.note ?? undefined,
         vs: r.vs ?? undefined,
       }))
-      })),
+      )),
     goals: (goals.data ?? []).map((g) => ({ id: g.id, name: g.name, target: num(g.target), saved: num(g.saved) })),
     budgets: (budgets.data ?? []).map((b) => ({ category: b.category, limit: num(b.limit_amount) })),
     loading: false,
