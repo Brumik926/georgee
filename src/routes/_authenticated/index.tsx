@@ -281,7 +281,8 @@ export function GeorgePrehladModern() {
     });
   }
 
-  const totals = monthTotals(s);
+  const currentMonth = new Date();
+  const totals = monthTotals(s, currentMonth);
   const total = balance(s);
   const totalParts = splitAmount(total);
   const expParts = splitAmount(totals.expense);
@@ -355,9 +356,9 @@ export function GeorgePrehladModern() {
             <ListItem icon={Heart} title="Odporučte Georgea" />
             <ListItem
               icon={ShoppingBag}
-              title="Moneyback"
-              subtitle="0,00 € na vyplatenie"
-              badge="5 nových"
+              title="Ponuky a odmeny"
+              subtitle="Ukážkové ponuky"
+              badge="Demo"
               onClick={() => navigate({ to: "/odmeny" })}
             />
             <ListItem
@@ -455,7 +456,7 @@ export function GeorgePrehladModern() {
         <div className="text-center pb-8 flex flex-col items-center">
           <div className="flex items-center justify-center mb-4">
             <span className="font-bold text-[15px] tracking-tight text-[#111827] dark:text-white">
-              Slovenská sporiteľňa
+              Banková simulácia
             </span>
           </div>
           <p className="text-[11px] text-muted-foreground mb-0.5">Prehľad účtu a financií</p>
@@ -524,30 +525,48 @@ export function GeorgePrehladModern() {
               >
                 <div className="flex justify-between items-start">
                   <span className="text-[13px] font-medium text-foreground leading-snug">
-                    Výdavky za {MONTHS[new Date().getMonth()]?.toLowerCase()}
+                    Výdavky za {MONTHS[currentMonth.getMonth()]?.toLowerCase()}
                   </span>
                   <div className="w-8 h-8 shrink-0 rounded-full flex items-center justify-center bg-primary/10 text-primary">
                     <BarChart3 size={15} strokeWidth={2.5} />
                   </div>
                 </div>
-                <div className="text-[19px] font-bold flex items-baseline tracking-tight text-foreground mt-1.5">
-                  <span>{expParts.whole}</span>
-                  <span>,</span>
-                  <sup className="text-[11px] font-bold top-[-0.55em] ml-0.5">{expParts.cents}</sup>
-                  <span className="ml-1">€</span>
+                <div className="mt-1.5 flex min-h-7 items-baseline text-[19px] font-bold tracking-tight text-foreground" aria-live="polite">
+                  {s.loading ? (
+                    <span className="text-sm font-medium text-muted-foreground">Načítavam…</span>
+                  ) : s.error ? (
+                    <span className="text-sm font-medium text-muted-foreground">Nedostupné</span>
+                  ) : (
+                    <>
+                      <span>{expParts.whole}</span>
+                      <span>,</span>
+                      <sup className="text-[11px] font-bold top-[-0.55em] ml-0.5">{expParts.cents}</sup>
+                      <span className="ml-1">€</span>
+                    </>
+                  )}
                 </div>
-                <div className="text-[12px] text-muted-foreground mt-0.5">Neurčený rozpočet</div>
+                <div className="mt-0.5 text-[12px] text-muted-foreground">
+                  {s.loading ? "Načítavam rozpočty…" : s.error ? "Rozpočet nie je dostupný" : s.budgets.length === 0 ? "Rozpočet nie je nastavený" : `${s.budgets.length} ${s.budgets.length === 1 ? "nastavený limit" : "nastavené limity"}`}
+                </div>
               </Link>
 
               <div className="rounded-3xl p-4 bg-surface shadow-sm">
                 <span className="text-[13px] font-medium text-foreground leading-snug block min-h-8">
-                  Príjmy za {MONTHS[new Date().getMonth()]?.toLowerCase()}
+                  Príjmy za {MONTHS[currentMonth.getMonth()]?.toLowerCase()}
                 </span>
-                <div className="text-[19px] font-bold flex items-baseline tracking-tight text-foreground mt-1.5">
-                  <span>{incParts.whole}</span>
-                  <span>,</span>
-                  <sup className="text-[11px] font-bold top-[-0.55em] ml-0.5">{incParts.cents}</sup>
-                  <span className="ml-1">€</span>
+                <div className="mt-1.5 flex min-h-7 items-baseline text-[19px] font-bold tracking-tight text-foreground" aria-live="polite">
+                  {s.loading ? (
+                    <span className="text-sm font-medium text-muted-foreground">Načítavam…</span>
+                  ) : s.error ? (
+                    <span className="text-sm font-medium text-muted-foreground">Nedostupné</span>
+                  ) : (
+                    <>
+                      <span>{incParts.whole}</span>
+                      <span>,</span>
+                      <sup className="text-[11px] font-bold top-[-0.55em] ml-0.5">{incParts.cents}</sup>
+                      <span className="ml-1">€</span>
+                    </>
+                  )}
                 </div>
               </div>
             </div>
@@ -561,38 +580,48 @@ export function GeorgePrehladModern() {
             <div className="rounded-3xl p-5 mb-4 relative overflow-hidden bg-surface shadow-sm">
               <div className="absolute top-0 left-0 w-full h-1 bg-[#2d2a8f]" />
 
-              <Link to="/platby" className="block cursor-pointer active:opacity-90" title="Otvoriť detail účtu">
-                <div className="flex justify-between items-start mt-0.5">
-                  <div>
+              <div className="mt-0.5 flex items-start justify-between gap-3">
+                <div className="min-w-0 flex-1">
+                  <Link to="/platby" className="block">
                     <h3 className="text-[16px] font-semibold text-foreground">Účet</h3>
-                    <div
-                      className={`mt-1 text-[25px] font-bold flex items-baseline tracking-tight ${
-                        totalParts.isNegative ? "text-[#d62828] dark:text-[#ff5252]" : "text-foreground"
+                  </Link>
+                  <div className="mt-1 flex items-baseline gap-1">
+                    <Link
+                      to="/platby"
+                      className={`min-w-0 text-[25px] font-bold tracking-tight ${
+                        totalParts.isNegative ? "text-expense" : "text-foreground"
                       }`}
                     >
-                      {!hidden && totalParts.isNegative && <span>-</span>}
-                      <span>{hidden ? "••••" : totalParts.whole}</span>
+                      {!hidden && totalParts.isNegative ? "-" : ""}
+                      <span>{hidden ? "••••" : s.loading || s.error ? "—" : totalParts.whole}</span>
                       <span>,</span>
-                      <sup className="text-[13px] font-bold top-[-0.55em] ml-0.5 leading-none select-none">
-                        {hidden ? "••" : totalParts.cents}
+                      <sup className="top-[-0.55em] ml-0.5 text-[13px] font-bold leading-none select-none">
+                        {hidden ? "••" : s.loading || s.error ? "—" : totalParts.cents}
                       </sup>
                       <span className="ml-1 select-none">€</span>
-                      <button
-                        type="button"
-                        aria-label={hidden ? "Zobraziť zostatok" : "Skryť zostatok"}
-                        onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleHidden(); }}
-                        className="ml-2.5 self-center rounded-full p-1 text-gray-400 hover:bg-gray-100 dark:hover:bg-white/10"
-                      >
-                        {hidden ? <EyeOff size={16} /> : <Eye size={16} />}
-                      </button>
-                    </div>
-                    <p className="mt-1 text-[13px] text-muted-foreground">
-                      {hidden ? "•••• € vlastné zdroje" : `${formatEur(total)} vlastné zdroje`}
-                    </p>
+                    </Link>
+                    <button
+                      type="button"
+                      aria-label={hidden ? "Zobraziť zostatok" : "Skryť zostatok"}
+                      aria-pressed={hidden}
+                      onClick={toggleHidden}
+                      className="shrink-0 self-center rounded-full p-1 text-muted-foreground transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    >
+                      {hidden ? <EyeOff size={16} /> : <Eye size={16} />}
+                    </button>
                   </div>
-                    <DemoMark size={52} />
-               </div>
-              </Link>
+                  <Link to="/platby" className="mt-1 block text-[13px] text-muted-foreground">
+                    {hidden
+                      ? "•••• € zostatok podľa dostupnej histórie"
+                      : s.loading
+                        ? "Načítavam zostatok…"
+                        : s.error
+                          ? "Zostatok nie je dostupný"
+                          : `${formatEur(total)} zostatok podľa dostupnej histórie`}
+                  </Link>
+                </div>
+                <DemoMark size={52} />
+              </div>
 
               <div className="flex justify-between items-center mt-4">
                 <Link
@@ -660,13 +689,14 @@ export function GeorgePrehladModern() {
               <div className="absolute top-0 left-0 w-full h-1 bg-[#2d2a8f]" />
               <div className="flex justify-between items-start mt-0.5">
                 <div>
-                  <h3 className="text-[16px] font-semibold text-foreground">Investície</h3>
+                  <h3 className="text-[16px] font-semibold text-foreground">Sporenie</h3>
                   <div className="text-[25px] font-bold flex items-baseline tracking-tight text-foreground mt-1">
-                    <span>{hidden ? "••••" : savParts.whole}</span>
+                    <span>{hidden ? "••••" : s.loading || s.error ? "—" : savParts.whole}</span>
                     <span>,</span>
-                    <sup className="text-[13px] font-bold top-[-0.55em] ml-0.5 leading-none">{hidden ? "••" : savParts.cents}</sup>
+                    <sup className="text-[13px] font-bold top-[-0.55em] ml-0.5 leading-none">{hidden ? "••" : s.loading || s.error ? "—" : savParts.cents}</sup>
                     <span className="ml-1">€</span>
                   </div>
+                  <p className="mt-1 text-xs text-muted-foreground">Nasporené v cieľoch</p>
                 </div>
                 <img
                   src="https://images.unsplash.com/photo-1486325212027-8081e485255e?w=160&auto=format&fit=crop&q=80"
@@ -687,24 +717,24 @@ export function GeorgePrehladModern() {
               <div className="absolute top-0 left-0 w-full h-1 bg-[#a94fb5]" />
               <div className="flex justify-between items-start mt-0.5">
                 <div className="pr-3">
-                  <h3 className="text-[16px] font-semibold text-foreground">Moneyback</h3>
-                  <span className="mt-1.5 inline-block rounded-full bg-[#fbeefc] dark:bg-[#3a2340] px-2.5 py-0.5 text-[11px] font-semibold text-[#a94fb5]">
-                    7 nových ponúk
+                  <h3 className="text-[16px] font-semibold text-foreground">Ponuky a odmeny</h3>
+                  <span className="mt-1.5 inline-block rounded-full bg-primary/10 px-2.5 py-0.5 text-[11px] font-semibold text-primary">
+                    Ukážkové ponuky
                   </span>
                   <p className="mt-2 text-[13px] text-muted-foreground leading-normal">
-                    Objavte ponuky od najlepších značiek a získajte späť časť svojich peňazí.
+                    Aktivujte si modelové ponuky. Odmeny nemajú skutočnú peňažnú hodnotu.
                   </p>
                 </div>
                 <div className="w-13 h-13 shrink-0 rounded-full flex items-center justify-center bg-[#fbeefc] dark:bg-[#3a2340] text-[#a94fb5]">
                   <ShoppingBag size={22} />
                 </div>
               </div>
-              <button
-                type="button"
-                className="mt-4 px-5 py-2 rounded-full font-medium text-[13px] bg-primary/10 text-primary"
+              <Link
+                to="/odmeny"
+                className="mt-4 inline-flex min-h-10 items-center rounded-full bg-primary/10 px-5 py-2 text-[13px] font-medium text-primary transition-colors hover:bg-primary/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
-                Prezrite si 7 nových ponúk
-              </button>
+                Zobraziť ukážkové ponuky
+              </Link>
             </div>
 
             {/* Sekcia: Posledné pohyby */}
@@ -723,8 +753,8 @@ export function GeorgePrehladModern() {
 
               <div className="rounded-3xl divide-y overflow-hidden bg-surface shadow-sm border border-border divide-gray-100 dark:divide-white/5 text-gray-900 dark:text-white">
                 {recentTransactions.length === 0 ? (
-                  <p className="p-4 text-center text-[13px] text-gray-400">
-                    Žiadne nedávne transakcie
+                  <p className="p-4 text-center text-[13px] text-muted-foreground" role="status">
+                    {s.loading ? "Načítavam transakcie…" : s.error ? "Transakcie nie sú dostupné." : "Žiadne nedávne transakcie"}
                   </p>
                 ) : (
                   recentTransactions.map((tx) => {
