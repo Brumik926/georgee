@@ -171,11 +171,17 @@ export async function notify(kind: NotifKind, title: string, body: string) {
 
   const userId = await currentUserId();
   if (!userId) return;
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("notifications")
     .insert({ user_id: userId, kind, title, body })
     .select("id, created_at")
     .maybeSingle();
+
+  if (error) {
+    console.error("Uloženie upozornenia zlyhalo:", error);
+    toast.error("Upozornenie sa nepodarilo uložiť do histórie.");
+    return;
+  }
 
   state = {
     ...state,
