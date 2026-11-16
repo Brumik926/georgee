@@ -1,7 +1,18 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Camera, Upload, X, AlertCircle } from "lucide-react";
 import { parsePaymentQr, type ParsedPaymentData } from "@/lib/qr-parser";
 import { toast } from "sonner";
+
+type DemoBarcodeDetector = {
+  detect: (source: ImageBitmapSource) => Promise<Array<{ rawValue: string }>>;
+};
+type DemoBarcodeDetectorConstructor = new (options: { formats: string[] }) => DemoBarcodeDetector;
+
+function createBarcodeDetector(): DemoBarcodeDetector | null {
+  if (typeof window === "undefined") return null;
+  const Detector = (window as Window & { BarcodeDetector?: DemoBarcodeDetectorConstructor }).BarcodeDetector;
+  return Detector ? new Detector({ formats: ["qr_code"] }) : null;
+}
 
 interface Props {
   open: boolean;
@@ -11,11 +22,53 @@ interface Props {
 
 export function QrScannerModal({ open, onClose, onScanSuccess }: Props) {
   const [mode, setMode] = useState<"camera" | "file">("camera");
-  const [errorMsg, setErrorMsg] = useState<string>("");
+  const [errorMsg, setErrorMsg] = useState("");
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
+  const intervalRef = useRef<number | null>(null);
 
-  // Spustenie kamery
+  const stopCamera = useCallback(() => {
+    if (intervalRef.current !== null) {
+      window.clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((track) => track.stop());
+      streamRef.current = null;
+    }
+  }, []);
+
+  const startDetection = useCallback(() => {
+    const detector = createBarcodeDetector();
+    if (!detector) {
+      setErrorMsg("Kamera v tomto prehliadači nepodporuje skener QR kódov. Použite nahranie obrázka.");
+      return;
+    }
+
+    intervalRef.current = window.setInterval(async () => {
+      const video = videoRef.current;
+      if (!video || !streamRef.current) {
+        stopCamera();
+        return;
+      }
+      try {
+        const barcodes = await detector.detect(video);
+        if (barcodes.length > 0) {
+          const parsed = parsePaymentQr(barcodes[0].rawValue);
+          if (parsed && (parsed.iban || parsed.amount)) {
+            stopCamera();
+            navigator.vibrate?.(50);
+            toast.success("Údaje z QR kódu boli načítané");
+            onScanSuccess(parsed);
+            onClose();
+          }
+        }
+      } catch {
+        // Nepodarené dekódovanie jednej snímky neukončí skenovanie.
+      }
+    }, 300);
+  }, [onClose, onScanSuccess, stopCamera]);
+
   useEffect(() => {
     if (!open || mode !== "camera") {
       stopCamera();
@@ -23,112 +76,81 @@ export function QrScannerModal({ open, onClose, onScanSuccess }: Props) {
     }
 
     let active = true;
-
     async function initCamera() {
       setErrorMsg("");
       try {
+        if (!navigator.mediaDevices?.getUserMedia) {
+          throw new Error("Kamera nie je dostupná.");
+        }
         const stream = await navigator.mediaDevices.getUserMedia({
           video: { facingMode: { ideal: "environment" } },
         });
         if (!active) {
-          stream.getTracks().forEach((t) => t.stop());
+          stream.getTracks().forEach((track) => track.stop());
           return;
         }
         streamRef.current = stream;
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-          await videoRef.current.play();
-          startDetection();
+        const video = videoRef.current;
+        if (video) {
+          video.srcObject = stream;
+          await video.play();
+          if (active) startDetection();
         }
-      } catch (err) {
-        console.error(err);
-        setErrorMsg("Kamera nie je dostupná alebo nebol udelený prístup. Skúste nahrať fotku.");
+      } catch (error) {
+        console.error("Spustenie QR kamery zlyhalo:", error);
+        if (active) setErrorMsg("Kamera nie je dostupná alebo nebol udelený prístup. Skúste nahrať obrázok.");
       }
     }
 
     void initCamera();
-
     return () => {
       active = false;
       stopCamera();
     };
-  }, [open, mode]);
+  }, [open, mode, startDetection, stopCamera]);
 
-  function stopCamera() {
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach((track) => track.stop());
-      streamRef.current = null;
-    }
-  }
-
-  // Detekcia QR kódu z videa
-  async function startDetection() {
-    // natívne BarcodeDetector API v moderných prehliadačoch
-    if (typeof window !== "undefined" && "BarcodeDetector" in window) {
-      try {
-        const detector = new (window as any).BarcodeDetector({ formats: ["qr_code"] });
-
-        const interval = setInterval(async () => {
-          if (!videoRef.current || !streamRef.current) {
-            clearInterval(interval);
-            return;
-          }
-          try {
-            const barcodes = await detector.detect(videoRef.current);
-            if (barcodes.length > 0) {
-              const rawValue = barcodes[0].rawValue;
-              const parsed = parsePaymentQr(rawValue);
-              if (parsed && (parsed.iban || parsed.amount)) {
-                clearInterval(interval);
-                stopCamera();
-                navigator.vibrate?.(50);
-                toast.success("Údaje z QR kódu boli načítané");
-                onScanSuccess(parsed);
-                onClose();
-              }
-            }
-          } catch {
-            // snímka sa nepodarila dekódovať, pokračujeme v ďalšom cykle
-          }
-        }, 300);
-      } catch {
-        setErrorMsg("Váš prehliadač nepodporuje priame čítanie z kamery, nahrajte súbor.");
-      }
-    } else {
-      setErrorMsg("Kamera v tomto prehliadači nepodporuje priamy skener QR kódov. Použite nahranie obrázka.");
-    }
-  }
-
-  // Spracovanie nahraného obrázka
   async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
 
     setErrorMsg("");
-    if (typeof window !== "undefined" && "BarcodeDetector" in window) {
-      try {
-        const img = new Image();
-        img.src = URL.createObjectURL(file);
-        await img.decode();
+    if (!file.type.startsWith("image/")) {
+      setErrorMsg("Vyberte obrázok obsahujúci QR kód.");
+      return;
+    }
+    if (file.size > 20 * 1024 * 1024) {
+      setErrorMsg("Obrázok môže mať najviac 20 MB.");
+      return;
+    }
 
-        const detector = new (window as any).BarcodeDetector({ formats: ["qr_code"] });
-        const barcodes = await detector.detect(img);
+    const detector = createBarcodeDetector();
+    if (!detector) {
+      setErrorMsg("Čítanie QR kódu zo súboru nie je podporované týmto prehliadačom.");
+      return;
+    }
 
-        if (barcodes.length > 0) {
-          const parsed = parsePaymentQr(barcodes[0].rawValue);
-          if (parsed && (parsed.iban || parsed.amount)) {
-            toast.success("Faktúra úspešne spracovaná");
-            onScanSuccess(parsed);
-            onClose();
-            return;
-          }
+    const objectUrl = URL.createObjectURL(file);
+    try {
+      const img = new Image();
+      img.src = objectUrl;
+      await img.decode();
+      const barcodes = await detector.detect(img);
+      if (barcodes.length > 0) {
+        const parsed = parsePaymentQr(barcodes[0].rawValue);
+        if (parsed && (parsed.iban || parsed.amount)) {
+          toast.success("Údaje z QR kódu boli načítané");
+          onScanSuccess(parsed);
+          onClose();
+          return;
         }
-        setErrorMsg("V obrázku sa nepodarilo nájsť platný QR kód.");
-      } catch (err) {
-        setErrorMsg("Chyba pri spracovaní obrázka.");
       }
-    } else {
-      setErrorMsg("Čítanie zo súboru nie je podporované týmto prehliadačom.");
+      setErrorMsg("V obrázku sa nepodarilo nájsť platný QR kód.");
+    } catch (error) {
+      console.error("Spracovanie QR obrázka zlyhalo:", error);
+      setErrorMsg("Chyba pri spracovaní obrázka.");
+    } finally {
+      URL.revokeObjectURL(objectUrl);
+      e.target.value = "";
     }
   }
 
