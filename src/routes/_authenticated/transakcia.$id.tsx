@@ -277,7 +277,7 @@ function Detail() {
                   placeholder="Poznámka alebo #hashtag"
                   className="min-w-0 flex-1 bg-transparent text-[17px] outline-none"
                 />
-                <button className="font-semibold text-detail-action" onClick={() => { save({ ...extra, note: noteDraft.trim() }); setEditingNote(false); }}>Uložiť</button>
+                <button className="font-semibold text-detail-action" onClick={() => { if (save({ ...extra, note: noteDraft.trim() })) setEditingNote(false); }}>Uložiť</button>
               </div>
             ) : (
               <button className={rowBtn} onClick={() => { setNoteDraft(note ?? ""); setEditingNote(true); }}>
