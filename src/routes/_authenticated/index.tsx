@@ -30,7 +30,8 @@ import {
   ChevronRight,
   Landmark,
   MapPin,
-  Plus
+  Plus,
+  type LucideIcon
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import {
