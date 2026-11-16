@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft, Bell, BellRing, PieChart, Volume2, Smartphone } from "lucide-react";
 import {
   clearNotifications,
+  hydrateNotifications,
   markAllRead,
   playNotificationSound,
   updateNotifSettings,
@@ -71,7 +72,7 @@ function timeAgo(iso: string) {
 }
 
 function Upozornenia() {
-  const { settings, items, loading } = useNotifications();
+  const { settings, items, loading, error } = useNotifications();
 
   return (
     <div className="mx-auto min-h-screen w-full max-w-[430px] bg-background p-5">
@@ -136,6 +137,17 @@ function Upozornenia() {
 
         {loading ? (
           <p className="mt-4 text-sm text-muted-foreground">Načítavam…</p>
+        ) : error ? (
+          <div className="mt-4 rounded-xl bg-destructive/10 p-3">
+            <p role="alert" className="text-sm text-destructive">{error}</p>
+            <button
+              type="button"
+              onClick={() => void hydrateNotifications()}
+              className="mt-2 text-sm font-semibold text-primary underline"
+            >
+              Skúsiť znova
+            </button>
+          </div>
         ) : items.length === 0 ? (
           <p className="mt-4 text-sm text-muted-foreground">Zatiaľ žiadne hlásenia.</p>
         ) : (
