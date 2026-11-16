@@ -38,6 +38,11 @@ const fmt = new Intl.DateTimeFormat("sk-SK", {
   minute: "2-digit",
 });
 
+function formatLoginDate(value: string): string {
+  const date = new Date(value);
+  return Number.isFinite(date.getTime()) ? fmt.format(date) : "Neznámy dátum";
+}
+
 function ProtokolPristupov() {
   const qc = useQueryClient();
   const [pending, setPending] = useState<string | null>(null);
@@ -119,7 +124,7 @@ function ProtokolPristupov() {
               <div className="min-w-0 flex-1">
                 <p className="text-[15px] font-semibold break-all">{e.email || "Neznámy e-mail"}</p>
                 <p className="text-[13px] text-muted-foreground">{e.device || "Neznáme zariadenie"}</p>
-                <p className="text-[12px] text-muted-foreground tabular-nums">{fmt.format(new Date(e.created_at))}</p>
+                <p className="text-[12px] text-muted-foreground tabular-nums">{formatLoginDate(e.created_at)}</p>
               </div>
               <Button size="sm" variant={blocks.data?.some(b => b.email === e.email.trim().toLowerCase() && b.is_blocked) ? "outline" : "destructive"}
                 disabled={pending !== null || !blocks.data || blocks.isError || !e.email}
