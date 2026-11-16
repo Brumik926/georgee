@@ -1,4 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { z } from "zod";
 import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, ArrowUpRight, ArrowDownLeft, Tag, EyeOff, Pencil, Paperclip, Copy, Download, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
@@ -7,6 +8,11 @@ import { formatEur, removeTransaction, useBank } from "@/lib/bank-store";
 import { exportReceipt } from "@/lib/pdf-export";
 
 export const Route = createFileRoute("/_authenticated/transakcia/$id")({
+  validateSearch: z.object({
+    q: z.string().optional(),
+    filter: z.enum(["all", "in", "out"]).optional(),
+    searchOpen: z.enum(["1"]).optional(),
+  }),
   head: () => ({
     meta: [
       { title: "Detail transakcie | Aplikácia" },
@@ -95,6 +101,7 @@ function Row({ label, children }: { label: string; children: React.ReactNode }) 
 
 function Detail() {
   const { id } = Route.useParams();
+  const search = Route.useSearch();
   const s = useBank();
   const t = s.transactions.find((x) => x.id === id);
   const navigate = useNavigate();
@@ -188,6 +195,7 @@ function Detail() {
       <div className="transaction-detail min-h-screen bg-detail-background px-4 pb-10 pt-5 font-sans text-foreground">
         <Link
           to="/platby"
+          search={{ q: search.q, filter: search.filter, searchOpen: search.searchOpen }}
           aria-label="Späť na históriu transakcií"
           className="mb-4 inline-grid size-10 place-items-center text-detail-action"
         >
