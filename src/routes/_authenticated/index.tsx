@@ -394,7 +394,7 @@ export function GeorgePrehladModern() {
               icon={MapPin}
               title="Pobočky a bankomaty"
               subtitle="Vyhľadať v externých mapách"
-              onClick={() => toast.info("Vyhľadávanie pobočiek a bankomatov zatiaľ nie je dostupné.")}
+              onClick={() => void navigate({ to: "/lokality" })}
             />
             <ListItem
               icon={TrendingUp}
