@@ -22,6 +22,58 @@ export const Route = createFileRoute("/_authenticated/transakcia/$id")({
 
 type Extra = { exclude?: boolean | undefined; note?: string | undefined; attachment?: string | undefined };
 const extraKey = (id: string) => `george-txn-extra:${id}`;
+const attachmentDbName = "george-demo-attachments";
+
+function openAttachmentDb(): Promise<IDBDatabase> {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open(attachmentDbName, 1);
+    request.onupgradeneeded = () => {
+      const db = request.result;
+      if (!db.objectStoreNames.contains("files")) db.createObjectStore("files");
+    };
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error ?? new Error("Databázu príloh sa nepodarilo otvoriť."));
+  });
+}
+
+async function storeAttachment(transactionId: string, file: File) {
+  const db = await openAttachmentDb();
+  try {
+    await new Promise<void>((resolve, reject) => {
+      const request = db.transaction("files", "readwrite").objectStore("files").put(file, transactionId);
+      request.onsuccess = () => resolve();
+      request.onerror = () => reject(request.error ?? new Error("Prílohu sa nepodarilo uložiť."));
+    });
+  } finally {
+    db.close();
+  }
+}
+
+async function readAttachment(transactionId: string): Promise<Blob | undefined> {
+  const db = await openAttachmentDb();
+  try {
+    return await new Promise((resolve, reject) => {
+      const request = db.transaction("files", "readonly").objectStore("files").get(transactionId);
+      request.onsuccess = () => resolve(request.result as Blob | undefined);
+      request.onerror = () => reject(request.error ?? new Error("Prílohu sa nepodarilo načítať."));
+    });
+  } finally {
+    db.close();
+  }
+}
+
+async function deleteAttachment(transactionId: string) {
+  const db = await openAttachmentDb();
+  try {
+    await new Promise<void>((resolve, reject) => {
+      const request = db.transaction("files", "readwrite").objectStore("files").delete(transactionId);
+      request.onsuccess = () => resolve();
+      request.onerror = () => reject(request.error ?? new Error("Prílohu sa nepodarilo odstrániť."));
+    });
+  } finally {
+    db.close();
+  }
+}
 
 function formatIban(iban: string) {
   return iban.replace(/\s+/g, "").replace(/(.{4})/g, "$1 ").trim();
@@ -208,20 +260,78 @@ function Detail() {
                 <span className={`text-[17px] ${note ? "text-detail-ink" : "text-detail-muted"}`}>{note || "Pridať poznámku alebo #hashtag"}</span>
               </button>
             )}
-            <button className={`${rowBtn} mt-1`} onClick={() => fileRef.current?.click()}>
+            <div className={`${rowBtn} mt-1`}>
               <Paperclip className="size-7 shrink-0 text-detail-action" />
-              <span className={`min-w-0 flex-1 truncate text-[17px] ${extra.attachment ? "text-detail-ink" : "text-detail-muted"}`}>{extra.attachment || "Nahrať prílohu"}</span>
-              {extra.attachment && (
-                <span role="button" aria-label="Odstrániť prílohu" onClick={(e) => { e.stopPropagation(); save({ ...extra, attachment: undefined }); }}>
-                  <X className="size-5 text-detail-muted" />
-                </span>
+              {extra.attachment ? (
+                <button
+                  type="button"
+                  className="min-w-0 flex-1 truncate text-left text-[17px] text-detail-ink"
+                  onClick={async () => {
+                    try {
+                      const file = await readAttachment(id);
+                      if (!file) throw new Error("Súbor prílohy sa v tomto zariadení nenašiel.");
+                      const url = URL.createObjectURL(file);
+                      const link = document.createElement("a");
+                      link.href = url;
+                      link.download = extra.attachment || "priloha";
+                      link.click();
+                      URL.revokeObjectURL(url);
+                    } catch (error) {
+                      console.error(error);
+                      toast.error(error instanceof Error ? error.message : "Prílohu sa nepodarilo stiahnuť.");
+                    }
+                  }}
+                >
+                  {extra.attachment}
+                </button>
+              ) : (
+                <button type="button" className="flex-1 text-left text-[17px] text-detail-muted" onClick={() => fileRef.current?.click()}>
+                  Nahrať prílohu
+                </button>
               )}
-            </button>
+              {extra.attachment && (
+                <button
+                  type="button"
+                  aria-label="Odstrániť prílohu"
+                  className="rounded-full p-2 text-detail-muted"
+                  onClick={async () => {
+                    try {
+                      await deleteAttachment(id);
+                      save({ ...extra, attachment: undefined });
+                      toast.success("Príloha odstránená");
+                    } catch (error) {
+                      console.error(error);
+                      toast.error("Prílohu sa nepodarilo odstrániť.");
+                    }
+                  }}
+                >
+                  <X className="size-5" />
+                </button>
+              )}
+            </div>
             <input
               ref={fileRef}
               type="file"
               className="hidden"
-              onChange={(e) => { const f = e.target.files?.[0]; if (f) { save({ ...extra, attachment: f.name }); toast.success("Príloha pridaná"); } e.target.value = ""; }}
+              onChange={async (e) => {
+                const file = e.target.files?.[0];
+                if (!file) return;
+                if (file.size > 10 * 1024 * 1024) {
+                  toast.error("Príloha môže mať najviac 10 MB.");
+                  e.target.value = "";
+                  return;
+                }
+                try {
+                  await storeAttachment(id, file);
+                  save({ ...extra, attachment: file.name });
+                  toast.success("Príloha uložená v tomto zariadení");
+                } catch (error) {
+                  console.error(error);
+                  toast.error("Prílohu sa nepodarilo uložiť.");
+                } finally {
+                  e.target.value = "";
+                }
+              }}
             />
           </section>
 
