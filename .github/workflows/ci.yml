@@ -31,6 +31,11 @@ jobs:
         run: bun run test
         continue-on-error: true
 
+      - name: TypeScript type check
+        id: typecheck
+        run: bunx tsc --noEmit
+        continue-on-error: true
+
       - name: Run ESLint (excluding repository-wide Prettier formatting debt)
         id: lint
         run: "bun run lint -- --rule 'prettier/prettier: off'"
@@ -45,5 +50,6 @@ jobs:
         if: always()
         run: |
           test "${{ steps.tests.outcome }}" = "success"
+          test "${{ steps.typecheck.outcome }}" = "success"
           test "${{ steps.lint.outcome }}" = "success"
           test "${{ steps.build.outcome }}" = "success"
