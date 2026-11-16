@@ -115,7 +115,7 @@ export async function loadAll() {
   state = {
     owner: profile?.owner ?? "",
     iban: profile?.iban ?? "",
-    transactions: (txns.data ?? [])
+    transactions: sortTransactionsNewestFirst((txns.data ?? [])
       .map((r) => ({
         id: r.id,
         type: (r.type === "in" ? "in" : "out") as "in" | "out",
@@ -127,7 +127,7 @@ export async function loadAll() {
         note: r.note ?? undefined,
         vs: r.vs ?? undefined,
       }))
-      .pipe(sortTransactionsNewestFirst),
+      })),
     goals: (goals.data ?? []).map((g) => ({ id: g.id, name: g.name, target: num(g.target), saved: num(g.saved) })),
     budgets: (budgets.data ?? []).map((b) => ({ category: b.category, limit: num(b.limit_amount) })),
     loading: false,
