@@ -14,6 +14,7 @@ import { AppShell, BrandHeader } from "@/components/bank/AppShell";
 import {
   CATEGORIES,
   formatEur,
+  hydrate,
   useBank,
   setBudget,
   removeBudget,
@@ -87,6 +88,10 @@ function RozpocetPage() {
   }).filter((item) => item.amount > 0 || item.limit > 0);
 
   const openAddForm = () => {
+    if (bank.loading || bank.error) {
+      toast.error("Údaje rozpočtu ešte nie sú dostupné.");
+      return;
+    }
     const firstWithoutLimit = EXPENSE_CATEGORIES.find(
       (item) => !bank.budgets.some((budget) => budget.category === item),
     );
@@ -162,7 +167,7 @@ function RozpocetPage() {
           </div>
           <div className="mt-3">
             <span className="text-xs text-muted-foreground">Celkové výdavky</span>
-            <p className="text-3xl font-extrabold text-foreground">{formatEur(totalSpent)}</p>
+            <p className="text-3xl font-extrabold text-foreground">{bank.loading || bank.error ? "—" : formatEur(totalSpent)}</p>
           </div>
           <div className="mt-4 space-y-1.5">
             <div className="flex justify-between gap-2 text-xs text-muted-foreground">
@@ -203,7 +208,8 @@ function RozpocetPage() {
             <button
               type="button"
               onClick={openAddForm}
-              className="flex min-h-11 shrink-0 items-center gap-1 rounded-xl px-2 text-xs font-semibold text-primary hover:bg-primary/10"
+              disabled={bank.loading || !!bank.error}
+              className="flex min-h-11 shrink-0 items-center gap-1 rounded-xl px-2 text-xs font-semibold text-primary hover:bg-primary/10 disabled:cursor-not-allowed disabled:opacity-50"
             >
               <Plus className="size-4" />
               Pridať limit
@@ -257,7 +263,7 @@ function RozpocetPage() {
               </label>
               <button
                 type="submit"
-                disabled={saving}
+                disabled={saving || bank.loading || !!bank.error}
                 className="min-h-11 w-full rounded-xl bg-primary px-4 text-sm font-semibold text-primary-foreground disabled:opacity-60"
               >
                 {saving ? "Ukladám…" : "Uložiť limit"}
@@ -265,7 +271,16 @@ function RozpocetPage() {
             </form>
           )}
 
-          {categoryTotals.length === 0 ? (
+          {bank.loading ? (
+            <p className="py-6 text-center text-sm text-muted-foreground">Načítavam rozpočet…</p>
+          ) : bank.error ? (
+            <div className="rounded-2xl border border-destructive/20 bg-destructive/5 p-4">
+              <p role="alert" className="text-sm text-destructive">{bank.error}</p>
+              <button type="button" onClick={() => void hydrate()} className="mt-3 text-sm font-semibold text-primary underline">
+                Skúsiť znova
+              </button>
+            </div>
+          ) : categoryTotals.length === 0 ? (
             <div className="rounded-2xl bg-background px-4 py-6 text-center">
               <PieChartIcon className="mx-auto size-7 text-muted-foreground" />
               <p className="mt-2 text-sm font-semibold text-foreground">Zatiaľ bez výdavkov a limitov</p>
