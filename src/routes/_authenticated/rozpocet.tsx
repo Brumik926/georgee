@@ -232,6 +232,9 @@ function RozpocetPage() {
                   disabled={!!editingCategory}
                   className="h-11 w-full rounded-xl border border-border bg-surface px-3 text-sm text-foreground"
                 >
+                  {editingCategory && !EXPENSE_CATEGORIES.includes(editingCategory) && (
+                    <option value={editingCategory}>{editingCategory}</option>
+                  )}
                   {EXPENSE_CATEGORIES.map((item) => (
                     <option key={item} value={item}>{item}</option>
                   ))}
