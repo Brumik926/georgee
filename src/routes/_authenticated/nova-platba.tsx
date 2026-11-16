@@ -202,7 +202,7 @@ export default function NovaPlatba() {
             >
               <ArrowLeft size={24} />
             </button>
-            <h1 className="text-[20px] font-bold text-foreground">SEPA platba</h1>
+            <h1 className="text-[20px] font-bold text-foreground">Súhrn demo SEPA platby</h1>
           </div>
 
           <div className="space-y-3">
@@ -244,8 +244,8 @@ export default function NovaPlatba() {
 
             {/* Dátum splatnosti */}
             <div className="rounded-2xl bg-surface p-4 shadow-sm border border-border">
-              <span className="text-[12px] text-muted-foreground block">Dátum splatnosti</span>
-              <span className="text-[15px] font-semibold text-foreground mt-1 block">Čo najskôr</span>
+              <span className="text-[12px] text-muted-foreground block">Modelovaný termín</span>
+              <span className="text-[15px] font-semibold text-foreground mt-1 block">Iba v demo náhľade</span>
             </div>
 
             {/* Okamžitá platba */}
@@ -276,14 +276,14 @@ export default function NovaPlatba() {
             </div>
           </div>
 
-          {/* Spodné tlačidlo Potvrdiť */}
+          {/* Pokračovanie na demo potvrdenie */}
           <div className="mt-8 mb-12">
             <button
               type="button"
               onClick={() => setStep("confirm_card")}
               className="flex h-14 w-full items-center justify-center rounded-2xl bg-primary text-[16px] font-semibold text-primary-foreground shadow-lg hover:opacity-95 active:scale-95 transition-all"
             >
-              Potvrdiť
+              Pokračovať na demo potvrdenie
             </button>
           </div>
         </div>
@@ -304,14 +304,14 @@ export default function NovaPlatba() {
             >
               <ArrowLeft size={24} />
             </button>
-            <h1 className="text-[22px] font-bold text-foreground">Potvrdenie</h1>
+            <h1 className="text-[22px] font-bold text-foreground">Potvrdenie demo záznamu</h1>
           </div>
 
           {/* Biela informačná karta */}
           <div className="rounded-3xl bg-surface p-6 shadow-md border border-border space-y-5">
             <div>
               <span className="text-[12px] text-muted-foreground block">Akcia</span>
-              <span className="text-[16px] font-semibold text-foreground mt-0.5 block">Podpísať platbu</span>
+              <span className="text-[16px] font-semibold text-foreground mt-0.5 block">Zaevidovať demo platbu</span>
             </div>
 
             <div>
@@ -495,7 +495,7 @@ export default function NovaPlatba() {
             disabled={busy || s.loading || !!s.error}
             className="flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-primary text-[15px] font-semibold text-primary-foreground shadow-md transition-opacity hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            <span>{s.loading ? "Načítavam údaje účtu…" : s.error ? "Údaje účtu nie sú dostupné" : "Pokračovať na autorizáciu"}</span>
+            <span>{s.loading ? "Načítavam údaje účtu…" : s.error ? "Údaje účtu nie sú dostupné" : "Pokračovať na demo súhrn"}</span>
             <ArrowRight className="size-4" />
           </button>
 
