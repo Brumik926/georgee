@@ -17,7 +17,7 @@ export const Route = createFileRoute("/_authenticated/transakcia/$id")({
     meta: [
       { title: "Detail transakcie · George Demo" },
       { name: "description", content: "Podrobnosti demo transakcie: suma, dátum, príjemca, IBAN a modelový zostatok." },
-      { property: "og:title", content: "Detail transakcie | Aplikácia" },
+      { property: "og:title", content: "Detail transakcie · George Demo" },
       { property: "og:description", content: "Podrobnosti demo transakcie: suma, dátum, príjemca, IBAN a modelový zostatok." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
