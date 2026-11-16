@@ -22,12 +22,12 @@ describe("Platobné QR kódy", () => {
       "001",
       "1",
       "SCT",
-      "SK TEST BANKA",
+      "TATRSKBX",
       "Test Prijemca",
       "SK3112000000198742637541",
       "EUR12.50",
-      "",
-      "VS123456",
+      "SALA",
+      "/VS123456",
       "Faktura",
     ].join("\n");
 
