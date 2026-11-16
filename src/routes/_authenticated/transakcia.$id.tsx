@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, ArrowUpRight, ArrowDownLeft, Tag, EyeOff, Pencil, Paperclip, Copy, Download, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
 import { AppShell } from "@/components/bank/AppShell";
-import { formatEur, removeTransaction, useBank } from "@/lib/bank-store";
+import { formatEur, hydrate, removeTransaction, useBank } from "@/lib/bank-store";
 import { exportReceipt } from "@/lib/pdf-export";
 
 export const Route = createFileRoute("/_authenticated/transakcia/$id")({
@@ -157,7 +157,10 @@ function Detail() {
       <AppShell>
         <div className="px-5 py-16 text-center">
           <p className="text-sm text-muted-foreground" role="alert">{s.error}</p>
-          <Link to="/platby" search={{ q: search.q, filter: search.filter, searchOpen: search.searchOpen }} className="mt-4 inline-block text-[13px] font-semibold text-primary">Späť na históriu</Link>
+          <button type="button" onClick={() => void hydrate()} className="mt-4 inline-block text-[13px] font-semibold text-primary underline">
+            Skúsiť znova
+          </button>
+          <Link to="/platby" search={{ q: search.q, filter: search.filter, searchOpen: search.searchOpen }} className="mt-4 block text-[13px] font-semibold text-primary">Späť na históriu</Link>
         </div>
       </AppShell>
     );
