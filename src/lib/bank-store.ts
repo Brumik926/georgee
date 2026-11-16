@@ -138,15 +138,20 @@ export async function loadAll() {
 
 export function hydrate() {
   if (!loadPromise) {
-    loadPromise = loadAll().catch((error: unknown) => {
-      console.error(error);
-      state = {
-        ...empty,
-        loading: false,
-        error: "Údaje účtu sa nepodarilo načítať. Skontrolujte pripojenie a skúste to znova.",
-      };
-      emit();
-    });
+    const pending = loadAll()
+      .catch((error: unknown) => {
+        console.error(error);
+        state = {
+          ...empty,
+          loading: false,
+          error: "Údaje účtu sa nepodarilo načítať. Skontrolujte pripojenie a skúste to znova.",
+        };
+        emit();
+      })
+      .finally(() => {
+        if (loadPromise === pending) loadPromise = null;
+      });
+    loadPromise = pending;
   }
   return loadPromise;
 }
