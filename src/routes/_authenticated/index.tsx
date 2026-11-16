@@ -39,6 +39,7 @@ import {
   monthTotals,
   MONTHS,
   resetStore,
+  sortTransactionsNewestFirst,
   useBank,
   type Txn
 } from "@/lib/bank-store";
@@ -291,9 +292,7 @@ export function GeorgePrehladModern() {
 
   const cardLastFour = "0001";
 
-  const recentTransactions = [...(s.transactions ?? [])]
-    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-    .slice(0, 4);
+  const recentTransactions = sortTransactionsNewestFirst(s.transactions ?? []).slice(0, 4);
 
   async function handleLogout() {
     await supabase.auth.signOut();
