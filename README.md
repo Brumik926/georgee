@@ -8,13 +8,15 @@ Samostatná webová aplikácia na precvičenie a ukážku používateľských to
 - Demo platobný formulár s validáciou IBAN a načítaním podporovaných platobných QR údajov.
 - Evidenciu príjmov a výdavkov v používateľskom účte.
 - Sporiace ciele a rozpočtové limity.
-- Nastavenia kariet, upozornenia a lokálnu simuláciu biometrického zámku.
+- Upozornenia, protokol prístupov a lokálnu simuláciu biometrického zámku.
+- Obrazovky kariet a odmien zobrazujú prázdny stav, kým pre ne nebudú dostupné záznamy v databáze.
 - Export demo prehľadu transakcií do PDF.
 
 ## Dôležité obmedzenia
 
 - Aplikácia nevykonáva SEPA ani iné skutočné bankové prevody.
-- Karty, investičné portfóliá, výnosy a odmeny sú iba modelové.
+- Investičné profily sú iba vzdelávacie príklady bez trhových dát a výnosov.
+- Aplikácia nevytvára fiktívne karty, odmeny, transakcie, sporiace ciele ani rozpočty.
 - Exportované PDF je označené ako demo dokument a nie je bankovým potvrdením ani výpisom.
 - Nezadávajte sem skutočné prihlasovacie údaje, PIN, CVV ani údaje aktívnych platobných kariet.
 - Existujúce používateľské záznamy v Supabase sa načítavajú podľa prihláseného používateľa; aplikácia pri prihlásení automaticky nevytvára fiktívne transakcie.
