@@ -49,24 +49,33 @@ function CentrumPlatieb() {
 
   useEffect(() => {
     let active = true;
-    void supabase.auth.getUser().then(({ data }) => {
-      if (!active) return;
-      const id = data.user?.id ?? null;
-      setUserId(id);
-      if (!id) return;
-      try {
-        const parsed = JSON.parse(localStorage.getItem(favoritesKey(id)) ?? "[]") as unknown;
-        if (Array.isArray(parsed)) {
-          setFavorites(parsed.filter((item): item is SavedRecipient =>
-            !!item && typeof item === "object" &&
-            typeof (item as SavedRecipient).name === "string" &&
-            typeof (item as SavedRecipient).iban === "string"
-          ));
+    void supabase.auth.getUser()
+      .then(({ data, error }) => {
+        if (error) throw error;
+        if (!active) return;
+        const id = data.user?.id ?? null;
+        setUserId(id);
+        if (!id) return;
+        try {
+          const parsed = JSON.parse(localStorage.getItem(favoritesKey(id)) ?? "[]") as unknown;
+          if (Array.isArray(parsed)) {
+            setFavorites(parsed.filter((item): item is SavedRecipient =>
+              !!item && typeof item === "object" &&
+              typeof (item as SavedRecipient).name === "string" &&
+              typeof (item as SavedRecipient).iban === "string"
+            ));
+          }
+        } catch {
+          setFavorites([]);
         }
-      } catch {
-        setFavorites([]);
-      }
-    });
+      })
+      .catch((error: unknown) => {
+        if (active) {
+          console.error("Načítanie obľúbených príjemcov zlyhalo:", error);
+          setFavorites([]);
+          toast.error("Obľúbených príjemcov sa nepodarilo načítať.");
+        }
+      });
     return () => { active = false; };
   }, []);
 
