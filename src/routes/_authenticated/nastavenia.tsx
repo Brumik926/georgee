@@ -300,7 +300,7 @@ function Nastavenia() {
                 </div>
                 <div>
                   <p className="text-[15px] font-semibold">Odomknutie biometriou</p>
-                  <p className="text-[12px] text-muted-foreground">Odtlačok prsta alebo tvár pri otvorení a potvrdení platby</p>
+                  <p className="text-[12px] text-muted-foreground">Lokálne odomknutie zariadenia. Nenahrádza bankovú autorizáciu ani nepotvrdzuje skutočnú platbu.</p>
                 </div>
               </div>
 
