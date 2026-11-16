@@ -66,7 +66,11 @@ function emit() {
 }
 
 function num(v: unknown) {
-  return typeof v === "number" ? v : Number(v ?? 0);
+  const parsed = typeof v === "number" ? v : Number(v ?? 0);
+  if (!Number.isFinite(parsed)) {
+    throw new Error("Databáza obsahuje neplatnú číselnú hodnotu. Údaje nebolo možné bezpečne zobraziť.");
+  }
+  return parsed;
 }
 
 async function currentUserId() {
@@ -124,7 +128,12 @@ export async function loadAll() {
     transactions: sortTransactionsNewestFirst((txns.data ?? [])
       .map((r) => ({
         id: r.id,
-        type: (r.type === "in" ? "in" : "out") as "in" | "out",
+        type: (() => {
+          if (r.type !== "in" && r.type !== "out") {
+            throw new Error("Databáza obsahuje neznámy typ transakcie.");
+          }
+          return r.type;
+        })(),
         counterparty: r.counterparty,
         iban: r.iban ?? undefined,
         amount: num(r.amount),
