@@ -22,7 +22,7 @@ export function SessionTimeoutWarning() {
   const recordActivity = useCallback(() => {
     if (isExpired) return;
     lastActivityRef.current = Date.now();
-  }, [isExpired]);
+  }, [isExpired, navigate]);
 
   // Sledovanie interakcií používateľa
   useEffect(() => {
