@@ -106,7 +106,7 @@ function DemoMark({ size = 40 }: { size?: number }) {
 function MerchantLogo({ counterparty, category }: { counterparty: string; category?: string }) {
   const name = (counterparty || "").toLowerCase();
 
-  // 1. Slovenská sporiteľňa / Poplatok banky
+  // 1. Bankový poplatok
   if (
     name.includes("sporiteľňa") || 
     name.includes("sporitelna") || 
