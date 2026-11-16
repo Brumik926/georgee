@@ -60,7 +60,7 @@ export function useNotifications(): NotifState {
     return () => {
       listeners.delete(l);
     };
-  }, []);
+  }, [snap.loading]);
   return snap;
 }
 
