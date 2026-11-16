@@ -182,7 +182,7 @@ function Sporenie() {
           </div>
           <div className="space-y-3">
             <label className="block"><span className="mb-1 block text-xs font-medium text-muted-foreground">Názov cieľa</span><input className={field} value={name} onChange={(event) => setName(event.target.value)} placeholder="Napr. Dovolenka" /></label>
-            <label className="block"><span className="mb-1 block text-xs font-medium text-muted-foreground">Cieľová suma (€)</span><input className={field} inputMode="decimal" value={target} onChange={(event) => setTarget(event.target.value)} placeholder="2 000,00" /></label>
+            <label className="block"><span className="mb-1 block text-xs font-medium text-muted-foreground">Cieľová suma (€)</span><input className={field} inputMode="decimal" value={target} onChange={(event) => setTarget(event.target.value)} placeholder="Zadajte sumu" /></label>
             <button type="button" disabled={savingGoal} onClick={createGoal} className="flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-primary text-sm font-bold text-primary-foreground transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"><Plus className="size-4" /> {savingGoal ? "Ukladám…" : "Vytvoriť cieľ"}</button>
           </div>
         </section>
