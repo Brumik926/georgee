@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
@@ -41,27 +41,31 @@ function AuthPage() {
   const [password, setPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [isRecovery, setIsRecovery] = useState(false);
+  const recoveryRef = useRef(false);
   const [busy, setBusy] = useState(false);
   const [sent, setSent] = useState(false);
   const [resetSent, setResetSent] = useState(false);
 
   useEffect(() => {
+    let active = true;
     supabase.auth.getSession().then(({ data }) => {
-      if (data.session && !isRecovery) goNext();
+      if (active && data.session && !recoveryRef.current) goNext();
     });
 
     const { data: authListener } = supabase.auth.onAuthStateChange((event) => {
       if (event === "PASSWORD_RECOVERY") {
+        recoveryRef.current = true;
         setIsRecovery(true);
-      } else if (event === "SIGNED_IN" && !isRecovery) {
+      } else if (event === "SIGNED_IN" && !recoveryRef.current) {
         goNext();
       }
     });
 
     return () => {
+      active = false;
       authListener.subscription.unsubscribe();
     };
-  }, [navigate, next, isRecovery]);
+  }, [navigate, next]);
 
   async function submitNewPassword(e: React.FormEvent) {
     e.preventDefault();
@@ -70,6 +74,7 @@ function AuthPage() {
       const { error } = await supabase.auth.updateUser({ password: newPassword });
       if (error) throw error;
       toast.success("Vaše heslo bolo úspešne zmenené.");
+      recoveryRef.current = false;
       setIsRecovery(false);
       goNext();
     } catch (err) {
