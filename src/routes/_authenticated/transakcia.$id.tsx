@@ -57,15 +57,40 @@ function Detail() {
 
   const save = (next: Extra) => {
     setExtra(next);
-    localStorage.setItem(extraKey(id), JSON.stringify(next));
+    try {
+      localStorage.setItem(extraKey(id), JSON.stringify(next));
+    } catch {
+      toast.error("Zmena sa nepodarila uložiť v tomto zariadení.");
+    }
   };
+
+  if (s.loading) {
+    return (
+      <AppShell>
+        <div className="px-5 py-16 text-center text-sm text-muted-foreground" role="status">
+          Načítavam transakciu…
+        </div>
+      </AppShell>
+    );
+  }
+
+  if (s.error) {
+    return (
+      <AppShell>
+        <div className="px-5 py-16 text-center">
+          <p className="text-sm text-muted-foreground" role="alert">{s.error}</p>
+          <Link to="/platby" className="mt-4 inline-block text-[13px] font-semibold text-primary">Späť na históriu</Link>
+        </div>
+      </AppShell>
+    );
+  }
 
   if (!t) {
     return (
       <AppShell>
         <div className="px-5 py-16 text-center">
-          <p className="text-sm text-muted-foreground">Transakcia sa nenašla.</p>
-          <Link to="/platby" className="mt-4 inline-block text-[13px] font-semibold text-primary">Späť na platby</Link>
+          <p className="text-sm text-muted-foreground">Transakcia sa nenašla v dostupnej histórii.</p>
+          <Link to="/platby" className="mt-4 inline-block text-[13px] font-semibold text-primary">Späť na históriu</Link>
         </div>
       </AppShell>
     );
@@ -193,9 +218,9 @@ function Detail() {
               {t.iban ? <><br />IBAN: {formatIban(t.iban)}</> : null}
             </Row>
             <Row label="Dátum spracovania">{formatDay(t.date)}</Row>
-            <Row label="Typ transakcie">{income ? "Prijatý prevod / SEPA" : "Platobný príkaz na úhradu / FIT 2.0 (EB)"}</Row>
+            <Row label="Typ transakcie">{income ? "Prijatý demo prevod" : "Odoslaný demo prevod"}</Row>
             {t.vs ? <Row label="Variabilný symbol">{t.vs}</Row> : null}
-            <Row label="Priebežný zostatok">{formatEur(runningBalance)}</Row>
+            <Row label="Zostatok podľa dostupnej histórie">{formatEur(runningBalance)}</Row>
           </dl>
 
           <button
@@ -212,7 +237,7 @@ function Detail() {
 
         {shareOpen && (
           <div className="fixed inset-0 z-50 flex items-end bg-foreground/40" onClick={() => setShareOpen(false)}>
-            <div className="w-full space-y-2 rounded-t-3xl bg-detail-surface p-5 pb-8" onClick={(e) => e.stopPropagation()}>
+            <div className="mx-auto w-full max-w-[430px] space-y-2 rounded-t-3xl bg-detail-surface p-5 pb-8" onClick={(e) => e.stopPropagation()}>
               <p className="mb-2 text-[17px] font-semibold">Zdieľať platbu</p>
               <button className="flex w-full items-center gap-4 rounded-2xl px-2 py-3 text-[16px]" onClick={copy}>
                 <Copy className="size-6 text-detail-action" /> Kopírovať údaje platby
