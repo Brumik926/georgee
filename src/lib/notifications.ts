@@ -25,6 +25,7 @@ type NotifState = {
   settings: NotifSettings;
   items: NotifItem[];
   loading: boolean;
+  error: string | null;
 };
 
 const defaultSettings: NotifSettings = {
@@ -34,7 +35,7 @@ const defaultSettings: NotifSettings = {
   soundEnabled: true,
 };
 
-const empty: NotifState = { settings: defaultSettings, items: [], loading: true };
+const empty: NotifState = { settings: defaultSettings, items: [], loading: true, error: null };
 
 let state: NotifState = empty;
 const listeners = new Set<() => void>();
@@ -105,11 +106,11 @@ export async function hydrateNotifications() {
       createdAt: n.created_at,
     }));
 
-    state = { settings, items, loading: false };
+    state = { settings, items, loading: false, error: null };
     emit();
   } catch (e) {
     console.error("hydrateNotifications failed", e);
-    state = { ...state, loading: false };
+    state = { ...state, loading: false, error: "Upozornenia sa nepodarilo načítať. Skúste to znova." };
     emit();
   }
 }
