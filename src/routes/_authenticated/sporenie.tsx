@@ -151,7 +151,7 @@ function Sporenie() {
                     type="button"
                     aria-label={`Odstrániť cieľ ${goal.name}`}
                     title="Odstrániť cieľ"
-                    disabled={removingGoal === goal.id || depositingGoal === goal.id}
+                    disabled={s.loading || !!s.error || removingGoal === goal.id || depositingGoal === goal.id}
                     onClick={async () => {
                       if (!window.confirm(`Naozaj odstrániť cieľ „${goal.name}“? Už zaznamenané pohyby v histórii zostanú zachované.`)) return;
                       setRemovingGoal(goal.id);
@@ -187,7 +187,7 @@ function Sporenie() {
                     value={deposit[goal.id] ?? ""}
                     onChange={(event) => setDeposit((current) => ({ ...current, [goal.id]: event.target.value }))}
                   />
-                  <button type="button" disabled={depositingGoal !== null} onClick={() => void addDeposit(goal.id)} className="inline-flex shrink-0 items-center gap-1 rounded-2xl bg-primary px-4 text-sm font-semibold text-primary-foreground transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50">
+                  <button type="button" disabled={s.loading || !!s.error || depositingGoal !== null || removingGoal === goal.id} onClick={() => void addDeposit(goal.id)} className="inline-flex shrink-0 items-center gap-1 rounded-2xl bg-primary px-4 text-sm font-semibold text-primary-foreground transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50">
                     <ArrowUpRight className="size-4" /> Vložiť
                   </button>
                 </div>
