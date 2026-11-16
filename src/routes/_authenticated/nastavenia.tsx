@@ -23,6 +23,7 @@ import { resetStore, saveProfile, useBank } from "@/lib/bank-store";
 import { isPrimaryEmail } from "@/lib/accounts";
 import { resetNotifications, unreadCount, useNotifications } from "@/lib/notifications";
 import { useTheme } from "@/lib/theme";
+import { validateIban } from "@/lib/iban-validator";
 import { listLogins, type LoginEvent } from "@/lib/login-log";
 import {
   clearUnlocked,
@@ -136,6 +137,13 @@ function Nastavenia() {
     if (!owner.trim()) {
       toast.error("Zadajte meno majiteľa účtu.");
       return;
+    }
+    if (iban.trim()) {
+      const validation = validateIban(iban);
+      if (!validation.valid) {
+        toast.error(validation.error ?? "Zadajte platný IBAN.");
+        return;
+      }
     }
     setProfileSaving(true);
     try {
