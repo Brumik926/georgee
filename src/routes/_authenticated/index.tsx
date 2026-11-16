@@ -37,6 +37,7 @@ import {
   balance,
   formatDate,
   formatEur,
+  hydrate,
   monthTotals,
   MONTHS,
   resetStore,
@@ -670,6 +671,15 @@ export function GeorgePrehladModern() {
                           ? "Zostatok nie je dostupný"
                           : `${formatEur(total)} zostatok podľa dostupnej histórie`}
                   </Link>
+                  {s.error && (
+                    <button
+                      type="button"
+                      onClick={() => void hydrate()}
+                      className="mt-2 text-xs font-semibold text-primary underline"
+                    >
+                      Skúsiť znova načítať údaje
+                    </button>
+                  )}
                 </div>
                 <DemoMark size={52} />
               </div>
