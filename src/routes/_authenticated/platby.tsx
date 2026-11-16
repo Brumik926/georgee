@@ -496,10 +496,13 @@ export default function UcetDetail() {
     0,
   );
 
-  const copyIban = () => {
-    if (s.iban) {
-      navigator.clipboard.writeText(s.iban);
+  const copyIban = async () => {
+    if (!s.iban) return;
+    try {
+      await navigator.clipboard.writeText(s.iban);
       toast.success("IBAN skopírovaný do schránky");
+    } catch {
+      toast.error("IBAN sa nepodarilo skopírovať. Skontrolujte povolenie schránky.");
     }
   };
 
