@@ -92,7 +92,7 @@ function CentrumPlatieb() {
           .from("payment_templates")
           .select("*")
           .eq("user_id", id)
-          .order("created_at");
+.order("created_at", { ascending: false });
         if (error) throw error;
         return rows ?? [];
       })
