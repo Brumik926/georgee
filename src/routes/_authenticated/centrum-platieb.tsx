@@ -248,7 +248,7 @@ function CentrumPlatieb() {
             </h2>
             <button
               onClick={() => setOpen((v) => !v)}
-              disabled={templatesLoading || templatesError || savingTemplates}
+              disabled={templatesLoading || templatesError || savingTemplates || !userId}
               className="flex items-center gap-1 rounded-full bg-primary px-3 py-1.5 text-[13px] font-semibold text-primary-foreground disabled:cursor-not-allowed disabled:opacity-50"
             >
               <Plus className="h-4 w-4" /> Nová
