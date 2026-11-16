@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Repeat, Star, Trash2, Plus, User } from "lucide-react";
 import { toast } from "sonner";
 import { AppShell, BrandHeader } from "@/components/bank/AppShell";
-import { formatEur, useBank } from "@/lib/bank-store";
+import { formatEur, hydrate, useBank } from "@/lib/bank-store";
 import { validateIban } from "@/lib/iban-validator";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -354,7 +354,21 @@ function CentrumPlatieb() {
           <h2 className="mb-2 flex items-center gap-2 text-[16px] font-bold">
             <User className="h-4 w-4 text-primary" /> Príjemcovia
           </h2>
-          {recipients.length === 0 && <p className="py-3 text-[14px] text-muted-foreground">Zatiaľ ste neposlali platbu na IBAN.</p>}
+          {s.loading ? (
+            <p className="py-3 text-sm text-muted-foreground">Načítavam príjemcov…</p>
+          ) : s.error ? (
+            <div className="rounded-xl bg-destructive/5 p-3">
+              <p role="alert" className="text-sm text-destructive">{s.error}</p>
+              <button type="button" onClick={() => void hydrate()} className="mt-2 text-sm font-semibold text-primary underline">
+                Skúsiť znova
+              </button>
+            </div>
+          ) : recipients.length === 0 ? (
+            <p className="py-3 text-[14px] text-muted-foreground">Zatiaľ nie sú v histórii uložené žiadni príjemcovia.</p>
+          ) : recipients.filter(match).length === 0 ? (
+            <p className="py-3 text-[14px] text-muted-foreground">Žiadny príjemca nezodpovedá vyhľadávaniu.</p>
+          ) : null}
+          {!s.loading && !s.error && (
           <ul className="divide-y divide-border">
             {recipients.filter(match).map((r) => (
               <li key={r.iban}>
@@ -371,6 +385,7 @@ function CentrumPlatieb() {
               </li>
             ))}
           </ul>
+          )}
         </section>
       </div>
     </AppShell>
