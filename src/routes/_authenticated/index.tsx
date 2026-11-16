@@ -736,6 +736,7 @@ export function GeorgePrehladModern() {
                   </div>
                 </div>
               </Link>
+            </div>
               {/* Karta: Investície a sporenie */}
             <div className="rounded-3xl p-5 mb-4 relative overflow-hidden bg-surface shadow-sm">
               <div className="absolute top-0 left-0 w-full h-1 bg-[#2d2a8f]" />
