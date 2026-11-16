@@ -272,6 +272,7 @@ export function GeorgePrehladModern() {
   const navigate = useNavigate();
 
   const [currentViewMode, setCurrentViewMode] = useState<"dashboard" | "profile">("dashboard");
+  const [loggingOut, setLoggingOut] = useState(false);
   const userName = s.owner;
 
   const [hidden, setHidden] = useState(false);
@@ -302,9 +303,19 @@ export function GeorgePrehladModern() {
   const recentTransactions = sortTransactionsNewestFirst(s.transactions ?? []).slice(0, 4);
 
   async function handleLogout() {
-    await supabase.auth.signOut();
-    resetStore();
-    navigate({ to: "/auth" });
+    if (loggingOut) return;
+    setLoggingOut(true);
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      resetStore();
+      await navigate({ to: "/auth" });
+    } catch (error) {
+      console.error("Odhlásenie z prehľadu zlyhalo:", error);
+      toast.error("Odhlásenie sa nepodarilo. Skúste to znova.");
+    } finally {
+      setLoggingOut(false);
+    }
   }
 
   // --- OBSAH PROFILU ---
@@ -326,11 +337,12 @@ export function GeorgePrehladModern() {
           <div className="flex items-center gap-2">
             <button
               type="button"
-              onClick={handleLogout}
-              className="font-bold text-[14px] hover:underline flex items-center gap-1.5 text-primary"
+              onClick={() => void handleLogout()}
+              disabled={loggingOut}
+              className="font-bold text-[14px] hover:underline flex items-center gap-1.5 text-primary disabled:cursor-not-allowed disabled:opacity-50"
             >
               <LogOut size={18} />
-              Odhlásiť
+              {loggingOut ? "Odhlasujem…" : "Odhlásiť"}
             </button>
           </div>
         </div>
