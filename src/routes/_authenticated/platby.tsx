@@ -778,7 +778,7 @@ export default function UcetDetail() {
                   <button
                     key={f.title}
                     type="button"
-                    onClick={() => (f.to ? navigate({ to: f.to as "/" }) : toast.info(`${f.title} – pripravujeme`))}
+                    onClick={() => (f.to ? navigate({ to: f.to as "/" }) : toast.info(`${f.title} nie je dostupná v demo simulácii.`))}
                     className="flex w-full items-center gap-4 px-5 py-5 text-left active:opacity-80"
                   >
                     <f.icon className="w-6 h-6 shrink-0 text-[#196ee6] dark:text-[#4f95ff]" strokeWidth={1.8} />
@@ -801,7 +801,7 @@ export default function UcetDetail() {
 
               <div>
                 <h3 className="px-1 pb-2 text-[15px] font-medium text-foreground">Zrušenia</h3>
-                <button type="button" onClick={() => toast.info("Zrušenie účtu je možné len na pobočke")} className="flex w-full items-center gap-4 rounded-3xl bg-detail-surface px-5 py-5 text-left">
+                <button type="button" onClick={() => toast.info("George Demo nevedie skutočný bankový účet, preto zrušenie bankového účtu nie je podporované.")} className="flex w-full items-center gap-4 rounded-3xl bg-detail-surface px-5 py-5 text-left">
                   <X className="w-6 h-6 text-[#196ee6] dark:text-[#4f95ff]" strokeWidth={1.8} />
                   <span className="text-[16px] text-foreground">Zrušiť účet</span>
                 </button>
