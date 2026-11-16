@@ -80,7 +80,7 @@ export default function NovaPlatba() {
   function handleInitiatePayment(e: React.FormEvent) {
     e.preventDefault();
     setError("");
-    setPinError();
+    setPinError("");
     if (s.loading) return setError("Údaje účtu sa ešte načítavajú.");
     if (s.error) return setError("Údaje účtu nie sú dostupné. Skúste ich načítať znova.");
 
