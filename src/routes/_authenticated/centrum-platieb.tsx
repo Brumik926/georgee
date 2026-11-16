@@ -32,6 +32,9 @@ function CentrumPlatieb() {
   const s = useBank();
   const navigate = useNavigate();
   const [templates, setTemplates] = useState<Template[]>([]);
+  const [templatesLoading, setTemplatesLoading] = useState(true);
+  const [templatesError, setTemplatesError] = useState(false);
+  const [templatesReload, setTemplatesReload] = useState(0);
   const [form, setForm] = useState({ title: "", name: "", iban: "", amount: "", vs: "" });
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState("");
@@ -68,6 +71,8 @@ function CentrumPlatieb() {
 
   useEffect(() => {
     let active = true;
+    setTemplatesLoading(true);
+    setTemplatesError(false);
     void supabase.auth.getUser()
       .then(async ({ data, error: authError }) => {
         if (authError) throw authError;
@@ -94,12 +99,23 @@ function CentrumPlatieb() {
       })
       .catch((error: unknown) => {
         console.error("Nepodarilo sa načítať šablóny platieb:", error);
-        if (active) toast.error("Šablóny platieb sa nepodarilo načítať.");
+        if (active) {
+          setTemplates([]);
+          setTemplatesError(true);
+          toast.error("Šablóny platieb sa nepodarilo načítať.");
+        }
+      })
+      .finally(() => {
+        if (active) setTemplatesLoading(false);
       });
     return () => { active = false; };
-  }, []);
+  }, [templatesReload]);
 
   const save = async (list: Template[]) => {
+    if (templatesLoading || templatesError) {
+      toast.error("Šablóny ešte nie sú načítané. Skúste to znova.");
+      return false;
+    }
     if (!userId) {
       toast.error("Používateľská relácia nie je pripravená.");
       return false;
@@ -153,6 +169,10 @@ function CentrumPlatieb() {
   };
 
   const addTemplate = async () => {
+    if (templatesLoading || templatesError) {
+      toast.error("Šablóny ešte nie sú načítané. Skúste to znova.");
+      return;
+    }
     const normalizedAmount = form.amount.trim().replace(",", ".");
     const amount = Number(normalizedAmount);
     if (!form.name.trim() || !form.iban.trim() || !/^\d+(?:\.\d{1,2})?$/.test(normalizedAmount) || !Number.isFinite(amount) || amount <= 0) {
@@ -200,7 +220,8 @@ function CentrumPlatieb() {
             </h2>
             <button
               onClick={() => setOpen((v) => !v)}
-              className="flex items-center gap-1 rounded-full bg-primary px-3 py-1.5 text-[13px] font-semibold text-primary-foreground"
+              disabled={templatesLoading || templatesError}
+              className="flex items-center gap-1 rounded-full bg-primary px-3 py-1.5 text-[13px] font-semibold text-primary-foreground disabled:cursor-not-allowed disabled:opacity-50"
             >
               <Plus className="h-4 w-4" /> Nová
             </button>
@@ -221,9 +242,19 @@ function CentrumPlatieb() {
             </div>
           )}
 
-          {templates.length === 0 && !open && (
-            <p className="py-3 text-[14px] text-muted-foreground">Zatiaľ žiadne šablóny. Uložte si napr. nájom alebo energie.</p>
-          )}
+          {templatesLoading ? (
+            <p className="py-4 text-center text-sm text-muted-foreground">Načítavam šablóny platieb…</p>
+          ) : templatesError ? (
+            <div className="rounded-xl bg-destructive/5 p-4">
+              <p role="alert" className="text-sm text-destructive">Šablóny sa nepodarilo načítať.</p>
+              <button type="button" onClick={() => setTemplatesReload((value) => value + 1)} className="mt-2 text-sm font-semibold text-primary underline">
+                Skúsiť znova
+              </button>
+            </div>
+          ) : templates.length === 0 && !open ? (
+            <p className="py-3 text-[14px] text-muted-foreground">Zatiaľ nemáš uložené žiadne šablóny.</p>
+          ) : null}
+          {!templatesLoading && !templatesError && (
           <ul className="divide-y divide-border">
             {templates.filter(match).map((t) => (
               <li key={t.id} className="flex items-center gap-3 py-3">
@@ -243,6 +274,7 @@ function CentrumPlatieb() {
               </li>
             ))}
           </ul>
+          )}
         </section>
 
         <section className="rounded-3xl border border-border bg-surface p-4 shadow-sm">
