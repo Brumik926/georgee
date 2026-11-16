@@ -266,6 +266,9 @@ export async function depositToGoal(id: string, amount: number) {
   }
   const goal = state.goals.find((g) => g.id === id);
   if (!goal) throw new Error("Sporiaci cieľ sa nenašiel.");
+  if (amount > Math.max(0, goal.target - goal.saved)) {
+    throw new Error("Vklad nemôže byť vyšší ako zostávajúca suma do cieľa.");
+  }
   const previousSaved = goal.saved;
   const saved = Math.round((goal.saved + amount) * 100) / 100;
   const { data, error } = await supabase
@@ -311,6 +314,9 @@ export async function depositToGoal(id: string, amount: number) {
 export async function setBudget(category: string, limit: number) {
   const userId = await currentUserId();
   if (!userId) throw new Error("Používateľ nie je prihlásený.");
+  if (!category.trim() || !Number.isFinite(limit) || limit <= 0 || Math.abs(limit * 100 - Math.round(limit * 100)) > 0.000001) {
+    throw new Error("Kategória a kladný limit s najviac dvoma desatinnými miestami sú povinné.");
+  }
   const { error } = await supabase
     .from("budgets")
     .upsert({ user_id: userId, category, limit_amount: limit }, { onConflict: "user_id,category" });
@@ -437,7 +443,13 @@ export function groupByMonth(txns: Txn[]) {
 }
 
 export async function removeTransaction(id: string) {
-  const { error } = await supabase.from("transactions").delete().eq("id", id);
+  const userId = await currentUserId();
+  if (!userId) throw new Error("Používateľ nie je prihlásený.");
+  const { error } = await supabase
+    .from("transactions")
+    .delete()
+    .eq("id", id)
+    .eq("user_id", userId);
   if (error) throw error;
   state.transactions = state.transactions.filter((t) => t.id !== id);
   emit();
