@@ -48,6 +48,13 @@ function AuthPage() {
 
   useEffect(() => {
     let active = true;
+    const hashParams = new URLSearchParams(window.location.hash.slice(1));
+    const searchParams = new URLSearchParams(window.location.search);
+    if (hashParams.get("type") === "recovery" || searchParams.get("type") === "recovery") {
+      recoveryRef.current = true;
+      setIsRecovery(true);
+    }
+
     supabase.auth.getSession().then(({ data }) => {
       if (active && data.session && !recoveryRef.current) goNext();
     });
