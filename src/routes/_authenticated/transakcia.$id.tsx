@@ -359,7 +359,7 @@ function Detail() {
             className="flex w-full items-center justify-center gap-2 py-3 text-[15px] font-semibold text-destructive"
             onClick={async () => {
               if (!window.confirm("Naozaj odstrániť túto transakciu?")) return;
-              try { await removeTransaction(t.id); toast.success("Transakcia odstránená"); navigate({ to: "/platby" }); }
+              try { await removeTransaction(t.id); toast.success("Transakcia odstránená"); navigate({ to: "/platby", search: { q: search.q, filter: search.filter, searchOpen: search.searchOpen } }); }
               catch (e) { console.error(e); toast.error("Transakciu sa nepodarilo odstrániť"); }
             }}
           >
