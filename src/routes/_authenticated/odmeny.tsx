@@ -2,6 +2,10 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft, Gift, Info } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/odmeny")({
+  head: () => ({ meta: [
+    { title: "Ponuky a odmeny · George Demo" },
+    { name: "description", content: "Demo sekcia odmien bez pripojenej databázy partnerských ponúk alebo skutočného cashbacku." },
+  ] }),
   component: OdmenyPage,
 });
 
