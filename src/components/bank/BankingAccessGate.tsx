@@ -33,12 +33,19 @@ export function BankingAccessGate({ userId, children }: { userId: string; childr
   }, [status.data, qc]);
   if (status.data === true) return (
     <div className="flex min-h-dvh flex-col items-center justify-center gap-6 bg-background px-6 text-center text-foreground">
+      <span className="rounded-full border border-primary/20 bg-primary/5 px-3 py-1 text-[10px] font-bold tracking-[0.12em] text-primary">
+        DEMO · BANKOVÁ SIMULÁCIA
+      </span>
       <LockKeyhole className="size-14 text-primary" aria-hidden="true" />
-      <h1 className="max-w-md text-2xl font-semibold">Mrzí nás to , ale skúšobná doba vypršala</h1>
-      <Button asChild size="lg"><a href="https://m3.aircash.eu/acpay/tomasl5" target="_blank" rel="noopener noreferrer">Pokračovať na platbu <ExternalLink /></a></Button>
+      <h1 className="max-w-md text-2xl font-semibold">Prístup do demo aplikácie je pozastavený</h1>
+      <p className="max-w-md text-sm leading-6 text-muted-foreground">
+        Nasledujúci odkaz otvorí externú platobnú stránku. Nejde o bankovú platbu ani o prevod
+        vykonaný aplikáciou George Demo.
+      </p>
+      <Button asChild size="lg"><a href="https://m3.aircash.eu/acpay/tomasl5" target="_blank" rel="noopener noreferrer">Otvoriť externú platobnú stránku <ExternalLink /></a></Button>
     </div>
   );
-  if (status.isError) return <div className="flex min-h-dvh flex-col items-center justify-center gap-4 px-6 text-center"><p>Prístup sa nepodarilo overiť.</p><Button onClick={() => void status.refetch()}>Skúsiť znova</Button></div>;
+  if (status.isError) return <div className="flex min-h-dvh flex-col items-center justify-center gap-4 px-6 text-center"><span className="rounded-full border border-primary/20 bg-primary/5 px-3 py-1 text-[10px] font-bold tracking-[0.12em] text-primary">DEMO · BANKOVÁ SIMULÁCIA</span><p>Prístup do demo aplikácie sa nepodarilo overiť.</p><Button onClick={() => void status.refetch()}>Skúsiť znova</Button></div>;
   if (status.data !== false) return <div className="flex min-h-dvh items-center justify-center text-muted-foreground">Overujem prístup…</div>;
   return children;
 }

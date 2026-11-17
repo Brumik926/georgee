@@ -14,7 +14,7 @@ export function SwipeNav({ children }: { children: ReactNode }) {
     <div
       onTouchStart={(e) => {
         const target = e.target as HTMLElement;
-        if (target.closest("input,textarea,select,[data-no-swipe]")) {
+        if (target.closest('input,textarea,select,button,a,[role="button"],[contenteditable="true"],[data-no-swipe]')) {
           start.current = null;
           return;
         }

@@ -2,14 +2,14 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { Copy, Check, ArrowDownLeft } from "lucide-react";
 import { AppShell, BrandHeader } from "@/components/bank/AppShell";
-import { addTransaction, CATEGORIES, useBank } from "@/lib/bank-store";
+import { addTransaction, CATEGORIES, hydrate, useBank } from "@/lib/bank-store";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/prijat")({
   head: () => ({
     meta: [
-      { title: "Prijať peniaze | George" },
-      { name: "description", content: "Zaevidujte prijatý prevod alebo zdieľajte svoj IBAN pre platbu." },
+      { title: "Údaje na prijatie platby | George Demo" },
+      { name: "description", content: "Zdieľajte IBAN a vytvorte manuálny demo záznam. Aplikácia neoveruje skutočné prijatie platby." },
     ],
   }),
   component: Prijat,
@@ -28,21 +28,41 @@ export default function Prijat() {
   const [copied, setCopied] = useState(false);
   const [busy, setBusy] = useState(false);
 
-  function copyIban() {
-    if (!s.iban) return;
-    navigator.clipboard.writeText(s.iban);
-    setCopied(true);
-    toast.success("IBAN bol skopírovaný do schránky");
-    setTimeout(() => setCopied(false), 2000);
+  async function copyIban() {
+    if (!s.iban) {
+      toast.error("IBAN zatiaľ nie je dostupný.");
+      return;
+    }
+    try {
+      if (!navigator.clipboard?.writeText) {
+        throw new Error("Schránka nie je v tomto prehliadači dostupná.");
+      }
+      await navigator.clipboard.writeText(s.iban);
+      setCopied(true);
+      toast.success("IBAN bol skopírovaný do schránky");
+      window.setTimeout(() => setCopied(false), 2000);
+    } catch (error) {
+      console.error("Kopírovanie IBAN-u zlyhalo:", error);
+      toast.error("IBAN sa nepodarilo skopírovať. Označte ho a skopírujte ručne.");
+    }
   }
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
+    if (s.loading) return setError("Údaje účtu sa ešte načítavajú.");
+    if (s.error) return setError("Údaje účtu nie sú dostupné. Skúste ich načítať znova.");
 
-    const value = Number(amount.replace(",", "."));
+    const normalizedAmount = amount.trim().replace(",", ".");
+    const value = Number(normalizedAmount);
     if (!name.trim()) return setError("Zadajte odosielateľa.");
-    if (!Number.isFinite(value) || value <= 0) return setError("Zadajte platnú sumu.");
+    if (!/^\d+(?:\.\d{1,2})?$/.test(normalizedAmount) || !Number.isFinite(value) || value <= 0) {
+      return setError("Zadajte platnú sumu.");
+    }
+    if (Math.abs(value * 100 - Math.round(value * 100)) > 0.000001) {
+      return setError("Suma môže obsahovať najviac dve desatinné miesta.");
+    }
+    if (value > 1_000_000) return setError("Maximálna evidovaná suma je 1 000 000 €.");
 
     setBusy(true);
     try {
@@ -53,7 +73,7 @@ export default function Prijat() {
         date: new Date().toISOString(),
         category,
       });
-      toast.success("Prijatý prevod bol zaevidovaný");
+      toast.success("Demo príjem bol zaevidovaný v histórii.");
       navigate({ to: "/platby" });
     } catch (err) {
       console.error(err);
@@ -66,8 +86,8 @@ export default function Prijat() {
   return (
     <AppShell>
       <BrandHeader
-        title="Prijať peniaze"
-        subtitle="Váš účet pre príchodzie platby"
+        title="Údaje na prijatie platby"
+        subtitle="IBAN z profilu a manuálne demo záznamy"
         back
       />
 
@@ -80,8 +100,9 @@ export default function Prijat() {
             </p>
             <button
               type="button"
-              onClick={copyIban}
-              className="flex items-center gap-1.5 rounded-full border border-border bg-surface-2 px-3 py-1 text-xs font-semibold text-foreground transition hover:bg-border/40"
+              onClick={() => void copyIban()}
+              disabled={!s.iban || s.loading}
+              className="flex items-center gap-1.5 rounded-full border border-border bg-surface-2 px-3 py-1 text-xs font-semibold text-foreground transition hover:bg-border/40 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {copied ? (
                 <>
@@ -97,17 +118,25 @@ export default function Prijat() {
             </button>
           </div>
           <p className="mt-3 font-mono text-[17px] font-bold tracking-wide text-foreground">
-            {s.iban || "Načítavam IBAN..."}
+            {s.iban || (s.loading ? "Načítavam IBAN..." : s.error ? "IBAN nie je dostupný" : "IBAN nie je nastavený")}
           </p>
-          <p className="mt-1 text-[13px] text-muted-foreground">{s.owner || "Klient George"}</p>
+          <p className="mt-1 text-[13px] text-muted-foreground">{s.owner || "Majiteľ účtu"}</p>
+          {s.error && (
+            <button type="button" onClick={() => void hydrate()} className="mt-2 text-xs font-semibold text-primary underline">
+              Skúsiť znova načítať údaje
+            </button>
+          )}
         </section>
 
         {/* Formulár pre zaevidovanie platby */}
         <form onSubmit={submit} className="space-y-3 rounded-3xl bg-surface p-5 shadow-sm">
           <div className="flex items-center gap-2 pb-1 text-[15px] font-bold text-foreground">
             <ArrowDownLeft className="size-4.5 text-income" />
-            <span>Zaevidovať prijatý prevod</span>
+            <span>Zaevidovať demo príjem</span>
           </div>
+          <p className="rounded-xl bg-muted/50 p-3 text-xs leading-5 text-muted-foreground">
+            Formulár iba pridá záznam do demo histórie. Nepotvrdzuje, že peniaze skutočne dorazili na účet.
+          </p>
 
           <label className="block">
             <span className="text-[12px] text-muted-foreground">Odosielateľ</span>
@@ -115,6 +144,8 @@ export default function Prijat() {
               className={`${field} mt-1`}
               value={name}
               onChange={(e) => setName(e.target.value)}
+              maxLength={100}
+              autoComplete="name"
               placeholder="Meno odosielateľa alebo spoločnosti"
             />
           </label>
@@ -126,6 +157,7 @@ export default function Prijat() {
               inputMode="decimal"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
+              maxLength={14}
               placeholder="0,00"
             />
           </label>
@@ -153,10 +185,10 @@ export default function Prijat() {
 
           <button
             type="submit"
-            disabled={busy}
+            disabled={busy || s.loading || !!s.error}
             className="mt-2 flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-income text-[15px] font-semibold text-white shadow-md transition-opacity hover:opacity-95 disabled:opacity-50"
           >
-            <span>{busy ? "Ukladám príjem…" : "Pridať príjem na účet"}</span>
+            <span>{busy ? "Ukladám príjem…" : s.loading ? "Načítavam údaje…" : s.error ? "Údaje nie sú dostupné" : "Pridať demo príjem"}</span>
           </button>
         </form>
       </div>

@@ -21,11 +21,13 @@ export const Route = createFileRoute("/_authenticated")({
 
 function AuthenticatedLayout() {
   const { user } = Route.useRouteContext();
+  const userId = user.id;
+  const userEmail = user.email ?? "";
 
   useEffect(() => {
-    if (!user) return;
-    void recordLogin(user.id, user.email ?? "");
-  }, [user.id, user.email]);
+    if (!userId) return;
+    void recordLogin(userId, userEmail);
+  }, [userId, userEmail]);
 
   return (
     <BankingAccessGate userId={user.id}>

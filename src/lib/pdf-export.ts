@@ -47,19 +47,13 @@ function header(doc: jsPDF) {
   doc.setFont("DejaVu", "bold");
   doc.setFontSize(16);
   doc.setTextColor(0, 51, 153);
-  doc.text("SLOVENSKÁ SPORITEĽŇA", 15, 20);
+  doc.text("GEORGE DEMO · BANKOVÁ SIMULÁCIA", 15, 20);
 
   doc.setFont("DejaVu", "normal");
   doc.setFontSize(8);
   doc.setTextColor(80, 80, 80);
-  doc.text("Slovenská sporiteľňa, a.s.", 15, 26);
-  doc.text("Tomášikova 48, 832 37 Bratislava", 15, 30);
-  doc.text("IČO 00 151 653, zapísaná v OR Mestského súdu Bratislava III., odd. Sa, vl. č. 601/B", 15, 34);
-
-  doc.setFont("DejaVu", "bold");
-  doc.text("BIC / SWIFT:", 140, 26);
-  doc.setFont("DejaVu", "normal");
-  doc.text("GIBASKBX", 170, 26);
+  doc.text("Ukážkový dokument · bez právnej platnosti", 15, 27);
+  doc.text("Nejde o účet ani službu skutočnej banky.", 15, 32);
 
   doc.setDrawColor(200, 200, 200);
   doc.setLineWidth(0.5);
@@ -73,13 +67,12 @@ function footer(doc: jsPDF) {
   doc.setFontSize(8);
   doc.setFont("DejaVu", "normal");
   doc.setTextColor(100, 100, 100);
-  doc.text("info@slsp.sk", 15, pageHeight - 9);
-  doc.text("Klientske centrum: 0850 111 888", 105, pageHeight - 9, { align: "center" });
-  doc.text("www.slsp.sk", 195, pageHeight - 9, { align: "right" });
+  doc.text("DEMO · NEJDE O BANKOVÝ DOKLAD", 105, pageHeight - 9, { align: "center" });
 }
 
 function fmtDate(iso: string) {
   const d = new Date(iso);
+  if (!Number.isFinite(d.getTime())) return "Neznámy dátum";
   return `${String(d.getDate()).padStart(2, "0")}.${String(d.getMonth() + 1).padStart(2, "0")}.${d.getFullYear()}`;
 }
 
@@ -94,7 +87,7 @@ export async function exportReceipt(s: BankState, t: Txn) {
   doc.setFont("DejaVu", "bold");
   doc.setFontSize(14);
   doc.setTextColor(0, 0, 0);
-  doc.text("Potvrdenie o zrealizovanej platbe", 15, 48);
+  doc.text("Demo záznam transakcie", 15, 48);
 
   doc.setFontSize(9);
   doc.setFont("DejaVu", "normal");
@@ -131,7 +124,7 @@ export async function exportReceipt(s: BankState, t: Txn) {
   drawRow("Číslo účtu príkazcu (IBAN)", s.iban, true);
   drawRow("Názov protiúčtu", t.counterparty);
   if (t.iban) drawRow("Číslo účtu protiúčtu (IBAN)", t.iban, true);
-  drawRow("Dátum zúčtovania", fmtDate(t.date));
+  drawRow("Dátum záznamu", fmtDate(t.date));
   if (t.vs) drawRow("Variabilný symbol", t.vs);
   if (t.note) drawRow("Poznámka / Popis", t.note);
 
@@ -140,14 +133,14 @@ export async function exportReceipt(s: BankState, t: Txn) {
   doc.setFont("DejaVu", "normal");
   doc.setTextColor(120, 120, 120);
   const noteText =
-    "Poznámka: Toto potvrdenie je vyhotovené elektronicky a je platné bez pečiatky a podpisu. Všetky poplatky sú účtované podľa platného Sadzobníka poplatkov Slovenskej sporiteľne, a.s.";
+    "Tento dokument vznikol v demo simulácii. Nepotvrdzuje skutočnú bankovú transakciu a nemá právnu platnosť ako bankové potvrdenie.";
   doc.text(doc.splitTextToSize(noteText, 180), 15, y);
 
   footer(doc);
-  saveDoc(doc, `Potvrdenie_platba_${t.id || "george"}.pdf`);
+  saveDoc(doc, `Demo_potvrdenie_${t.id || "transakcia"}.pdf`);
 }
 
-// Výpis z účtu za vybrané obdobie (obrazovka Platby)
+// Demo prehľad transakcií za vybrané obdobie (obrazovka Platby)
 export async function exportStatement(s: BankState, txns: Txn[]) {
   const doc = await newDoc();
   header(doc);
@@ -155,7 +148,7 @@ export async function exportStatement(s: BankState, txns: Txn[]) {
   doc.setFont("DejaVu", "bold");
   doc.setFontSize(14);
   doc.setTextColor(0, 0, 0);
-  doc.text("Výpis z účtu", 15, 48);
+  doc.text("Demo prehľad transakcií", 15, 48);
 
   doc.setFontSize(9);
   doc.setFont("DejaVu", "normal");
@@ -170,7 +163,7 @@ export async function exportStatement(s: BankState, txns: Txn[]) {
   doc.text("Názov účtu:", 20, 68);
   doc.text("Číslo účtu (IBAN):", 20, 74);
   doc.text("Mena:", 20, 80);
-  doc.text("Aktuálny zostatok:", 20, 86);
+  doc.text("Modelový zostatok:", 20, 86);
   doc.setFont("DejaVu", "bold");
   doc.setTextColor(0, 0, 0);
   doc.text(s.owner, 190, 68, { align: "right" });
@@ -220,5 +213,5 @@ export async function exportStatement(s: BankState, txns: Txn[]) {
   }
 
   footer(doc);
-  saveDoc(doc, `Vypis_george_${new Date().toISOString().slice(0, 10)}.pdf`);
+  saveDoc(doc, `Demo_vypis_${new Date().toISOString().slice(0, 10)}.pdf`);
 }

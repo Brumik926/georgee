@@ -1,4 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { z } from "zod";
 import { useState, useMemo } from "react";
 import { createPortal } from "react-dom";
 import { 
@@ -22,14 +23,18 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { AppShell } from "@/components/bank/AppShell";
-import { SlspLogo } from "@/components/bank/SlspLogo";
-import { balance, formatDate, MONTHS, useBank, type Txn } from "@/lib/bank-store";
+import { balance, formatDate, hydrate, MONTHS, sortTransactionsNewestFirst, useBank, type Txn } from "@/lib/bank-store";
 
 export const Route = createFileRoute("/_authenticated/platby")({
+  validateSearch: z.object({
+    q: z.string().optional(),
+    filter: z.enum(["all", "in", "out"]).optional(),
+    searchOpen: z.enum(["1"]).optional(),
+  }),
   head: () => ({
     meta: [
-      { title: "Účet a transakcie | George" },
-      { name: "description", content: "História transakcií a správa účtu George" },
+      { title: "Účet a transakcie · George Demo" },
+      { name: "description", content: "História transakcií a správa demo účtu." },
     ],
   }),
   component: UcetDetail,
@@ -43,6 +48,11 @@ function splitAmount(val: number) {
     cents: d,
     isNegative: val < 0,
   };
+}
+
+// Vyhľadávanie ignoruje veľkosť písmen aj slovenskú diakritiku.
+function normalizeSearchValue(value: string): string {
+  return value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase("sk-SK").trim();
 }
 
 // Spoľahlivé vygenerovanie iniciál pre akýkoľvek názov/meno
@@ -96,10 +106,18 @@ function getAvatarColor(name?: string | null): string {
 }
 
 // Komponent loga obchodníka s rozšíreným zoznamom slovenských značiek
+function DemoMark({ size = 40 }: { size?: number }) {
+  return (
+    <span className="grid shrink-0 place-items-center rounded-full border border-primary/15 bg-primary/10 text-primary" style={{ width: size, height: size }}>
+      <Landmark size={Math.round(size * 0.48)} />
+    </span>
+  );
+}
+
 function MerchantLogo({ counterparty, category }: { counterparty: string; category?: string }) {
   const name = (counterparty || "").toLowerCase();
 
-  // 1. Slovenská sporiteľňa / Poplatok banky
+  // 1. Bankový poplatok
   if (
     name.includes("sporiteľňa") || 
     name.includes("sporitelna") || 
@@ -107,7 +125,7 @@ function MerchantLogo({ counterparty, category }: { counterparty: string; catego
     name.includes("poplatok za vedenie") || 
     category === "Poplatky"
   ) {
-    return <SlspLogo />;
+    return <DemoMark />;
   }
 
   // 2. Kaufland
@@ -415,47 +433,56 @@ function MerchantLogo({ counterparty, category }: { counterparty: string; catego
   }
 
   // SPOĽAHLIVÝ FALLBACK: Vždy zobrazí okrúhly farebný kruh s iniciálami
-  return <SlspLogo size={40} />;
+  return <DemoMark size={40} />;
 }
 
 export default function UcetDetail() {
   const s = useBank();
   const navigate = useNavigate();
+  const search = Route.useSearch();
   const [activeTab, setActiveTab] = useState<"transakcie" | "funkcie" | "karty" | "info">("transakcie");
-  const [isSearching, setIsSearching] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [isSearching, setIsSearching] = useState(search.searchOpen === "1" || Boolean(search.q));
+  const [searchQuery, setSearchQuery] = useState(search.q ?? "");
+  const [transactionFilter, setTransactionFilter] = useState<"all" | "in" | "out">(search.filter ?? "all");
 
   // Reálny zostatok
   const currentBalance = balance(s);
   const balanceParts = splitAmount(currentBalance);
-  const formattedOwnResources = `${balanceParts.isNegative ? "-" : ""}${balanceParts.whole},${balanceParts.cents} € vlastné zdroje`;
+  const formattedOwnResources = s.loading
+    ? "Načítavam zostatok…"
+    : s.error
+      ? "Zostatok nie je dostupný"
+      : `${balanceParts.isNegative ? "-" : ""}${balanceParts.whole},${balanceParts.cents} € zostatok podľa dostupnej histórie`;
 
   // Dynamické zoskupenie transakcií podľa mesiaca a roka s voliteľným vyhľadávaním
   const groupedTransactions = useMemo(() => {
     const groups: { [key: string]: { label: string; items: Txn[] } } = {};
 
-    let sorted = [...(s.transactions ?? [])].sort(
-      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-    );
+    let sorted = sortTransactionsNewestFirst(s.transactions ?? []);
+
+    if (transactionFilter !== "all") {
+      sorted = sorted.filter((t) => t.type === transactionFilter);
+    }
 
     if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase().trim();
-      sorted = sorted.filter((t) => 
-        (t.counterparty || "").toLowerCase().includes(q) ||
-        (t.category || "").toLowerCase().includes(q) ||
-        (t.note || "").toLowerCase().includes(q) ||
-        (t.vs || "").toLowerCase().includes(q) ||
-        String(t.amount).includes(q)
-      );
+      const q = normalizeSearchValue(searchQuery);
+      sorted = sorted.filter((t) => {
+        const textMatches = [t.counterparty, t.category, t.note ?? "", t.vs ?? ""]
+          .some((value) => normalizeSearchValue(value).includes(q));
+        const amountMatches = [String(t.amount), t.amount.toFixed(2), t.amount.toFixed(2).replace(".", ",")]
+          .some((value) => value.includes(q));
+        return textMatches || amountMatches;
+      });
     }
 
     sorted.forEach((txn) => {
       const d = new Date(txn.date);
-      const monthIdx = d.getUTCMonth();
-      const year = d.getUTCFullYear();
+      const validDate = Number.isFinite(d.getTime());
+      const monthIdx = d.getMonth();
+      const year = d.getFullYear();
       const monthName = MONTHS[monthIdx] || "Neznámy";
-      const key = `${year}-${String(monthIdx).padStart(2, "0")}`;
-      const label = `${monthName} ${year}`;
+      const key = validDate ? `${year}-${String(monthIdx).padStart(2, "0")}` : "0000-00";
+      const label = validDate ? `${monthName} ${year}` : "Neznámy dátum";
 
       if (!groups[key]) {
         groups[key] = { label, items: [] };
@@ -467,12 +494,20 @@ export default function UcetDetail() {
       .sort((a, b) => b.localeCompare(a))
       .map((k) => groups[k])
       .filter((g): g is { label: string; items: Txn[] } => Boolean(g));
-  }, [s.transactions, searchQuery]);
+  }, [s.transactions, searchQuery, transactionFilter]);
 
-  const copyIban = () => {
-    if (s.iban) {
-      navigator.clipboard.writeText(s.iban);
+  const visibleTransactionCount = groupedTransactions.reduce(
+    (count, group) => count + group.items.length,
+    0,
+  );
+
+  const copyIban = async () => {
+    if (!s.iban) return;
+    try {
+      await navigator.clipboard.writeText(s.iban);
       toast.success("IBAN skopírovaný do schránky");
+    } catch {
+      toast.error("IBAN sa nepodarilo skopírovať. Skontrolujte povolenie schránky.");
     }
   };
 
@@ -500,35 +535,39 @@ export default function UcetDetail() {
               <div>
                 <h1 className="text-[17px] font-medium text-foreground">Účet</h1>
                 
-                <div className={`mt-1 flex items-baseline tracking-tight ${balanceParts.isNegative ? "text-[#c8302f] dark:text-[#ff5a70]" : "text-foreground"}`}>
-                  <span className="text-[30px] font-bold leading-none">
-                    {balanceParts.isNegative ? "-" : ""}{balanceParts.whole},
-                  </span>
-                  <sup className="text-[15px] font-bold leading-none top-[-0.6em] ml-0.5 select-none">
-                    {balanceParts.cents}
-                  </sup>
-                  <span className="text-[28px] font-bold leading-none ml-1 select-none">
-                    €
-                  </span>
+                <div className={`mt-1 flex min-h-9 items-baseline tracking-tight ${balanceParts.isNegative ? "text-expense" : "text-foreground"}`} aria-live="polite">
+                  {s.loading || s.error ? (
+                    <span className="text-sm font-medium text-detail-muted">{s.loading ? "Načítavam…" : "Nedostupné"}</span>
+                  ) : (
+                    <>
+                      <span className="text-[30px] font-bold leading-none">
+                        {balanceParts.isNegative ? "-" : ""}{balanceParts.whole},
+                      </span>
+                      <sup className="top-[-0.6em] ml-0.5 text-[15px] font-bold leading-none select-none">
+                        {balanceParts.cents}
+                      </sup>
+                      <span className="ml-1 select-none text-[28px] font-bold leading-none">€</span>
+                    </>
+                  )}
                 </div>
 
                 <p className="mt-1.5 text-[14px] text-detail-muted">
                   {formattedOwnResources}
                 </p>
               </div>
-              <SlspLogo size={56} />
+              <DemoMark size={56} />
             </div>
           </div>
 
           {/* Záložky: Transakcie, Funkcie, Karty, Info */}
-          <div className="flex items-center justify-between gap-1 pt-1 pb-1 text-[14px]">
+          <div className="grid grid-cols-4 gap-1 pt-1 pb-1 text-[12px]">
             <button
               type="button"
               onClick={() => setActiveTab("transakcie")}
-              className={`rounded-full px-4 py-2 font-semibold transition ${
+              className={`min-w-0 whitespace-nowrap rounded-full px-1 py-2 text-center font-semibold transition ${
                 activeTab === "transakcie"
-                  ? "bg-[#eef3ff] dark:bg-[#242b3b] text-[#196ee6] dark:text-[#4f95ff]"
-                  : "text-[#196ee6] dark:text-[#4f95ff] hover:opacity-80"
+                  ? "bg-primary/10 text-primary"
+                  : "text-muted-foreground hover:bg-muted"
               }`}
             >
               Transakcie
@@ -536,10 +575,10 @@ export default function UcetDetail() {
             <button
               type="button"
               onClick={() => setActiveTab("funkcie")}
-              className={`rounded-full px-4 py-2 font-medium transition ${
+              className={`min-w-0 whitespace-nowrap rounded-full px-1 py-2 text-center font-semibold transition ${
                 activeTab === "funkcie"
-                  ? "bg-[#eef3ff] dark:bg-[#242b3b] text-[#196ee6] dark:text-[#4f95ff]"
-                  : "text-[#196ee6] dark:text-[#4f95ff] hover:opacity-80"
+                  ? "bg-primary/10 text-primary"
+                  : "text-muted-foreground hover:bg-muted"
               }`}
             >
               Funkcie
@@ -547,10 +586,10 @@ export default function UcetDetail() {
             <button
               type="button"
               onClick={() => setActiveTab("karty")}
-              className={`rounded-full px-4 py-2 font-medium transition ${
+              className={`min-w-0 whitespace-nowrap rounded-full px-1 py-2 text-center font-semibold transition ${
                 activeTab === "karty"
-                  ? "bg-[#eef3ff] dark:bg-[#242b3b] text-[#196ee6] dark:text-[#4f95ff]"
-                  : "text-[#196ee6] dark:text-[#4f95ff] hover:opacity-80"
+                  ? "bg-primary/10 text-primary"
+                  : "text-muted-foreground hover:bg-muted"
               }`}
             >
               Karty
@@ -558,10 +597,10 @@ export default function UcetDetail() {
             <button
               type="button"
               onClick={() => setActiveTab("info")}
-              className={`rounded-full px-4 py-2 font-medium transition ${
+              className={`min-w-0 whitespace-nowrap rounded-full px-1 py-2 text-center font-semibold transition ${
                 activeTab === "info"
-                  ? "bg-[#eef3ff] dark:bg-[#242b3b] text-[#196ee6] dark:text-[#4f95ff]"
-                  : "text-[#196ee6] dark:text-[#4f95ff] hover:opacity-80"
+                  ? "bg-primary/10 text-primary"
+                  : "text-muted-foreground hover:bg-muted"
               }`}
             >
               Info
@@ -578,6 +617,7 @@ export default function UcetDetail() {
                   <input
                     type="text"
                     autoFocus
+                    aria-label="Hľadať transakcie"
                     placeholder="Hľadať obchodníka, sumu, kategóriu..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
@@ -586,6 +626,7 @@ export default function UcetDetail() {
                   {searchQuery && (
                     <button
                       type="button"
+                      aria-label="Vymazať vyhľadávanie"
                       onClick={() => setSearchQuery("")}
                       className="absolute right-3.5 top-1/2 -translate-y-1/2 text-detail-muted hover:text-foreground"
                     >
@@ -595,25 +636,62 @@ export default function UcetDetail() {
                 </div>
               )}
 
+              <div className="flex gap-2 overflow-x-auto pb-1" role="group" aria-label="Filter transakcií">
+                {([
+                  { value: "all", label: "Všetky" },
+                  { value: "in", label: "Prijaté" },
+                  { value: "out", label: "Odoslané" },
+                ] as const).map((filter) => (
+                  <button
+                    key={filter.value}
+                    type="button"
+                    aria-pressed={transactionFilter === filter.value}
+                    onClick={() => setTransactionFilter(filter.value)}
+                    className={`shrink-0 rounded-full border px-4 py-2 text-[13px] font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-detail-action ${
+                      transactionFilter === filter.value
+                        ? "border-primary bg-primary text-primary-foreground"
+                        : "border-detail-action-surface bg-detail-surface text-detail-muted hover:text-foreground"
+                    }`}
+                  >
+                    {filter.label}
+                  </button>
+                ))}
+              </div>
+
               {/* Platobné príkazy a rezervácie */}
               <div className="flex items-center gap-4 rounded-3xl bg-detail-surface px-5 py-5 transition-colors">
-                <div className="text-[#196ee6] dark:text-[#4f95ff] shrink-0">
-                  <FileEdit className="w-6 h-6 stroke-[1.8]" />
+                <div className="shrink-0 text-detail-action">
+                  <FileEdit className="size-6 stroke-[1.8]" />
                 </div>
                 <div>
-                  <h3 className="text-[16px] font-medium text-foreground">
-                    Platobné príkazy a rezervácie
-                  </h3>
-                  <p className="text-[13px] text-detail-muted mt-0.5">
-                    0 nevykonaných platieb & 0 rezervácií
+                  <h3 className="text-[16px] font-medium text-foreground">História transakcií</h3>
+                  <p className="mt-0.5 text-[13px] text-detail-muted" aria-live="polite">
+                    {s.loading ? "Načítavam…" : s.error ? "História nie je dostupná" : `Zobrazené záznamy: ${visibleTransactionCount} / ${s.transactions.length}`}
                   </p>
                 </div>
               </div>
 
               {/* Transakcie zoskupené po mesiacoch */}
               {groupedTransactions.length === 0 ? (
-                <div className="rounded-3xl bg-detail-surface p-8 text-center text-detail-muted">
-                  {searchQuery ? "Nenašli sa žiadne vyhovujúce transakcie." : "Zatiaľ žiadne zaznamenané transakcie."}
+                <div className="rounded-3xl bg-detail-surface p-8 text-center text-detail-muted" role="status">
+                  {s.loading ? (
+                    "Načítavam transakcie…"
+                  ) : s.error ? (
+                    <>
+                      <p>Transakcie nie sú dostupné.</p>
+                      <button
+                        type="button"
+                        onClick={() => void hydrate()}
+                        className="mt-3 text-sm font-semibold text-primary underline"
+                      >
+                        Skúsiť znova
+                      </button>
+                    </>
+                  ) : searchQuery || transactionFilter !== "all" ? (
+                    "Pre zvolené vyhľadávanie a filter sa nenašli žiadne transakcie."
+                  ) : (
+                    "Zatiaľ žiadne zaznamenané transakcie."
+                  )}
                 </div>
               ) : (
                 groupedTransactions.map((group) => (
@@ -627,10 +705,12 @@ export default function UcetDetail() {
                         const txParts = splitAmount(t.amount);
 
                         return (
-                          <div
+                          <Link
                             key={t.id}
-                            onClick={() => navigate({ to: "/transakcia/$id", params: { id: t.id } })}
-                            className="cursor-pointer flex items-center justify-between rounded-3xl bg-detail-surface p-4 active:opacity-80 transition"
+                            to="/transakcia/$id"
+                            params={{ id: t.id }}
+                            search={{ q: searchQuery || undefined, filter: transactionFilter, searchOpen: isSearching ? "1" : undefined }}
+                            className="flex items-center justify-between rounded-3xl bg-detail-surface p-4 transition active:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-detail-action"
                           >
                             {/* Vľavo: Logo obchodníka alebo iniciály */}
                             <div className="flex items-center gap-3 min-w-0 pr-2">
@@ -644,11 +724,7 @@ export default function UcetDetail() {
                                   {formatDate(t.date)}
                                 </p>
                                 {t.vs ? (
-                                  <p className="text-[12px] text-detail-muted">
-                                    VS: {t.vs}
-                                  </p>
-                                ) : t.category === "Poplatky" ? (
-                                  <p className="text-[12px] text-detail-muted">KS: 0898</p>
+                                  <p className="text-[12px] text-detail-muted">VS: {t.vs}</p>
                                 ) : null}
                                 <div className="mt-1">
                                   <span className="inline-block rounded-md border border-detail-muted/60 px-1.5 py-0 text-[11px] font-medium text-detail-muted">
@@ -676,7 +752,7 @@ export default function UcetDetail() {
                                 <span className="ml-1 text-[13px] font-normal select-none">€</span>
                               </span>
                             </div>
-                          </div>
+                          </Link>
                         );
                       })}
                     </div>
@@ -691,18 +767,18 @@ export default function UcetDetail() {
             <div className="space-y-5">
               <div className="overflow-hidden rounded-3xl bg-detail-surface divide-y divide-detail-action-surface">
                 {[
-                  { title: "Trvalé príkazy", icon: RefreshCw, to: "/centrum-platieb" },
+                  { title: "Šablóny platieb", icon: RefreshCw, to: "/centrum-platieb" },
                   { title: "Výber z bankomatu mobilom", icon: Landmark },
-                  { title: "Výpisy z účtu", icon: FileText, to: "/upozornenia" },
-                  { title: "Limit pre okamžité platby (SEPA)", desc: "Bez limitu", icon: Zap },
+                  { title: "Výpisy z účtu", icon: FileText, to: "/vypisy" },
+                  { title: "Limit pre okamžité platby (SEPA)", desc: "Nedostupné v demo simulácii", icon: Zap },
                   { title: "Súhlasy s inkasom", icon: ClipboardCheck },
-                  { title: "Vytvoriť payme link / QR kód", icon: QrCode, to: "/prijat" },
+                  { title: "Údaje na prijatie platby", icon: QrCode, to: "/prijat" },
                   { title: "Dobiť kredit", icon: Smartphone },
                 ].map((f) => (
                   <button
                     key={f.title}
                     type="button"
-                    onClick={() => (f.to ? navigate({ to: f.to as "/" }) : toast.info(`${f.title} – pripravujeme`))}
+                    onClick={() => (f.to ? navigate({ to: f.to as "/" }) : toast.info(`${f.title} nie je dostupná v demo simulácii.`))}
                     className="flex w-full items-center gap-4 px-5 py-5 text-left active:opacity-80"
                   >
                     <f.icon className="w-6 h-6 shrink-0 text-[#196ee6] dark:text-[#4f95ff]" strokeWidth={1.8} />
@@ -725,7 +801,7 @@ export default function UcetDetail() {
 
               <div>
                 <h3 className="px-1 pb-2 text-[15px] font-medium text-foreground">Zrušenia</h3>
-                <button type="button" onClick={() => toast.info("Zrušenie účtu je možné len na pobočke")} className="flex w-full items-center gap-4 rounded-3xl bg-detail-surface px-5 py-5 text-left">
+                <button type="button" onClick={() => toast.info("George Demo nevedie skutočný bankový účet, preto zrušenie bankového účtu nie je podporované.")} className="flex w-full items-center gap-4 rounded-3xl bg-detail-surface px-5 py-5 text-left">
                   <X className="w-6 h-6 text-[#196ee6] dark:text-[#4f95ff]" strokeWidth={1.8} />
                   <span className="text-[16px] text-foreground">Zrušiť účet</span>
                 </button>
@@ -744,7 +820,7 @@ export default function UcetDetail() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-[13px] text-detail-muted">Virtuálna karta</p>
-                  <p className="text-[16px] font-bold text-foreground mt-0.5">VISA Debit ···· 2269</p>
+                  <p className="text-[16px] font-bold text-foreground mt-0.5">Demo karta ···· 0001</p>
                 </div>
                 <CreditCard className="w-8 h-8 text-[#196ee6] dark:text-[#4f95ff]" />
               </div>
@@ -760,12 +836,12 @@ export default function UcetDetail() {
               </div>
               <div>
                 <p className="text-[12px] text-detail-muted">Názov účtu</p>
-                <p className="text-[15px] font-medium text-foreground">SPACE účet</p>
+                <p className="text-[15px] font-medium text-foreground">Demo účet</p>
               </div>
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-[12px] text-detail-muted">IBAN</p>
-                  <p className="text-[14px] font-mono font-medium text-foreground">{s.iban || "SK83 0900 0000 0052 0892 1207"}</p>
+                  <p className="text-[14px] font-mono font-medium text-foreground">{s.iban || "IBAN nie je nastavený"}</p>
                 </div>
                 <button
                   type="button"
@@ -783,7 +859,7 @@ export default function UcetDetail() {
         {/* Plávajúci oválny panel (Floating Bottom Action Bar pripnutý priamo do body cez Portal) */}
         {typeof document !== "undefined" &&
           createPortal(
-            <div className="fixed inset-x-0 bottom-5 z-50 mx-auto w-full max-w-[420px] px-4 pointer-events-none">
+            <div className="fixed inset-x-0 bottom-[calc(env(safe-area-inset-bottom)+1rem)] z-50 mx-auto w-full max-w-[420px] px-4 pointer-events-none">
               <div className="pointer-events-auto flex items-center justify-between gap-2.5 rounded-full bg-detail-surface/95 p-2 shadow-[0_8px_30px_rgba(0,0,0,0.12)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.6)] border border-detail-action-surface backdrop-blur-xl">
                 {/* Dve kruhové tlačidlá: Lupa/Vyhľadávanie a Štatistiky/Grafy */}
                 <div className="flex items-center gap-2">

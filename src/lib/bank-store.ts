@@ -45,39 +45,6 @@ export const CATEGORIES = [
   "Prevod",
 ];
 
-function iso(y: number, m: number, d: number) {
-  return new Date(Date.UTC(y, m - 1, d, 10, 0, 0)).toISOString();
-}
-
-function randomIban() {
-  let digits = "";
-  for (let i = 0; i < 16; i++) digits += Math.floor(Math.random() * 10);
-  const groups = digits.match(/.{1,4}/g) ?? [];
-  return `SK31 1200 ${groups.slice(0, 3).join(" ")}`;
-}
-
-function seedTransactions() {
-  const now = new Date();
-  const y = now.getFullYear();
-  const m = now.getMonth() + 1;
-  const pm = m === 1 ? 12 : m - 1;
-  const py = m === 1 ? y - 1 : y;
-
-  const rows: Omit<Txn, "id">[] = [
-    { type: "in", counterparty: "Počiatočný zostatok", amount: 41097.5, date: iso(py, pm, 1), category: "Ostatné príjmy" },
-    { type: "in", counterparty: "Mzda · Karavela s.r.o.", amount: 1840, date: iso(py, pm, 5), category: "Mzda" },
-    { type: "out", counterparty: "Nájom · Byt Petržalka", amount: 520, date: iso(py, pm, 8), category: "Bývanie" },
-    { type: "out", counterparty: "Kino Lumière", amount: 18, date: iso(py, pm, 19), category: "Zábava" },
-    { type: "out", counterparty: "Billa", amount: 68.4, date: iso(y, m, 1), category: "Potraviny" },
-    { type: "in", counterparty: "Mzda · Karavela s.r.o.", amount: 1840, date: iso(y, m, 2), category: "Mzda", vs: "0100" },
-    { type: "out", counterparty: "Nájom · Byt Petržalka", amount: 520, date: iso(y, m, 3), category: "Bývanie" },
-    { type: "in", counterparty: "Radina Olha", iban: "SK42 1100 0000 0029 3633 0786", amount: 120, date: iso(y, m, 4), category: "Ostatné príjmy", note: "Vrátenie pôžičky" },
-    { type: "out", counterparty: "Poplatok za vedenie účtu", amount: 7, date: iso(y, m, 5), category: "Poplatky", vs: "0898" },
-    { type: "out", counterparty: "Slovnaft", amount: 52.1, date: iso(y, m, 6), category: "Doprava" },
-  ];
-  return rows;
-}
-
 const empty: BankState = {
   owner: "",
   iban: "",
@@ -91,6 +58,7 @@ const empty: BankState = {
 let state: BankState = empty;
 const listeners = new Set<() => void>();
 let loadPromise: Promise<void> | null = null;
+let storeGeneration = 0;
 
 function emit() {
   state = { ...state };
@@ -98,67 +66,39 @@ function emit() {
 }
 
 function num(v: unknown) {
-  return typeof v === "number" ? v : Number(v ?? 0);
+  const parsed = typeof v === "number" ? v : Number(v ?? 0);
+  if (!Number.isFinite(parsed)) {
+    throw new Error("Databáza obsahuje neplatnú číselnú hodnotu. Údaje nebolo možné bezpečne zobraziť.");
+  }
+  return parsed;
 }
 
 async function currentUserId() {
-  const { data } = await supabase.auth.getUser();
+  const { data, error } = await supabase.auth.getUser();
+  if (error) throw error;
   return data.user?.id ?? null;
 }
 
-async function seedIfNeeded(userId: string) {
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("owner, iban, seeded")
-    .eq("id", userId)
-    .maybeSingle();
-
-  if (profile?.seeded) return profile;
-
-  const iban = profile?.iban && profile.iban.length > 0 ? profile.iban : randomIban();
-
-  await supabase.from("transactions").insert(
-    seedTransactions().map((t) => ({
-      user_id: userId,
-      type: t.type,
-      counterparty: t.counterparty,
-      iban: t.iban ?? null,
-      amount: t.amount,
-      date: t.date,
-      category: t.category,
-      note: t.note ?? null,
-      vs: t.vs ?? null,
-    })),
-  );
-  await supabase.from("goals").insert([
-    { user_id: userId, name: "Rezervný fond", target: 4000, saved: 2560 },
-    { user_id: userId, name: "Dovolenka", target: 1200, saved: 340 },
-  ]);
-  await supabase.from("budgets").insert([
-    { user_id: userId, category: "Potraviny", limit_amount: 400 },
-    { user_id: userId, category: "Bývanie", limit_amount: 600 },
-    { user_id: userId, category: "Doprava", limit_amount: 150 },
-    { user_id: userId, category: "Zábava", limit_amount: 120 },
-  ]);
-
-  const { data: updated } = await supabase
-    .from("profiles")
-    .upsert({ id: userId, owner: profile?.owner ?? "", iban, seeded: true })
-    .select("owner, iban, seeded")
-    .maybeSingle();
-
-  return updated ?? { owner: profile?.owner ?? "", iban, seeded: true };
-}
-
 export async function loadAll() {
+  const generation = storeGeneration;
   const userId = await currentUserId();
+  if (generation !== storeGeneration) return;
   if (!userId) {
     state = { ...empty, loading: false, error: null };
     emit();
     return;
   }
 
-  const profile = await seedIfNeeded(userId);
+  // Načítame iba existujúci profil a záznamy. Pri prihlásení sa nevytvárajú
+  // žiadne automatické demo transakcie, ciele, rozpočty ani fiktívny IBAN.
+  const { data: profile, error: profileError } = await supabase
+    .from("profiles")
+    .select("owner, iban")
+    .eq("id", userId)
+    .maybeSingle();
+
+  if (profileError) throw profileError;
+  if (generation !== storeGeneration) return;
 
   const [txns, goals, budgets] = await Promise.all([
     supabase
@@ -178,13 +118,22 @@ export async function loadAll() {
       .order("created_at", { ascending: true }),
   ]);
 
+  if (generation !== storeGeneration) return;
+  const queryError = txns.error ?? goals.error ?? budgets.error;
+  if (queryError) throw queryError;
+
   state = {
     owner: profile?.owner ?? "",
     iban: profile?.iban ?? "",
-    transactions: (txns.data ?? [])
+    transactions: sortTransactionsNewestFirst((txns.data ?? [])
       .map((r) => ({
         id: r.id,
-        type: (r.type === "in" ? "in" : "out") as "in" | "out",
+        type: (() => {
+          if (r.type !== "in" && r.type !== "out") {
+            throw new Error("Databáza obsahuje neznámy typ transakcie.");
+          }
+          return r.type;
+        })(),
         counterparty: r.counterparty,
         iban: r.iban ?? undefined,
         amount: num(r.amount),
@@ -192,8 +141,7 @@ export async function loadAll() {
         category: r.category,
         note: r.note ?? undefined,
         vs: r.vs ?? undefined,
-      }))
-      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()),
+      }))),
     goals: (goals.data ?? []).map((g) => ({ id: g.id, name: g.name, target: num(g.target), saved: num(g.saved) })),
     budgets: (budgets.data ?? []).map((b) => ({ category: b.category, limit: num(b.limit_amount) })),
     loading: false,
@@ -204,20 +152,30 @@ export async function loadAll() {
 
 export function hydrate() {
   if (!loadPromise) {
-    loadPromise = loadAll().catch((error: unknown) => {
-      console.error(error);
-      state = {
-        ...empty,
-        loading: false,
-        error: "Údaje účtu sa nepodarilo načítať. Skontrolujte pripojenie a skúste to znova.",
-      };
-      emit();
-    });
+    const generation = storeGeneration;
+    state = { ...state, loading: true, error: null };
+    emit();
+    const pending = loadAll()
+      .catch((error: unknown) => {
+        if (generation !== storeGeneration) return;
+        console.error(error);
+        state = {
+          ...empty,
+          loading: false,
+          error: "Údaje účtu sa nepodarilo načítať. Skontrolujte pripojenie a skúste to znova.",
+        };
+        emit();
+      })
+      .finally(() => {
+        if (loadPromise === pending) loadPromise = null;
+      });
+    loadPromise = pending;
   }
   return loadPromise;
 }
 
 export function resetStore() {
+  storeGeneration += 1;
   loadPromise = null;
   state = empty;
   emit();
@@ -237,9 +195,25 @@ export function useBank() {
   return snap;
 }
 
-export async function addTransaction(t: Omit<Txn, "id">) {
+export async function addTransaction(t: Omit<Txn, "id">, expectedUserId?: string) {
+  if (!t.counterparty.trim() || !t.category.trim()) {
+    throw new Error("Príjemca a kategória transakcie sú povinné.");
+  }
+  if (
+    !Number.isFinite(t.amount) ||
+    t.amount <= 0 ||
+    t.amount > 1_000_000 ||
+    Math.abs(t.amount * 100 - Math.round(t.amount * 100)) > 0.000001
+  ) {
+    throw new Error("Suma transakcie musí byť kladná, najviac 1 000 000 € a s najviac dvoma desatinnými miestami.");
+  }
+  if (!Number.isFinite(Date.parse(t.date))) {
+    throw new Error("Transakcia musí mať platný dátum.");
+  }
+
+  const generation = storeGeneration;
   const userId = await currentUserId();
-  if (!userId) {
+  if (!userId || (expectedUserId && userId !== expectedUserId)) {
     throw new Error("Používateľ nie je prihlásený. Platbu nie je možné uložiť.");
   }
 
@@ -268,29 +242,36 @@ export async function addTransaction(t: Omit<Txn, "id">) {
 
   // 2. Priradíme skutočné ID z databázy
   const newTxn: Txn = { ...t, id: data.id };
-  state.transactions = [newTxn, ...state.transactions].sort(
-    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-  );
-  emit();
+  if (generation === storeGeneration) {
+    state.transactions = sortTransactionsNewestFirst([newTxn, ...state.transactions]);
+    emit();
 
-  void announceTransaction(newTxn);
+    // Uloženie transakcie je hlavná operácia; zlyhanie vedľajšieho upozornenia
+    // nesmie vytvoriť neobslúžené odmietnutie ani zneplatniť uložený záznam.
+    void announceTransaction(newTxn, generation, userId).catch((error: unknown) => {
+      console.error("Oznámenie o uloženej transakcii sa nepodarilo spracovať:", error);
+    });
+  }
   return newTxn;
 }
 
-async function announceTransaction(t: Txn) {
+async function announceTransaction(t: Txn, generation: number, userId: string) {
   const { notify } = await import("@/lib/notifications");
+  if (generation !== storeGeneration || (await currentUserId()) !== userId) return;
 
   if (t.type === "in") {
     await notify(
       "in",
       "Prijatý prevod",
       `${formatEur(t.amount)} od ${t.counterparty}. Nový zostatok ${formatEur(balance(state))}.`,
+      userId,
     );
   } else {
     await notify(
       "out",
       "Platba odoslaná",
       `${formatEur(t.amount)} pre ${t.counterparty}. Nový zostatok ${formatEur(balance(state))}.`,
+      userId,
     );
 
     const budget = state.budgets.find((b) => b.category === t.category);
@@ -303,6 +284,7 @@ async function announceTransaction(t: Txn) {
           "budget",
           `Prekročený rozpočet · ${t.category}`,
           `Tento mesiac ste utratili ${formatEur(spent)} z limitu ${formatEur(budget.limit)}.`,
+          userId,
         );
       }
     }
@@ -310,53 +292,148 @@ async function announceTransaction(t: Txn) {
 }
 
 export async function addGoal(name: string, target: number) {
+  const normalizedName = name.trim();
+  if (
+    !normalizedName ||
+    normalizedName.length > 60 ||
+    !Number.isFinite(target) ||
+    target <= 0 ||
+    target > 1_000_000 ||
+    Math.abs(target * 100 - Math.round(target * 100)) > 0.000001
+  ) {
+    throw new Error("Zadajte názov cieľa do 60 znakov a sumu do 1 000 000 € s najviac dvoma desatinnými miestami.");
+  }
+  const generation = storeGeneration;
   const userId = await currentUserId();
-  if (!userId) return;
-  const { data } = await supabase
+  if (!userId) throw new Error("Používateľ nie je prihlásený.");
+  const { data, error } = await supabase
     .from("goals")
-    .insert({ user_id: userId, name, target, saved: 0 })
+    .insert({ user_id: userId, name: normalizedName, target, saved: 0 })
     .select("id")
     .maybeSingle();
-  state.goals = [...state.goals, { id: data?.id ?? crypto.randomUUID(), name, target, saved: 0 }];
+  if (error) throw error;
+  if (!data?.id) throw new Error("Sporiaci cieľ sa nepodarilo vytvoriť.");
+  if (generation !== storeGeneration) return;
+  state.goals = [...state.goals, { id: data.id, name: normalizedName, target, saved: 0 }];
+  emit();
+}
+
+export async function removeGoal(id: string) {
+  const generation = storeGeneration;
+  const userId = await currentUserId();
+  if (!userId) throw new Error("Používateľ nie je prihlásený.");
+  const { data, error } = await supabase
+    .from("goals")
+    .delete()
+    .eq("id", id)
+    .eq("user_id", userId)
+    .select("id")
+    .maybeSingle();
+  if (error) throw error;
+  if (!data) throw new Error("Sporiaci cieľ sa nenašiel alebo ho nie je možné odstrániť.");
+  if (generation !== storeGeneration) return;
+  state.goals = state.goals.filter((goal) => goal.id !== id);
   emit();
 }
 
 export async function depositToGoal(id: string, amount: number) {
+  const generation = storeGeneration;
+  const userId = await currentUserId();
+  if (!userId) throw new Error("Používateľ nie je prihlásený.");
+  if (!Number.isFinite(amount) || amount <= 0 || Math.abs(amount * 100 - Math.round(amount * 100)) > 0.000001) {
+    throw new Error("Vklad musí byť kladná suma s najviac dvoma desatinnými miestami.");
+  }
+  if (amount > balance(state)) {
+    throw new Error("Na tento vklad nemáte dostatočný dostupný zostatok.");
+  }
   const goal = state.goals.find((g) => g.id === id);
-  if (!goal) return;
-  const saved = goal.saved + amount;
-  await supabase.from("goals").update({ saved }).eq("id", id);
-  state.goals = state.goals.map((g) => (g.id === id ? { ...g, saved } : g));
-  emit();
-  await addTransaction({
-    type: "out",
-    counterparty: `Sporenie · ${goal.name}`,
-    amount,
-    date: new Date().toISOString(),
-    category: "Sporenie",
-  });
+  if (!goal) throw new Error("Sporiaci cieľ sa nenašiel.");
+  if (amount > Math.max(0, goal.target - goal.saved)) {
+    throw new Error("Vklad nemôže byť vyšší ako zostávajúca suma do cieľa.");
+  }
+  const previousSaved = goal.saved;
+  const saved = Math.round((goal.saved + amount) * 100) / 100;
+  const { data, error } = await supabase
+    .from("goals")
+    .update({ saved })
+    .eq("id", id)
+    .eq("user_id", userId)
+    .select("id")
+    .maybeSingle();
+  if (error) throw error;
+  if (!data) throw new Error("Vklad sa nepodarilo uložiť.");
+
+  if (generation === storeGeneration) {
+    state.goals = state.goals.map((g) => (g.id === id ? { ...g, saved } : g));
+    emit();
+  }
+  try {
+    await addTransaction({
+      type: "out",
+      counterparty: `Sporenie · ${goal.name}`,
+      amount,
+      date: new Date().toISOString(),
+      category: "Sporenie",
+    }, userId);
+  } catch (transactionError) {
+    const rollback = await supabase
+      .from("goals")
+      .update({ saved: previousSaved })
+      .eq("id", id)
+      .eq("user_id", userId)
+      .select("id")
+      .maybeSingle();
+    if (!rollback.error && rollback.data) {
+      if (generation === storeGeneration) {
+        state.goals = state.goals.map((g) => (g.id === id ? { ...g, saved: previousSaved } : g));
+        emit();
+      }
+    } else {
+      console.error("Vrátenie neúspešného vkladu do pôvodného stavu zlyhalo:", rollback.error);
+      await loadAll();
+      throw new Error("Transakcia vkladu zlyhala a stav cieľa sa nepodarilo bezpečne obnoviť. Údaje boli znovu načítané.");
+    }
+    throw transactionError;
+  }
 }
 
 export async function setBudget(category: string, limit: number) {
+  const normalizedCategory = category.trim();
+  const generation = storeGeneration;
   const userId = await currentUserId();
-  if (!userId) return;
-  await supabase
+  if (!userId) throw new Error("Používateľ nie je prihlásený.");
+  if (!normalizedCategory || normalizedCategory.length > 60 || !Number.isFinite(limit) || limit <= 0 || limit > 1_000_000 || Math.abs(limit * 100 - Math.round(limit * 100)) > 0.000001) {
+    throw new Error("Kategória a kladný limit s najviac dvoma desatinnými miestami sú povinné.");
+  }
+  const { error } = await supabase
     .from("budgets")
-    .upsert({ user_id: userId, category, limit_amount: limit }, { onConflict: "user_id,category" });
-  const exists = state.budgets.some((b) => b.category === category);
+    .upsert({ user_id: userId, category: normalizedCategory, limit_amount: limit }, { onConflict: "user_id,category" });
+  if (error) throw error;
+  if (generation !== storeGeneration) return;
+  const exists = state.budgets.some((b) => b.category === normalizedCategory);
   state.budgets = exists
-    ? state.budgets.map((b) => (b.category === category ? { category, limit } : b))
-    : [...state.budgets, { category, limit }];
+    ? state.budgets.map((b) => (b.category === normalizedCategory ? { category: normalizedCategory, limit } : b))
+    : [...state.budgets, { category: normalizedCategory, limit }];
   emit();
 }
 
 export async function removeBudget(category: string) {
-  await supabase.from("budgets").delete().eq("category", category);
+  const generation = storeGeneration;
+  const userId = await currentUserId();
+  if (!userId) throw new Error("Používateľ nie je prihlásený.");
+  const { error } = await supabase
+    .from("budgets")
+    .delete()
+    .eq("user_id", userId)
+    .eq("category", category);
+  if (error) throw error;
+  if (generation !== storeGeneration) return;
   state.budgets = state.budgets.filter((b) => b.category !== category);
   emit();
 }
 
 export async function saveProfile(owner: string, iban: string) {
+  const generation = storeGeneration;
   const userId = await currentUserId();
   if (!userId) throw new Error("Pre uloženie údajov sa prihláste.");
   const { data, error } = await supabase.from("profiles")
@@ -365,6 +442,7 @@ export async function saveProfile(owner: string, iban: string) {
     .single();
   if (error) throw error;
   if (!data) throw new Error("Údaje účtu sa nepodarilo uložiť.");
+  if (generation !== storeGeneration) return;
   state.owner = data.owner;
   state.iban = data.iban;
   emit();
@@ -377,14 +455,25 @@ export function balance(s: BankState) {
 
 export function inMonth(t: Txn, d = new Date()) {
   const x = new Date(t.date);
-  return x.getFullYear() === d.getFullYear() && x.getMonth() === d.getMonth();
+  return Number.isFinite(x.getTime()) && x.getFullYear() === d.getFullYear() && x.getMonth() === d.getMonth();
+}
+
+export function isExcludedFromOverview(transaction: Pick<Txn, "id">) {
+  if (typeof window === "undefined") return false;
+  try {
+    const raw = window.localStorage.getItem(`george-txn-extra:${transaction.id}`);
+    if (!raw) return false;
+    return (JSON.parse(raw) as { exclude?: unknown }).exclude === true;
+  } catch {
+    return false;
+  }
 }
 
 export function monthTotals(s: BankState, d = new Date()) {
   let income = 0;
   let expense = 0;
   for (const t of s.transactions) {
-    if (!inMonth(t, d)) continue;
+    if (!inMonth(t, d) || isExcludedFromOverview(t)) continue;
     if (t.type === "in") income += t.amount;
     else expense += t.amount;
   }
@@ -410,19 +499,36 @@ export function formatEur(n: number) {
   return new Intl.NumberFormat("sk-SK", { style: "currency", currency: "EUR" }).format(n);
 }
 
+function transactionTimestamp(date: string): number | null {
+  const timestamp = Date.parse(date);
+  return Number.isFinite(timestamp) ? timestamp : null;
+}
+
+export function sortTransactionsNewestFirst<T extends Pick<Txn, "date">>(transactions: T[]): T[] {
+  return [...transactions].sort((a, b) => {
+    const aTime = transactionTimestamp(a.date);
+    const bTime = transactionTimestamp(b.date);
+    if (aTime === null && bTime === null) return 0;
+    if (aTime === null) return 1;
+    if (bTime === null) return -1;
+    return bTime - aTime;
+  });
+}
+
 export function formatDate(iso: string) {
   const d = new Date(iso);
+  if (!Number.isFinite(d.getTime())) return "Neznámy dátum";
   return `${String(d.getDate()).padStart(2, "0")}.${String(d.getMonth() + 1).padStart(2, "0")}.${d.getFullYear()}`;
 }
 
 export function groupByMonth(txns: Txn[]) {
   const map = new Map<string, Txn[]>();
-  const sorted = [...txns].sort(
-    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-  );
+  const sorted = sortTransactionsNewestFirst(txns);
   for (const t of sorted) {
     const d = new Date(t.date);
-    const key = `${MONTHS[d.getMonth()]} ${d.getFullYear()}`;
+    const key = Number.isFinite(d.getTime())
+      ? `${MONTHS[d.getMonth()]} ${d.getFullYear()}`
+      : "Neznámy dátum";
     if (!map.has(key)) map.set(key, []);
     map.get(key)!.push(t);
   }
@@ -430,8 +536,16 @@ export function groupByMonth(txns: Txn[]) {
 }
 
 export async function removeTransaction(id: string) {
-  const { error } = await supabase.from("transactions").delete().eq("id", id);
+  const generation = storeGeneration;
+  const userId = await currentUserId();
+  if (!userId) throw new Error("Používateľ nie je prihlásený.");
+  const { error } = await supabase
+    .from("transactions")
+    .delete()
+    .eq("id", id)
+    .eq("user_id", userId);
   if (error) throw error;
+  if (generation !== storeGeneration) return;
   state.transactions = state.transactions.filter((t) => t.id !== id);
   emit();
 }

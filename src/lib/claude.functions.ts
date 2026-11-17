@@ -1,9 +1,10 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { z } from "zod";
 
 export const askClaude = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: { prompt: string }) => data)
+  .inputValidator(z.object({ prompt: z.string().trim().min(1).max(4000) }))
   .handler(async ({ data, context }) => {
     const access = await context.supabase.rpc("is_banking_blocked");
     if (access.error || access.data !== false) throw new Error("Prístup do bankingu je zablokovaný.");
@@ -25,7 +26,7 @@ export const askClaude = createServerFn({ method: "POST" })
         model: "anthropic/claude-sonnet-5",
         max_tokens: 1024,
         system:
-          "Si osobný bankový asistent George pre Slovenskú sporiteľňu. Odpovedaj priateľsky, vecne a stručne po slovensky. Pomáhaj používateľovi s financiami, rozpočtom, sporením a bežnými bankovými otázkami.",
+          "Si informačný asistent aplikácie George Demo, samostatnej finančnej simulácie. Nie si pracovník banky, nemáš prístup k skutočným bankovým účtom a aplikácia nevykonáva bankové prevody. Odpovedaj stručne po slovensky a pomáhaj vysvetľovať iba funkcie simulácie a všeobecné finančné pojmy. Nikdy nežiadaj heslá, PIN, CVV, celé čísla platobných kariet ani jednorazové autorizačné kódy. Pri otázkach o skutočnom účte odporuč kontaktovať vlastnú banku cez jej oficiálne kanály.",
         messages: [{ role: "user", content: data.prompt }],
       }),
     });

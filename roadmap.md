@@ -24,6 +24,6 @@
 - [x] Ochrana prihlásených obrazoviek pred prázdnym zobrazením pri chybe načítania
 - [x] Upraviť detail odoslanej platby podľa priloženej fotografie
 - [x] Vytvoriť a overiť nové APK s logom S s bodkou
-- [ ] Upraviť FIT / Rozpočet: mesačné výdavky, príjmy, limity a overenie
+- [x] Upraviť FIT / Rozpočet: mesačné výdavky, príjmy, rozdiel príjmov a výdavkov, limity a mesačný výber; overené testami rozpočtového súhrnu a CI.
 - [x] Dokončiť Google Search Console: pripojenie, overenie publikovanej stránky a odoslanie sitemap
 - [x] Opraviť opakované zobrazenie prihlásenia a overiť otvorenie Prehľadu a platieb

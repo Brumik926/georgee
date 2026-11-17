@@ -1,46 +1,42 @@
-# 💙 George – Slovenská sporiteľňa
+# George Demo · Banková simulácia
 
-> *"Najinteligentnejší bankár vo vašom vrecku."*  
-> **Ahoj, tu je George!**
+Samostatná webová aplikácia na precvičenie a ukážku používateľských tokov osobných financií. Názov projektu zostáva George Demo; projekt nie je produktom ani oficiálnou aplikáciou Slovenskej sporiteľne.
 
-## 📱 O projekte
+## Čo aplikácia obsahuje
 
-Projekt verným spôsobom prináša do webového a mobilného prostredia zážitok z moderného digitálneho bankovníctva:
-- **Prehľad účtov a zostatkov:** S prehľadným zobrazením centov ako horný index, skrytím zostatku a farebným rozlíšením príjmov a výdavkov.
-- **Platobný styk a nová platba:** Zadávanie prevodov s validáciou IBAN, parsovaním QR kódov a výberom príjemcov.
-- **FIT rozpočet a analýza:** Mesačné prehľady výdavkov a príjmov, kategórie a správa financií.
-- **Investície & Sporenie:** Sporiace ciele a správa portfólia.
-- **Inteligentné logo obchodníkov:** Automatické rozpoznávanie a vykresľovanie ikon pre značky ako Kaufland, Tesco, McDonald's, Shell, Netflix, Spotify, Billa, Lidl či Slovnaft.
-- **Zabezpečenie a biometria:** Simulačný zámok obrazovky, ochrana prihlásenia a haptická odozva (vibrácie pri interakciách).
-- **AI Asistent:** Integrovaný chat s asistentom pre rýchle prehľady nad vašimi financiami.
+- Prehľad modelového účtu a histórie transakcií.
+- Demo platobný formulár s validáciou IBAN a načítaním podporovaných platobných QR údajov.
+- Evidenciu príjmov a výdavkov v používateľskom účte.
+- Sporiace ciele a rozpočtové limity.
+- Upozornenia, protokol prístupov a lokálnu simuláciu biometrického zámku.
+- Obrazovky kariet a odmien zobrazujú prázdny stav, kým pre ne nebudú dostupné záznamy v databáze.
+- Export demo prehľadu transakcií do PDF.
 
----
+## Dôležité obmedzenia
 
-## 🛠️ Technologický stack
+- Aplikácia nevykonáva SEPA ani iné skutočné bankové prevody.
+- Investičné profily sú iba vzdelávacie príklady bez trhových dát a výnosov.
+- Aplikácia nevytvára fiktívne karty, odmeny, transakcie, sporiace ciele ani rozpočty.
+- Exportované PDF je označené ako demo dokument a nie je bankovým potvrdením ani výpisom.
+- Nezadávajte sem skutočné prihlasovacie údaje, PIN, CVV ani údaje aktívnych platobných kariet.
+- Existujúce používateľské záznamy v Supabase sa načítavajú podľa prihláseného používateľa; aplikácia pri prihlásení automaticky nevytvára fiktívne transakcie.
 
-- **Frontend:** React 19, TypeScript, Vite, Tailwind CSS v4, Radix UI / Shadcn UI
-- **Routing & SSR:** TanStack Router / TanStack Start
-- **Dáta & Úložisko:** Supabase, Drizzle ORM, lokálne úložisko (`localStorage`)
-- **Nástroje & Testovanie:** Vitest, React Testing Library, Lucide React, Recharts
+## Technológie
 
----
+- React, TypeScript, Vite a Tailwind CSS
+- TanStack Router
+- Supabase Auth a databáza
+- Vitest a React Testing Library
 
-## 🚀 Lokálne spustenie
-
-Ak si chcete projekt spustiť lokálne vo svojom počítači:
+## Lokálne spustenie
 
 ```sh
-# Klonovanie repozitára
-git clone <url-repozitara>
-cd georgee
-
-# Inštalácia závislostí
-bun install  # alebo npm install
-
-# Spustenie vývojového servera
+npm install
 npm run dev
 ```
 
----
+Testy: `npm run test`
 
-*Vytvorené s rešpektom k originálnemu dizajnu aplikácie George od Slovenskej sporiteľne.*
+Kontrola štýlu: `npm run lint`
+
+Produkčný build: `npm run build`

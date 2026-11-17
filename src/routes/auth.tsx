@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
@@ -10,15 +10,15 @@ export const Route = createFileRoute("/auth")({
     typeof s["next"] === "string" ? { next: s["next"] } : {},
   head: () => ({
     meta: [
-      { title: "Prihlásenie · Internetbanking George" },
+      { title: "Prihlásenie · George Demo" },
       {
         name: "description",
-        content: "Prihláste sa do internetbankingu George a majte svoje platby, sporenie a rozpočet vždy po ruke.",
+        content: "Prihláste sa do demo finančnej simulácie George. Aplikácia nevykonáva skutočné bankové prevody.",
       },
-      { property: "og:title", content: "Prihlásenie · Internetbanking George" },
+      { property: "og:title", content: "Prihlásenie · George Demo" },
       {
         property: "og:description",
-        content: "Prihláste sa do internetbankingu George a majte svoje platby, sporenie a rozpočet vždy po ruke.",
+        content: "Prihláste sa do demo finančnej simulácie George. Aplikácia nevykonáva skutočné bankové prevody.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -31,9 +31,9 @@ function AuthPage() {
   const navigate = useNavigate();
   const { next: rawNext } = Route.useSearch();
   const next = oauthReturnPath(rawNext);
-  const goNext = () => {
-    navigate({ to: next, replace: true });
-  };
+  const goNext = useCallback(() => {
+    void navigate({ to: next, replace: true });
+  }, [navigate, next]);
 
   const [mode, setMode] = useState<"in" | "up" | "reset">("in");
   const [owner, setOwner] = useState("");
@@ -41,27 +41,38 @@ function AuthPage() {
   const [password, setPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [isRecovery, setIsRecovery] = useState(false);
+  const recoveryRef = useRef(false);
   const [busy, setBusy] = useState(false);
   const [sent, setSent] = useState(false);
   const [resetSent, setResetSent] = useState(false);
 
   useEffect(() => {
+    let active = true;
+    const hashParams = new URLSearchParams(window.location.hash.slice(1));
+    const searchParams = new URLSearchParams(window.location.search);
+    if (hashParams.get("type") === "recovery" || searchParams.get("type") === "recovery") {
+      recoveryRef.current = true;
+      setIsRecovery(true);
+    }
+
     supabase.auth.getSession().then(({ data }) => {
-      if (data.session && !isRecovery) goNext();
+      if (active && data.session && !recoveryRef.current) goNext();
     });
 
     const { data: authListener } = supabase.auth.onAuthStateChange((event) => {
       if (event === "PASSWORD_RECOVERY") {
+        recoveryRef.current = true;
         setIsRecovery(true);
-      } else if (event === "SIGNED_IN" && !isRecovery) {
+      } else if (event === "SIGNED_IN" && !recoveryRef.current) {
         goNext();
       }
     });
 
     return () => {
+      active = false;
       authListener.subscription.unsubscribe();
     };
-  }, [navigate, next, isRecovery]);
+  }, [goNext]);
 
   async function submitNewPassword(e: React.FormEvent) {
     e.preventDefault();
@@ -70,6 +81,7 @@ function AuthPage() {
       const { error } = await supabase.auth.updateUser({ password: newPassword });
       if (error) throw error;
       toast.success("Vaše heslo bolo úspešne zmenené.");
+      recoveryRef.current = false;
       setIsRecovery(false);
       goNext();
     } catch (err) {
@@ -136,22 +148,24 @@ function AuthPage() {
 
   async function google() {
     setBusy(true);
-    const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.origin + "/auth",
-    });
-    if (result.error) {
-      setBusy(false);
+    try {
+      const result = await lovable.auth.signInWithOAuth("google", {
+        redirect_uri: window.location.origin + "/auth",
+      });
+      if (result.error) throw result.error;
+      if (result.redirected) return;
+      goNext();
+    } catch (error) {
+      console.error("Prihlásenie cez Google zlyhalo:", error);
       toast.error("Prihlásenie cez Google sa nepodarilo.");
-      return;
+      setBusy(false);
     }
-    if (result.redirected) return;
-    goNext();
   }
 
   return (
     <div className="mx-auto min-h-screen w-full max-w-[430px] bg-background">
       <header className="brand-header px-5 pb-14 pt-10 text-brand-foreground">
-        <p className="text-[13px] font-semibold tracking-wide opacity-90">George · Slovenská sporiteľňa</p>
+        <p className="text-[13px] font-semibold tracking-wide opacity-90">George Demo · Banková simulácia</p>
         <h1 className="mt-3 text-[34px] font-bold leading-none">
           {isRecovery
             ? "Nové heslo"
@@ -340,10 +354,7 @@ function AuthPage() {
         </div>
 
         <p className="mt-6 text-center text-xs text-muted-foreground">
-          Potrebujete pomôcť s prihlásením?{" "}
-          <a href="tel:0850111888" className="text-primary hover:underline">
-            Klientske centrum 0850 111 888
-          </a>
+          Demo aplikácia nie je prepojená s bankovým klientskym centrom a neposkytuje bankové služby.
         </p>
       </div>
     </div>

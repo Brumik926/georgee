@@ -63,7 +63,7 @@ describe("Obrazovka Prijať peniaze", () => {
 
   it("zobrazí nadpis a IBAN používateľa", () => {
     render(<Prijat />);
-    expect(screen.getByText("Prijať peniaze")).toBeInTheDocument();
+    expect(screen.getByText("Údaje na prijatie platby")).toBeInTheDocument();
     expect(screen.getByText("SK0987654321098765432100")).toBeInTheDocument();
   });
 
@@ -72,7 +72,7 @@ describe("Obrazovka Prijať peniaze", () => {
     render(<Prijat />);
 
     await user.type(screen.getByPlaceholderText("0,00"), "25");
-    await user.click(screen.getByRole("button", { name: /Pridať príjem na účet/i }));
+    await user.click(screen.getByRole("button", { name: /Pridať demo príjem/i }));
 
     expect(await screen.findByText("Zadajte odosielateľa.")).toBeInTheDocument();
     expect(addTransactionMock).not.toHaveBeenCalled();
@@ -87,9 +87,54 @@ describe("Obrazovka Prijať peniaze", () => {
       "František Horváth",
     );
     await user.type(screen.getByPlaceholderText("0,00"), "-5");
-    await user.click(screen.getByRole("button", { name: /Pridať príjem na účet/i }));
+    await user.click(screen.getByRole("button", { name: /Pridať demo príjem/i }));
 
     expect(await screen.findByText("Zadajte platnú sumu.")).toBeInTheDocument();
+    expect(addTransactionMock).not.toHaveBeenCalled();
+  });
+
+  it("odmietne vedecký zápis sumy", async () => {
+    const user = userEvent.setup();
+    render(<Prijat />);
+
+    await user.type(
+      screen.getByPlaceholderText("Meno odosielateľa alebo spoločnosti"),
+      "Testovací odosielateľ",
+    );
+    await user.type(screen.getByPlaceholderText("0,00"), "1e3");
+    await user.click(screen.getByRole("button", { name: /Pridať demo príjem/i }));
+
+    expect(await screen.findByText("Zadajte platnú sumu.")).toBeInTheDocument();
+    expect(addTransactionMock).not.toHaveBeenCalled();
+  });
+
+  it("odmietne sumu s viac ako dvoma desatinnými miestami", async () => {
+    const user = userEvent.setup();
+    render(<Prijat />);
+
+    await user.type(
+      screen.getByPlaceholderText("Meno odosielateľa alebo spoločnosti"),
+      "Testovací odosielateľ",
+    );
+    await user.type(screen.getByPlaceholderText("0,00"), "12,345");
+    await user.click(screen.getByRole("button", { name: /Pridať demo príjem/i }));
+
+    expect(await screen.findByText("Zadajte platnú sumu.")).toBeInTheDocument();
+    expect(addTransactionMock).not.toHaveBeenCalled();
+  });
+
+  it("odmietne príjem nad maximálny limit simulácie", async () => {
+    const user = userEvent.setup();
+    render(<Prijat />);
+
+    await user.type(
+      screen.getByPlaceholderText("Meno odosielateľa alebo spoločnosti"),
+      "Testovací odosielateľ",
+    );
+    await user.type(screen.getByPlaceholderText("0,00"), "1000000,01");
+    await user.click(screen.getByRole("button", { name: /Pridať demo príjem/i }));
+
+    expect(await screen.findByText("Maximálna evidovaná suma je 1 000 000 €.")).toBeInTheDocument();
     expect(addTransactionMock).not.toHaveBeenCalled();
   });
 
@@ -102,7 +147,7 @@ describe("Obrazovka Prijať peniaze", () => {
       "František Horváth",
     );
     await user.type(screen.getByPlaceholderText("0,00"), "25,50");
-    await user.click(screen.getByRole("button", { name: /Pridať príjem na účet/i }));
+    await user.click(screen.getByRole("button", { name: /Pridať demo príjem/i }));
 
     await waitFor(() => {
       expect(addTransactionMock).toHaveBeenCalledWith(
@@ -127,7 +172,7 @@ describe("Obrazovka Prijať peniaze", () => {
       "František Horváth",
     );
     await user.type(screen.getByPlaceholderText("0,00"), "10");
-    await user.click(screen.getByRole("button", { name: /Pridať príjem na účet/i }));
+    await user.click(screen.getByRole("button", { name: /Pridať demo príjem/i }));
 
     expect(await screen.findByText("Nepodarilo sa uložiť príjem.")).toBeInTheDocument();
     expect(navigateMock).not.toHaveBeenCalled();

@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft, Bell, BellRing, PieChart, Volume2, Smartphone } from "lucide-react";
 import {
   clearNotifications,
+  hydrateNotifications,
   markAllRead,
   playNotificationSound,
   updateNotifSettings,
@@ -11,12 +12,12 @@ import {
 export const Route = createFileRoute("/_authenticated/upozornenia")({
   head: () => ({
     meta: [
-      { title: "Upozornenia · George" },
+      { title: "Upozornenia · George Demo" },
       {
         name: "description",
-        content: "Zapnite si upozornenia na prijaté prevody, odoslané platby a prekročenie rozpočtu v internetbankingu George.",
+        content: "Správa upozornení v samostatnej finančnej simulácii George Demo.",
       },
-      { property: "og:title", content: "Upozornenia · George" },
+      { property: "og:title", content: "Upozornenia · George Demo" },
       {
         property: "og:description",
         content: "Zapnite si upozornenia na prijaté prevody, odoslané platby a prekročenie rozpočtu v internetbankingu George.",
@@ -42,8 +43,10 @@ function Toggle({
   return (
     <button
       type="button"
+      role="switch"
+      aria-checked={checked}
       onClick={() => onChange(!checked)}
-      className="flex w-full items-start justify-between gap-3 rounded-xl border border-border bg-background px-3 py-3 text-left"
+      className="flex w-full items-start justify-between gap-3 rounded-xl border border-border bg-background px-3 py-3 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
     >
       <span>
         <span className="block text-sm font-semibold">{label}</span>
@@ -64,16 +67,20 @@ function Toggle({
 
 function timeAgo(iso: string) {
   const d = new Date(iso);
+  if (!Number.isFinite(d.getTime())) return "Neznámy dátum";
   return `${String(d.getDate()).padStart(2, "0")}.${String(d.getMonth() + 1).padStart(2, "0")}.${d.getFullYear()} ${String(
     d.getHours(),
   ).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
 }
 
 function Upozornenia() {
-  const { settings, items, loading } = useNotifications();
+  const { settings, items, loading, error } = useNotifications();
 
   return (
     <div className="mx-auto min-h-screen w-full max-w-[430px] bg-background p-5">
+      <div className="mb-4 inline-flex rounded-full border border-primary/20 bg-primary/5 px-2.5 py-1 text-[9px] font-bold tracking-[0.12em] text-primary">
+        DEMO · BANKOVÁ SIMULÁCIA
+      </div>
       <div className="mb-6 flex items-center">
         <Link to="/nastavenia" className="mr-4">
           <ArrowLeft className="size-6 cursor-pointer" />
@@ -135,6 +142,17 @@ function Upozornenia() {
 
         {loading ? (
           <p className="mt-4 text-sm text-muted-foreground">Načítavam…</p>
+        ) : error ? (
+          <div className="mt-4 rounded-xl bg-destructive/10 p-3">
+            <p role="alert" className="text-sm text-destructive">{error}</p>
+            <button
+              type="button"
+              onClick={() => void hydrateNotifications()}
+              className="mt-2 text-sm font-semibold text-primary underline"
+            >
+              Skúsiť znova
+            </button>
+          </div>
         ) : items.length === 0 ? (
           <p className="mt-4 text-sm text-muted-foreground">Zatiaľ žiadne hlásenia.</p>
         ) : (
@@ -162,7 +180,7 @@ function Upozornenia() {
       </section>
 
       <p className="mt-4 text-center text-[11px] text-muted-foreground">
-        Hlásenia a nastavenia sa ukladajú v cloude, takže zostanú aj po zatvorení aplikácie.
+        Hlásenia a nastavenia sa ukladajú do databázy demo aplikácie. Nejde o upozornenia skutočnej banky.
       </p>
     </div>
   );

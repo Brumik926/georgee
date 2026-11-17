@@ -1,12 +1,24 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { type ReactNode } from "react";
 import { createPortal } from "react-dom";
-import { Rss, Activity, LayoutGrid, MessageSquare, ArrowLeft } from "lucide-react";
+import {
+  House,
+  ArrowLeftRight,
+  CreditCard,
+  PiggyBank,
+  UserRound,
+  ArrowLeft,
+} from "lucide-react";
 import { triggerHaptic } from "@/lib/haptics";
 
 export function AppShell({ children }: { children: ReactNode }) {
   return (
     <div className="mx-auto min-h-screen w-full max-w-[430px] bg-background text-foreground pb-24 font-sans relative">
+      <div className="flex justify-end px-4 pt-2">
+        <span className="rounded-full border border-primary/20 bg-primary/5 px-2.5 py-1 text-[9px] font-bold tracking-[0.12em] text-primary">
+          DEMO · BANKOVÁ SIMULÁCIA
+        </span>
+      </div>
       {children}
     </div>
   );
@@ -15,21 +27,39 @@ export function AppShell({ children }: { children: ReactNode }) {
 export function PersistentBottomNav() {
   const path = useRouterState({ select: (s) => s.location.pathname });
 
-  // Skryť na zadávaní platby, v detaile transakcie a v detaile účtu (má vlastnú lištu)
-  if (path === "/nova-platba" || path.startsWith("/transakcia") || path === "/platby") {
+  // Skryť navigáciu počas zadávania platby a v obrazovkách s vlastnou navigáciou.
+  if (path.startsWith("/nova-platba") || path.startsWith("/transakcia/") || path === "/platby" || path === "/prijat") {
     return null;
   }
 
   const tabs = [
-    { to: "/", label: "Prehľad", active: path === "/", icon: null },
-    { to: "/rozpocet", label: "FIT", active: path === "/rozpocet", icon: Rss },
-    { to: "/sporenie", label: "Invest", active: path === "/sporenie", icon: Activity },
-    { to: "/centrum-platieb", label: "Objavujte", active: path === "/centrum-platieb" || path === "/karty" || path === "/svetovy-cas", icon: LayoutGrid },
-    { to: "/nastavenia", label: "Kontakty", active: path === "/nastavenia" || path === "/upozornenia", icon: MessageSquare, dot: true },
+    { to: "/", label: "Prehľad", active: path === "/", icon: House },
+    {
+      to: "/centrum-platieb",
+      label: "Platby",
+      active:
+        path === "/centrum-platieb" ||
+        path.startsWith("/centrum-platieb/") ||
+        path === "/prijat" ||
+        path === "/vypisy" ||
+        path.startsWith("/vypisy/"),
+      icon: ArrowLeftRight,
+    },
+    { to: "/karty", label: "Karty", active: path === "/karty" || path.startsWith("/karty/"), icon: CreditCard },
+    { to: "/sporenie", label: "Sporenie", active: path === "/sporenie" || path.startsWith("/sporenie/"), icon: PiggyBank },
+    {
+      to: "/nastavenia",
+      label: "Profil",
+      active:
+        path === "/nastavenia" || path.startsWith("/nastavenia/") ||
+        path === "/upozornenia" || path.startsWith("/upozornenia/") ||
+        path === "/protokol-pristupov" || path.startsWith("/protokol-pristupov/"),
+      icon: UserRound,
+    },
   ] as const;
 
   return createPortal(
-    <nav className="fixed inset-x-0 bottom-0 z-50 mx-auto w-full max-w-[430px] border-t border-slate-200/70 dark:border-zinc-800/80 bg-white/95 dark:bg-[#12161f]/95 pb-[max(0.6rem,env(safe-area-inset-bottom))] pt-2 backdrop-blur-xl transition-colors">
+    <nav aria-label="Hlavná navigácia" className="fixed inset-x-0 bottom-0 z-50 mx-auto w-full max-w-[430px] border-t border-border bg-background/95 pb-[max(0.6rem,env(safe-area-inset-bottom))] pt-2 backdrop-blur-xl transition-colors">
       <div className="grid grid-cols-5 items-end px-1">
         {tabs.map((t) => {
           const Icon = t.icon;
@@ -38,17 +68,17 @@ export function PersistentBottomNav() {
               key={t.to}
               to={t.to}
               onClick={() => triggerHaptic(10)}
+              aria-current={t.active ? "page" : undefined}
               className={`flex flex-col items-center text-[12px] transition ${
-                t.active ? "font-semibold text-[#196ee6] dark:text-[#4f95ff]" : "text-slate-500 dark:text-zinc-400"
+                t.active ? "font-semibold text-primary" : "text-muted-foreground"
               }`}
             >
-              <span className={`relative mb-1 flex h-8 w-16 items-center justify-center rounded-full ${t.active ? "bg-[#eef3ff] dark:bg-[#242b3b]" : ""}`}>
-                {Icon ? (
-                  <Icon className="w-6 h-6" strokeWidth={1.8} />
-                ) : (
-                  <span className="font-bold text-[22px] leading-none select-none">g</span>
-                )}
-                {"dot" in t && t.dot && <span className="absolute top-0 right-3 h-2 w-2 rounded-full bg-[#e63946]" />}
+              <span
+                className={`relative mb-1 flex h-8 w-16 items-center justify-center rounded-full ${
+                  t.active ? "bg-primary/10" : ""
+                }`}
+              >
+                <Icon className="w-6 h-6" strokeWidth={1.8} />
               </span>
               <span>{t.label}</span>
             </Link>
@@ -75,11 +105,11 @@ export function BrandHeader({
     <header className="px-5 pt-6 pb-4">
       <div className="flex items-center justify-between">
         {back ? (
-          <Link to="/" className="p-2 -ml-2 rounded-full hover:bg-muted text-foreground">
+          <Link to="/" aria-label="Späť na prehľad" className="p-2 -ml-2 rounded-full hover:bg-muted text-foreground">
             <ArrowLeft className="size-5" />
           </Link>
         ) : (
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">George</span>
+          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Účet</span>
         )}
         {action}
       </div>

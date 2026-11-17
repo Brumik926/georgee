@@ -23,16 +23,16 @@ function NotFoundComponent() {
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
         <h1 className="text-7xl font-bold text-foreground">404</h1>
-        <h2 className="mt-4 text-xl font-semibold text-foreground">Page not found</h2>
+        <h2 className="mt-4 text-xl font-semibold text-foreground">Stránka sa nenašla</h2>
         <p className="mt-2 text-sm text-muted-foreground">
-          The page you're looking for doesn't exist or has been moved.
+          Požadovaná stránka neexistuje alebo bola presunutá.
         </p>
         <div className="mt-6">
           <Link
             to="/"
             className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
           >
-            Go home
+            Späť na prehľad
           </Link>
         </div>
       </div>
@@ -51,10 +51,10 @@ function ErrorComponent({ error, reset }: import("@tanstack/react-router").Error
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
         <h1 className="text-xl font-semibold tracking-tight text-foreground">
-          This page didn't load
+          Stránku sa nepodarilo načítať
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Something went wrong on our end. You can try refreshing or head back home.
+          Pri načítaní nastala chyba. Skúste stránku obnoviť alebo sa vráťte na prehľad.
         </p>
         <div className="mt-6 flex flex-wrap justify-center gap-2">
           <button
@@ -64,13 +64,13 @@ function ErrorComponent({ error, reset }: import("@tanstack/react-router").Error
             }}
             className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
           >
-            Try again
+            Skúsiť znova
           </button>
           <a
             href="/"
             className="inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent"
           >
-            Go home
+            Späť na prehľad
           </a>
         </div>
       </div>
@@ -91,28 +91,23 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "theme-color", content: "#2F74E8" },
       { name: "mobile-web-app-capable", content: "yes" },
       { name: "apple-mobile-web-app-capable", content: "yes" },
-      { name: "apple-mobile-web-app-title", content: "George" },
+      { name: "apple-mobile-web-app-title", content: "George Demo" },
       { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
       { name: "format-detection", content: "telephone=no" },
-      { title: "George · Slovenská sporiteľňa" },
-      { name: "description", content: "Prevody, história platieb, sporenie a rozpočet v jednej aplikácii." },
-      { property: "og:title", content: "George · Slovenská sporiteľňa" },
-      { property: "og:description", content: "Prevody, história platieb, sporenie a rozpočet v jednej aplikácii." },
+      { title: "George Demo · Banková simulácia" },
+      { name: "description", content: "Demo finančná simulácia na precvičenie platieb, histórie, sporenia a rozpočtu. Nevykonáva bankové operácie." },
+      { property: "og:title", content: "George Demo · Banková simulácia" },
+      { property: "og:description", content: "Demo finančná simulácia na precvičenie platieb, histórie, sporenia a rozpočtu. Nevykonáva bankové operácie." },
       { property: "og:type", content: "website" },
-      { property: "og:url", content: "https://internetbanking-george.lovable.app" },
-      { property: "og:image", content: "https://internetbanking-george.lovable.app/icon-512.png" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: "George · Slovenská sporiteľňa" },
-      { name: "twitter:description", content: "Prevody, história platieb, sporenie a rozpočet v jednej aplikácii." },
-      { name: "twitter:image", content: "https://internetbanking-george.lovable.app/icon-512.png" },
-      { name: "google-site-verification", content: "sy-u0OHgyfu7ISKRYJi2wk40lONZxKH1UgyjbSdP8SI" },
+      { name: "twitter:title", content: "George Demo · Banková simulácia" },
+      { name: "twitter:description", content: "Demo finančná simulácia. Nevykonáva bankové operácie." },
     ],
     links: [
       {
         rel: "stylesheet",
         href: appCss,
       },
-      { rel: "canonical", href: "https://internetbanking-george.lovable.app" },
       { rel: "manifest", href: "/manifest.webmanifest" },
       { rel: "icon", href: "/favicon.png", type: "image/png", sizes: "64x64" },
       { rel: "apple-touch-icon", href: "/apple-touch-icon.png", sizes: "180x180" },

@@ -30,7 +30,7 @@ export const FormatAmount: React.FC<FormatAmountProps> = ({
   return (
     <span
       className={`inline-flex items-baseline tracking-tight ${
-        isNegative ? "text-[#e63946] dark:text-[#ff5252]" : "text-gray-900 dark:text-white"
+        isNegative ? "text-expense" : "text-foreground"
       } ${className}`}
     >
       {isNegative && <span className="mr-0.5">-</span>}

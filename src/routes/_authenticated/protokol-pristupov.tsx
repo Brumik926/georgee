@@ -17,10 +17,10 @@ export const Route = createFileRoute("/_authenticated/protokol-pristupov")({
   },
   head: () => ({
     meta: [
-      { title: "Protokol prístupov · George" },
-      { name: "description", content: "Súkromný prehľad všetkých prihlásení do internetbankingu George." },
-      { property: "og:title", content: "Protokol prístupov · George" },
-      { property: "og:description", content: "Súkromný prehľad všetkých prihlásení do internetbankingu George." },
+      { title: "Protokol prístupov · George Demo" },
+      { name: "description", content: "Administrátorský prehľad prístupov do demo finančnej simulácie." },
+      { property: "og:title", content: "Protokol prístupov · George Demo" },
+      { property: "og:description", content: "Administrátorský prehľad prístupov do demo finančnej simulácie." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -37,6 +37,11 @@ const fmt = new Intl.DateTimeFormat("sk-SK", {
   hour: "2-digit",
   minute: "2-digit",
 });
+
+function formatLoginDate(value: string): string {
+  const date = new Date(value);
+  return Number.isFinite(date.getTime()) ? fmt.format(date) : "Neznámy dátum";
+}
 
 function ProtokolPristupov() {
   const qc = useQueryClient();
@@ -95,6 +100,9 @@ function ProtokolPristupov() {
   return (
     <div className="min-h-screen pb-24">
       <div className="bg-primary px-5 pt-4 pb-14 text-primary-foreground">
+        <span className="mb-3 inline-flex rounded-full border border-white/30 bg-white/10 px-2.5 py-1 text-[9px] font-bold tracking-[0.12em] text-white">
+          DEMO · BANKOVÁ SIMULÁCIA
+        </span>
         <Link
           to="/nastavenia"
           className="w-10 h-10 rounded-full bg-primary-foreground/20 hover:bg-primary-foreground/30 flex items-center justify-center transition active:scale-95"
@@ -119,7 +127,7 @@ function ProtokolPristupov() {
               <div className="min-w-0 flex-1">
                 <p className="text-[15px] font-semibold break-all">{e.email || "Neznámy e-mail"}</p>
                 <p className="text-[13px] text-muted-foreground">{e.device || "Neznáme zariadenie"}</p>
-                <p className="text-[12px] text-muted-foreground tabular-nums">{fmt.format(new Date(e.created_at))}</p>
+                <p className="text-[12px] text-muted-foreground tabular-nums">{formatLoginDate(e.created_at)}</p>
               </div>
               <Button size="sm" variant={blocks.data?.some(b => b.email === e.email.trim().toLowerCase() && b.is_blocked) ? "outline" : "destructive"}
                 disabled={pending !== null || !blocks.data || blocks.isError || !e.email}

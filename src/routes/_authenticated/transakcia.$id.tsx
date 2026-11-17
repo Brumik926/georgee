@@ -1,18 +1,24 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { z } from "zod";
 import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, ArrowUpRight, ArrowDownLeft, Tag, EyeOff, Pencil, Paperclip, Copy, Download, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
 import { AppShell } from "@/components/bank/AppShell";
-import { formatEur, removeTransaction, useBank } from "@/lib/bank-store";
+import { formatEur, hydrate, removeTransaction, useBank } from "@/lib/bank-store";
 import { exportReceipt } from "@/lib/pdf-export";
 
 export const Route = createFileRoute("/_authenticated/transakcia/$id")({
+  validateSearch: z.object({
+    q: z.string().optional(),
+    filter: z.enum(["all", "in", "out"]).optional(),
+    searchOpen: z.enum(["1"]).optional(),
+  }),
   head: () => ({
     meta: [
-      { title: "Detail transakcie | George" },
-      { name: "description", content: "Podrobnosti platby: suma, dátum, príjemca, IBAN a priebežný zostatok." },
-      { property: "og:title", content: "Detail transakcie | George" },
-      { property: "og:description", content: "Podrobnosti platby: suma, dátum, príjemca, IBAN a priebežný zostatok." },
+      { title: "Detail transakcie · George Demo" },
+      { name: "description", content: "Podrobnosti demo transakcie: suma, dátum, príjemca, IBAN a modelový zostatok." },
+      { property: "og:title", content: "Detail transakcie · George Demo" },
+      { property: "og:description", content: "Podrobnosti demo transakcie: suma, dátum, príjemca, IBAN a modelový zostatok." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -23,11 +29,80 @@ export const Route = createFileRoute("/_authenticated/transakcia/$id")({
 type Extra = { exclude?: boolean | undefined; note?: string | undefined; attachment?: string | undefined };
 const extraKey = (id: string) => `george-txn-extra:${id}`;
 
+function parseExtra(raw: string | null): Extra {
+  if (!raw) return {};
+  try {
+    const value: unknown = JSON.parse(raw);
+    if (!value || typeof value !== "object" || Array.isArray(value)) return {};
+    const record = value as Record<string, unknown>;
+    return {
+      exclude: record["exclude"] === true,
+      note: typeof record["note"] === "string" ? record["note"] : undefined,
+      attachment: typeof record["attachment"] === "string" ? record["attachment"] : undefined,
+    };
+  } catch {
+    return {};
+  }
+}
+const attachmentDbName = "george-demo-attachments";
+
+function openAttachmentDb(): Promise<IDBDatabase> {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open(attachmentDbName, 1);
+    request.onupgradeneeded = () => {
+      const db = request.result;
+      if (!db.objectStoreNames.contains("files")) db.createObjectStore("files");
+    };
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error ?? new Error("Databázu príloh sa nepodarilo otvoriť."));
+  });
+}
+
+async function storeAttachment(transactionId: string, file: File) {
+  const db = await openAttachmentDb();
+  try {
+    await new Promise<void>((resolve, reject) => {
+      const request = db.transaction("files", "readwrite").objectStore("files").put(file, transactionId);
+      request.onsuccess = () => resolve();
+      request.onerror = () => reject(request.error ?? new Error("Prílohu sa nepodarilo uložiť."));
+    });
+  } finally {
+    db.close();
+  }
+}
+
+async function readAttachment(transactionId: string): Promise<Blob | undefined> {
+  const db = await openAttachmentDb();
+  try {
+    return await new Promise((resolve, reject) => {
+      const request = db.transaction("files", "readonly").objectStore("files").get(transactionId);
+      request.onsuccess = () => resolve(request.result as Blob | undefined);
+      request.onerror = () => reject(request.error ?? new Error("Prílohu sa nepodarilo načítať."));
+    });
+  } finally {
+    db.close();
+  }
+}
+
+async function deleteAttachment(transactionId: string) {
+  const db = await openAttachmentDb();
+  try {
+    await new Promise<void>((resolve, reject) => {
+      const request = db.transaction("files", "readwrite").objectStore("files").delete(transactionId);
+      request.onsuccess = () => resolve();
+      request.onerror = () => reject(request.error ?? new Error("Prílohu sa nepodarilo odstrániť."));
+    });
+  } finally {
+    db.close();
+  }
+}
+
 function formatIban(iban: string) {
   return iban.replace(/\s+/g, "").replace(/(.{4})/g, "$1 ").trim();
 }
 function formatDay(iso: string) {
   const d = new Date(iso);
+  if (!Number.isFinite(d.getTime())) return "Neznámy dátum";
   return `${String(d.getDate()).padStart(2, "0")}.${String(d.getMonth() + 1).padStart(2, "0")}.${d.getFullYear()}`;
 }
 
@@ -42,6 +117,7 @@ function Row({ label, children }: { label: string; children: React.ReactNode }) 
 
 function Detail() {
   const { id } = Route.useParams();
+  const search = Route.useSearch();
   const s = useBank();
   const t = s.transactions.find((x) => x.id === id);
   const navigate = useNavigate();
@@ -52,29 +128,71 @@ function Detail() {
   const fileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    try { setExtra(JSON.parse(localStorage.getItem(extraKey(id)) || "{}")); } catch { setExtra({}); }
+    try { setExtra(parseExtra(localStorage.getItem(extraKey(id)))); } catch { setExtra({}); }
   }, [id]);
 
-  const save = (next: Extra) => {
-    setExtra(next);
-    localStorage.setItem(extraKey(id), JSON.stringify(next));
+  const save = (next: Extra): boolean => {
+    try {
+      localStorage.setItem(extraKey(id), JSON.stringify(next));
+      setExtra(next);
+      return true;
+    } catch {
+      toast.error("Zmena sa nepodarila uložiť v tomto zariadení.");
+      return false;
+    }
   };
+
+  if (s.loading) {
+    return (
+      <AppShell>
+        <div className="px-5 py-16 text-center text-sm text-muted-foreground" role="status">
+          Načítavam transakciu…
+        </div>
+      </AppShell>
+    );
+  }
+
+  if (s.error) {
+    return (
+      <AppShell>
+        <div className="px-5 py-16 text-center">
+          <p className="text-sm text-muted-foreground" role="alert">{s.error}</p>
+          <button type="button" onClick={() => void hydrate()} className="mt-4 inline-block text-[13px] font-semibold text-primary underline">
+            Skúsiť znova
+          </button>
+          <Link to="/platby" search={{ q: search.q, filter: search.filter, searchOpen: search.searchOpen }} className="mt-4 block text-[13px] font-semibold text-primary">Späť na históriu</Link>
+        </div>
+      </AppShell>
+    );
+  }
 
   if (!t) {
     return (
       <AppShell>
         <div className="px-5 py-16 text-center">
-          <p className="text-sm text-muted-foreground">Transakcia sa nenašla.</p>
-          <Link to="/platby" className="mt-4 inline-block text-[13px] font-semibold text-primary">Späť na platby</Link>
+          <p className="text-sm text-muted-foreground">Transakcia sa nenašla v dostupnej histórii.</p>
+          <Link to="/platby" search={{ q: search.q, filter: search.filter, searchOpen: search.searchOpen }} className="mt-4 inline-block text-[13px] font-semibold text-primary">Späť na históriu</Link>
         </div>
       </AppShell>
     );
   }
 
   const income = t.type === "in";
-  const ordered = [...s.transactions].sort((a, b) => a.date.localeCompare(b.date) || a.id.localeCompare(b.id));
+  const ordered = [...s.transactions].sort((a, b) => {
+    const aTime = Date.parse(a.date);
+    const bTime = Date.parse(b.date);
+    const aValid = Number.isFinite(aTime);
+    const bValid = Number.isFinite(bTime);
+    if (!aValid && !bValid) return a.id.localeCompare(b.id);
+    if (!aValid) return 1;
+    if (!bValid) return -1;
+    return aTime - bTime || a.id.localeCompare(b.id);
+  });
   const index = ordered.findIndex((x) => x.id === t.id);
-  const runningBalance = ordered.slice(0, index + 1).reduce((sum, x) => sum + (x.type === "in" ? x.amount : -x.amount), 0);
+  const hasValidTransactionDate = Number.isFinite(Date.parse(t.date));
+  const runningBalance = hasValidTransactionDate
+    ? ordered.slice(0, index + 1).reduce((sum, x) => sum + (x.type === "in" ? x.amount : -x.amount), 0)
+    : null;
   const [whole, cents] = t.amount.toFixed(2).split(".");
   const note = extra.note ?? t.note;
   const pill = "h-10 rounded-full bg-detail-action-surface px-5 text-[15px] font-semibold text-detail-action active:opacity-80";
@@ -98,8 +216,8 @@ function Detail() {
       <div className="transaction-detail min-h-screen bg-detail-background px-4 pb-10 pt-5 font-sans text-foreground">
         <Link
           to="/platby"
-          aria-label="Späť"
-          onClick={(e) => { if (window.history.length > 1) { e.preventDefault(); window.history.back(); } }}
+          search={{ q: search.q, filter: search.filter, searchOpen: search.searchOpen }}
+          aria-label="Späť na históriu transakcií"
           className="mb-4 inline-grid size-10 place-items-center text-detail-action"
         >
           <ArrowLeft className="size-7" />
@@ -162,7 +280,7 @@ function Detail() {
                   placeholder="Poznámka alebo #hashtag"
                   className="min-w-0 flex-1 bg-transparent text-[17px] outline-none"
                 />
-                <button className="font-semibold text-detail-action" onClick={() => { save({ ...extra, note: noteDraft.trim() }); setEditingNote(false); }}>Uložiť</button>
+                <button className="font-semibold text-detail-action" onClick={() => { if (save({ ...extra, note: noteDraft.trim() })) setEditingNote(false); }}>Uložiť</button>
               </div>
             ) : (
               <button className={rowBtn} onClick={() => { setNoteDraft(note ?? ""); setEditingNote(true); }}>
@@ -170,20 +288,85 @@ function Detail() {
                 <span className={`text-[17px] ${note ? "text-detail-ink" : "text-detail-muted"}`}>{note || "Pridať poznámku alebo #hashtag"}</span>
               </button>
             )}
-            <button className={`${rowBtn} mt-1`} onClick={() => fileRef.current?.click()}>
+            <div className={`${rowBtn} mt-1`}>
               <Paperclip className="size-7 shrink-0 text-detail-action" />
-              <span className={`min-w-0 flex-1 truncate text-[17px] ${extra.attachment ? "text-detail-ink" : "text-detail-muted"}`}>{extra.attachment || "Nahrať prílohu"}</span>
-              {extra.attachment && (
-                <span role="button" aria-label="Odstrániť prílohu" onClick={(e) => { e.stopPropagation(); save({ ...extra, attachment: undefined }); }}>
-                  <X className="size-5 text-detail-muted" />
-                </span>
+              {extra.attachment ? (
+                <button
+                  type="button"
+                  className="min-w-0 flex-1 truncate text-left text-[17px] text-detail-ink"
+                  onClick={async () => {
+                    try {
+                      const file = await readAttachment(id);
+                      if (!file) throw new Error("Súbor prílohy sa v tomto zariadení nenašiel.");
+                      const url = URL.createObjectURL(file);
+                      const link = document.createElement("a");
+                      link.href = url;
+                      link.download = extra.attachment || "priloha";
+                      link.style.display = "none";
+                      document.body.appendChild(link);
+                      link.click();
+                      link.remove();
+                      // Niektoré mobilné prehliadače začnú sťahovanie až po návrate z event handlera.
+                      window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+                    } catch (error) {
+                      console.error(error);
+                      toast.error(error instanceof Error ? error.message : "Prílohu sa nepodarilo stiahnuť.");
+                    }
+                  }}
+                >
+                  {extra.attachment}
+                </button>
+              ) : (
+                <button type="button" className="flex-1 text-left text-[17px] text-detail-muted" onClick={() => fileRef.current?.click()}>
+                  Nahrať prílohu
+                </button>
               )}
-            </button>
+              {extra.attachment && (
+                <button
+                  type="button"
+                  aria-label="Odstrániť prílohu"
+                  className="rounded-full p-2 text-detail-muted"
+                  onClick={async () => {
+                    if (!save({ ...extra, attachment: undefined })) return;
+                    try {
+                      await deleteAttachment(id);
+                      toast.success("Príloha odstránená");
+                    } catch (error) {
+                      console.error(error);
+                      toast.error("Príloha bola odpojená od transakcie, ale súbor sa nepodarilo odstrániť z úložiska.");
+                    }
+                  }}
+                >
+                  <X className="size-5" />
+                </button>
+              )}
+            </div>
             <input
               ref={fileRef}
               type="file"
               className="hidden"
-              onChange={(e) => { const f = e.target.files?.[0]; if (f) { save({ ...extra, attachment: f.name }); toast.success("Príloha pridaná"); } e.target.value = ""; }}
+              onChange={async (e) => {
+                const file = e.target.files?.[0];
+                if (!file) return;
+                if (file.size > 10 * 1024 * 1024) {
+                  toast.error("Príloha môže mať najviac 10 MB.");
+                  e.target.value = "";
+                  return;
+                }
+                try {
+                  await storeAttachment(id, file);
+                  if (save({ ...extra, attachment: file.name })) {
+                    toast.success("Príloha uložená v tomto zariadení");
+                  } else {
+                    try { await deleteAttachment(id); } catch (cleanupError) { console.error("Nepodarilo sa odstrániť neuloženú prílohu:", cleanupError); }
+                  }
+                } catch (error) {
+                  console.error(error);
+                  toast.error("Prílohu sa nepodarilo uložiť.");
+                } finally {
+                  e.target.value = "";
+                }
+              }}
             />
           </section>
 
@@ -193,17 +376,24 @@ function Detail() {
               {t.iban ? <><br />IBAN: {formatIban(t.iban)}</> : null}
             </Row>
             <Row label="Dátum spracovania">{formatDay(t.date)}</Row>
-            <Row label="Typ transakcie">{income ? "Prijatý prevod / SEPA" : "Platobný príkaz na úhradu / FIT 2.0 (EB)"}</Row>
+            <Row label="Typ transakcie">{income ? "Prijatý demo prevod" : "Odoslaný demo prevod"}</Row>
             {t.vs ? <Row label="Variabilný symbol">{t.vs}</Row> : null}
-            <Row label="Priebežný zostatok">{formatEur(runningBalance)}</Row>
+            <Row label="Zostatok podľa dostupnej histórie">
+              {runningBalance === null ? "Nedostupný – transakcia nemá platný dátum" : formatEur(runningBalance)}
+            </Row>
           </dl>
 
           <button
             className="flex w-full items-center justify-center gap-2 py-3 text-[15px] font-semibold text-destructive"
             onClick={async () => {
               if (!window.confirm("Naozaj odstrániť túto transakciu?")) return;
-              try { await removeTransaction(t.id); toast.success("Transakcia odstránená"); navigate({ to: "/platby" }); }
-              catch (e) { console.error(e); toast.error("Transakciu sa nepodarilo odstrániť"); }
+              try {
+                await removeTransaction(t.id);
+                try { await deleteAttachment(t.id); } catch (attachmentError) { console.warn("Lokálnu prílohu sa nepodarilo odstrániť:", attachmentError); }
+                try { localStorage.removeItem(extraKey(t.id)); } catch (storageError) { console.warn("Metadáta transakcie sa nepodarilo odstrániť:", storageError); }
+                toast.success("Transakcia odstránená");
+                navigate({ to: "/platby", search: { q: search.q, filter: search.filter, searchOpen: search.searchOpen } });
+              } catch (e) { console.error(e); toast.error("Transakciu sa nepodarilo odstrániť"); }
             }}
           >
             <Trash2 className="size-5" /> Odstrániť transakciu
@@ -212,7 +402,7 @@ function Detail() {
 
         {shareOpen && (
           <div className="fixed inset-0 z-50 flex items-end bg-foreground/40" onClick={() => setShareOpen(false)}>
-            <div className="w-full space-y-2 rounded-t-3xl bg-detail-surface p-5 pb-8" onClick={(e) => e.stopPropagation()}>
+            <div className="mx-auto w-full max-w-[430px] space-y-2 rounded-t-3xl bg-detail-surface p-5 pb-8" onClick={(e) => e.stopPropagation()}>
               <p className="mb-2 text-[17px] font-semibold">Zdieľať platbu</p>
               <button className="flex w-full items-center gap-4 rounded-2xl px-2 py-3 text-[16px]" onClick={copy}>
                 <Copy className="size-6 text-detail-action" /> Kopírovať údaje platby
@@ -220,12 +410,12 @@ function Detail() {
               <button
                 className="flex w-full items-center gap-4 rounded-2xl px-2 py-3 text-[16px]"
                 onClick={async () => {
-                  try { await exportReceipt(s, t); toast.success("Potvrdenie o platbe bolo stiahnuté"); }
+                  try { await exportReceipt(s, t); toast.success("Demo potvrdenie bolo stiahnuté"); }
                   catch (e) { console.error(e); toast.error("Potvrdenie sa nepodarilo vytvoriť"); }
                   setShareOpen(false);
                 }}
               >
-                <Download className="size-6 text-detail-action" /> Stiahnuť potvrdenie (PDF)
+                <Download className="size-6 text-detail-action" /> Stiahnuť demo potvrdenie (PDF)
               </button>
             </div>
           </div>
