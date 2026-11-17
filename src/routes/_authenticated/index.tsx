@@ -35,6 +35,13 @@ import {
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import {
+  CARDS,
+  DEFAULT_CARD_SETTINGS,
+  loadCardSettings,
+  type CardSettings,
+} from "@/lib/cards";
+import cardBg from "@/assets/card_pohoda.jpg.asset.json";
+import {
   balance,
   formatDate,
   formatEur,
@@ -297,6 +304,19 @@ export function GeorgePrehladModern() {
       return next;
     });
   }
+
+  // Stav kariet (blokovanie) čítame z rovnakého zdroja ako obrazovka Karty.
+  const [cardSettings, setCardSettings] = useState<Record<string, CardSettings>>({});
+  useEffect(() => {
+    void supabase.auth.getUser().then(({ data }) => {
+      setCardSettings(loadCardSettings(data.user?.id ?? null));
+    });
+  }, []);
+
+  const previewCard = CARDS[0] ?? null;
+  const previewCardState = previewCard
+    ? { ...DEFAULT_CARD_SETTINGS, ...cardSettings[previewCard.id] }
+    : DEFAULT_CARD_SETTINGS;
 
   const currentMonth = new Date();
   const totals = monthTotals(s, currentMonth);
@@ -715,31 +735,44 @@ export function GeorgePrehladModern() {
                 </Link>
               </div>
 
-              {/* Prehľad kariet bez vymyslených údajov */}
-              <Link
-                to="/karty"
-                aria-label="Otvoriť prehľad kariet"
-                className="group relative block min-h-44 w-full overflow-hidden rounded-3xl border border-white/15 bg-gradient-to-br from-slate-800 via-indigo-950 to-slate-950 p-5 text-left text-white shadow-lg transition duration-300 hover:shadow-xl active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-              >
-                <span aria-hidden="true" className="pointer-events-none absolute -right-16 -top-24 size-72 rounded-full border border-white/10 bg-white/[0.03]" />
-                <div className="relative z-10 flex h-full min-h-32 flex-col justify-between">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-white/65">Platobné karty</p>
-                      <p className="mt-1 text-[13px] font-semibold tracking-[0.12em] text-white">Prehľad kariet</p>
-                    </div>
-                    <span className="rounded-full border border-white/30 bg-white/10 px-3 py-1 text-[9px] font-bold tracking-[0.2em] text-white">BEZ ÚDAJOV</span>
+              {/* Prehľad kariet v rovnakom štýle ako obrazovka Karty */}
+              {previewCard ? (
+                <Link
+                  to="/karty"
+                  aria-label="Otvoriť prehľad kariet"
+                  style={{
+                    backgroundImage: `url(${cardBg.url})`,
+                    backgroundSize: "cover",
+                    backgroundPosition: "center",
+                  }}
+                  className={`relative block aspect-[909/566] w-full overflow-hidden rounded-2xl p-5 text-left text-white shadow-lg transition duration-300 hover:shadow-xl active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
+                    previewCardState.blocked ? "opacity-50 grayscale" : ""
+                  }`}
+                >
+                  <div className="mb-8 flex items-center justify-end gap-2">
+                    <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-[#1f1f1f]">
+                      {previewCardState.blocked ? "Blokovaná" : "Virtuálna"}
+                    </span>
+                    <ChevronRight aria-hidden="true" className="size-5 text-white/80" />
                   </div>
-                  <div className="flex items-center gap-3">
-                    <CreditCard className="size-8 text-white/80" />
-                    <div>
-                      <p className="text-sm font-semibold text-white">Karty nie sú načítané</p>
-                      <p className="mt-1 text-xs text-white/65">Otvoriť prehľad kariet</p>
-                    </div>
-                    <ChevronRight className="ml-auto size-5 text-white/70" />
+                  <p className="text-xs opacity-70">Číslo karty</p>
+                  <div className="mb-4 flex items-center gap-3 font-mono text-lg tracking-widest">
+                    •••• •••• •••• {previewCard.last4}
                   </div>
-                </div>
-              </Link>
+                  <div className="flex items-end justify-between text-xs">
+                    <div>
+                      <p className="text-[9px] uppercase tracking-wider opacity-70">Držiteľ karty</p>
+                      <p className="mt-0.5 text-sm font-semibold uppercase tracking-wide">
+                        {s.owner || "Majiteľ účtu"}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-[9px] uppercase tracking-wider opacity-70">Dátum platnosti</p>
+                      <p className="mt-0.5 font-mono text-sm font-semibold">{previewCard.expiry}</p>
+                    </div>
+                  </div>
+                </Link>
+              ) : null}
             </div>
               {/* Karta: Investície a sporenie */}
             <div className="rounded-3xl p-5 mb-4 relative overflow-hidden bg-surface shadow-sm">
