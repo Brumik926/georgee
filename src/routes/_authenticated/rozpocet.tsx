@@ -74,6 +74,14 @@ function RozpocetPage() {
   );
 
   const totalSpent = expenses.reduce((sum, transaction) => sum + transaction.amount, 0);
+  const monthlyIncome = bank.transactions
+    .filter((transaction) => {
+      if (transaction.type !== "in" || isExcludedFromOverview(transaction)) return false;
+      const date = new Date(transaction.date);
+      return date.getFullYear() === year && date.getMonth() === month - 1;
+    })
+    .reduce((sum, transaction) => sum + transaction.amount, 0);
+  const monthlyDifference = monthlyIncome - totalSpent;
   const totalLimit = bank.budgets.reduce((sum, budget) => sum + budget.limit, 0);
   const budgetedSpent = expenses
     .filter((transaction) => bank.budgets.some((budget) => budget.category === transaction.category))
@@ -175,6 +183,21 @@ function RozpocetPage() {
           <div className="mt-3">
             <span className="text-xs text-muted-foreground">Celkové výdavky</span>
             <p className="text-3xl font-extrabold text-foreground">{bank.loading || bank.error ? "—" : formatEur(totalSpent)}</p>
+          </div>
+
+          <div className="mt-4 grid grid-cols-2 gap-3">
+            <div className="rounded-2xl bg-background p-3">
+              <span className="text-xs text-muted-foreground">Mesačné príjmy</span>
+              <p className="mt-1 text-lg font-bold text-income">
+                {bank.loading || bank.error ? "—" : formatEur(monthlyIncome)}
+              </p>
+            </div>
+            <div className="rounded-2xl bg-background p-3">
+              <span className="text-xs text-muted-foreground">Rozdiel príjmy − výdavky</span>
+              <p className={`mt-1 text-lg font-bold ${monthlyDifference >= 0 ? "text-income" : "text-expense"}`}>
+                {bank.loading || bank.error ? "—" : formatEur(monthlyDifference)}
+              </p>
+            </div>
           </div>
           <div className="mt-4 space-y-1.5">
             <div className="flex justify-between gap-2 text-xs text-muted-foreground">
