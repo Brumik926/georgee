@@ -12,12 +12,12 @@ import {
 export const Route = createFileRoute("/_authenticated/upozornenia")({
   head: () => ({
     meta: [
-      { title: "Upozornenia · George Demo" },
+      { title: "Upozornenia · George" },
       {
         name: "description",
-        content: "Správa upozornení v samostatnej finančnej simulácii George Demo.",
+        content: "Správa upozornení na platby a rozpočtové limity.",
       },
-      { property: "og:title", content: "Upozornenia · George Demo" },
+      { property: "og:title", content: "Upozornenia · George" },
       {
         property: "og:description",
         content: "Zapnite si upozornenia na prijaté prevody, odoslané platby a prekročenie rozpočtu v internetbankingu George.",
@@ -78,9 +78,7 @@ function Upozornenia() {
 
   return (
     <div className="mx-auto min-h-screen w-full max-w-[430px] bg-background p-5">
-      <div className="mb-4 inline-flex rounded-full border border-primary/20 bg-primary/5 px-2.5 py-1 text-[9px] font-bold tracking-[0.12em] text-primary">
-        DEMO · BANKOVÁ SIMULÁCIA
-      </div>
+      
       <div className="mb-6 flex items-center">
         <Link to="/nastavenia" className="mr-4">
           <ArrowLeft className="size-6 cursor-pointer" />
@@ -179,9 +177,7 @@ function Upozornenia() {
         )}
       </section>
 
-      <p className="mt-4 text-center text-[11px] text-muted-foreground">
-        Hlásenia a nastavenia sa ukladajú do databázy demo aplikácie. Nejde o upozornenia skutočnej banky.
-      </p>
+      
     </div>
   );
 }

@@ -24,7 +24,11 @@ import {
 export const Route = createFileRoute("/_authenticated/rozpocet")({
   head: () => ({
     meta: [
-      { title: "Rozpočet a analýza výdavkov · George Demo" },
+      { property: "og:title", content: "Rozpočet a analýza výdavkov · George" },
+      { property: "og:description", content: "Sledujte svoje príjmy, výdavky a rozpočtové limity." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+      { title: "Rozpočet a analýza výdavkov · George" },
       {
         name: "description",
         content: "Sledujte svoje príjmy, výdavky a rozpočtové limity.",

@@ -22,10 +22,10 @@ export const Route = createFileRoute("/.lovable/oauth/consent")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "Prepojenie aplikácie · George Demo" },
-      { name: "description", content: "Povoľte externej aplikácii prístup k demo účtu v aplikácii George Demo." },
-      { property: "og:title", content: "Prepojenie aplikácie · George Demo" },
-      { property: "og:description", content: "Povoľte externej aplikácii prístup k demo účtu v aplikácii George Demo." },
+      { title: "Prepojenie aplikácie · George" },
+      { name: "description", content: "Povoľte externej aplikácii prístup k účtu v aplikácii George." },
+      { property: "og:title", content: "Prepojenie aplikácie · George" },
+      { property: "og:description", content: "Povoľte externej aplikácii prístup k účtu v aplikácii George." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -92,12 +92,10 @@ function Consent() {
   return (
     <main className="mx-auto min-h-screen w-full max-w-[430px] bg-background px-5 py-10 text-foreground">
       <div className="rounded-3xl border border-border bg-surface p-6 shadow-lg">
-        <span className="mb-4 inline-flex rounded-full border border-primary/20 bg-primary/5 px-2.5 py-1 text-[9px] font-bold tracking-[0.12em] text-primary">
-          DEMO · BANKOVÁ SIMULÁCIA
-        </span>
-        <h1 className="text-2xl font-bold">Prepojiť {client} s aplikáciou George Demo</h1>
+        
+        <h1 className="text-2xl font-bold">Prepojiť {client} s aplikáciou George</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          {client} bude môcť čítať údaje vášho demo účtu (modelový zostatok, evidované transakcie, sporenie a rozpočet), kým ste prihlásený.
+          {client} bude môcť čítať údaje vášho účtu (zostatok, evidované transakcie, sporenie a rozpočet), kým ste prihlásený.
         </p>
         <p className="mt-4 text-sm">Prihlásený ako <strong>{email}</strong></p>
         {redirectUri ? <p className="mt-1 break-all text-xs text-muted-foreground">Návrat na: {redirectUri}</p> : null}

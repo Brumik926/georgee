@@ -10,15 +10,15 @@ export const Route = createFileRoute("/auth")({
     typeof s["next"] === "string" ? { next: s["next"] } : {},
   head: () => ({
     meta: [
-      { title: "Prihlásenie · George Demo" },
+      { title: "Prihlásenie · George" },
       {
         name: "description",
-        content: "Prihláste sa do demo finančnej simulácie George. Aplikácia nevykonáva skutočné bankové prevody.",
+        content: "Prihlásenie do aplikácie George a správa prístupu k účtu.",
       },
-      { property: "og:title", content: "Prihlásenie · George Demo" },
+      { property: "og:title", content: "Prihlásenie · George" },
       {
         property: "og:description",
-        content: "Prihláste sa do demo finančnej simulácie George. Aplikácia nevykonáva skutočné bankové prevody.",
+        content: "Prihlásenie do aplikácie George a správa prístupu k účtu.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -165,7 +165,7 @@ function AuthPage() {
   return (
     <div className="mx-auto min-h-screen w-full max-w-[430px] bg-background">
       <header className="brand-header px-5 pb-14 pt-10 text-brand-foreground">
-        <p className="text-[13px] font-semibold tracking-wide opacity-90">George Demo · Banková simulácia</p>
+        <p className="text-[13px] font-semibold tracking-wide opacity-90">George</p>
         <h1 className="mt-3 text-[34px] font-bold leading-none">
           {isRecovery
             ? "Nové heslo"
@@ -354,7 +354,7 @@ function AuthPage() {
         </div>
 
         <p className="mt-6 text-center text-xs text-muted-foreground">
-          Demo aplikácia nie je prepojená s bankovým klientskym centrom a neposkytuje bankové služby.
+          Samostatná aplikácia; nie je službou banky a nevykonáva bankové prevody.
         </p>
       </div>
     </div>

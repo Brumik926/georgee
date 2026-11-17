@@ -3,8 +3,12 @@ import { ArrowLeft, Gift, Info } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/odmeny")({
   head: () => ({ meta: [
-    { title: "Ponuky a odmeny · George Demo" },
-    { name: "description", content: "Demo sekcia odmien bez pripojenej databázy partnerských ponúk alebo skutočného cashbacku." },
+      { property: "og:title", content: "Ponuky a odmeny · George" },
+      { property: "og:description", content: "Prehľad dostupných ponúk a odmien." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    { title: "Ponuky a odmeny · George" },
+    { name: "description", content: "Prehľad dostupných ponúk a odmien." },
   ] }),
   component: OdmenyPage,
 });
@@ -13,9 +17,7 @@ function OdmenyPage() {
   return (
     <main className="mx-auto min-h-screen w-full max-w-[430px] bg-background px-5 pb-28 text-foreground">
       <header className="pt-6 pb-5">
-        <span className="mb-4 inline-flex rounded-full border border-primary/20 bg-primary/5 px-2.5 py-1 text-[9px] font-bold tracking-[0.12em] text-primary">
-          DEMO · BANKOVÁ SIMULÁCIA
-        </span>
+        
         <Link to="/" className="mb-5 inline-flex items-center gap-2 text-sm text-muted-foreground">
           <ArrowLeft className="size-4" />
           Späť na prehľad
@@ -44,7 +46,7 @@ function OdmenyPage() {
       </section>
 
       <p className="mt-5 rounded-2xl bg-muted/50 p-4 text-xs leading-5 text-muted-foreground">
-        George Demo neposkytuje skutočné cashback odmeny ani výplaty peňazí.
+        George neposkytuje skutočné cashback odmeny ani výplaty peňazí.
       </p>
     </main>
   );

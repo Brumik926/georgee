@@ -17,10 +17,10 @@ export const Route = createFileRoute("/_authenticated/protokol-pristupov")({
   },
   head: () => ({
     meta: [
-      { title: "Protokol prístupov · George Demo" },
-      { name: "description", content: "Administrátorský prehľad prístupov do demo finančnej simulácie." },
-      { property: "og:title", content: "Protokol prístupov · George Demo" },
-      { property: "og:description", content: "Administrátorský prehľad prístupov do demo finančnej simulácie." },
+      { title: "Protokol prístupov · George" },
+      { name: "description", content: "Administrátorský prehľad prihlásení a správa prístupu používateľov." },
+      { property: "og:title", content: "Protokol prístupov · George" },
+      { property: "og:description", content: "Administrátorský prehľad prihlásení a správa prístupu používateľov." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -100,9 +100,7 @@ function ProtokolPristupov() {
   return (
     <div className="min-h-screen pb-24">
       <div className="bg-primary px-5 pt-4 pb-14 text-primary-foreground">
-        <span className="mb-3 inline-flex rounded-full border border-white/30 bg-white/10 px-2.5 py-1 text-[9px] font-bold tracking-[0.12em] text-white">
-          DEMO · BANKOVÁ SIMULÁCIA
-        </span>
+        
         <Link
           to="/nastavenia"
           className="w-10 h-10 rounded-full bg-primary-foreground/20 hover:bg-primary-foreground/30 flex items-center justify-center transition active:scale-95"

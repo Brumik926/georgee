@@ -15,10 +15,10 @@ export const Route = createFileRoute("/_authenticated/transakcia/$id")({
   }),
   head: () => ({
     meta: [
-      { title: "Detail transakcie · George Demo" },
-      { name: "description", content: "Podrobnosti demo transakcie: suma, dátum, príjemca, IBAN a modelový zostatok." },
-      { property: "og:title", content: "Detail transakcie · George Demo" },
-      { property: "og:description", content: "Podrobnosti demo transakcie: suma, dátum, príjemca, IBAN a modelový zostatok." },
+      { title: "Detail transakcie · George" },
+      { name: "description", content: "Podrobnosti transakcie: suma, dátum, príjemca, IBAN a zostatok." },
+      { property: "og:title", content: "Detail transakcie · George" },
+      { property: "og:description", content: "Podrobnosti transakcie: suma, dátum, príjemca, IBAN a zostatok." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -376,7 +376,7 @@ function Detail() {
               {t.iban ? <><br />IBAN: {formatIban(t.iban)}</> : null}
             </Row>
             <Row label="Dátum spracovania">{formatDay(t.date)}</Row>
-            <Row label="Typ transakcie">{income ? "Prijatý demo prevod" : "Odoslaný demo prevod"}</Row>
+            <Row label="Typ transakcie">{income ? "Prijatý prevod" : "Odoslaný prevod"}</Row>
             {t.vs ? <Row label="Variabilný symbol">{t.vs}</Row> : null}
             <Row label="Zostatok podľa dostupnej histórie">
               {runningBalance === null ? "Nedostupný – transakcia nemá platný dátum" : formatEur(runningBalance)}
@@ -410,12 +410,12 @@ function Detail() {
               <button
                 className="flex w-full items-center gap-4 rounded-2xl px-2 py-3 text-[16px]"
                 onClick={async () => {
-                  try { await exportReceipt(s, t); toast.success("Demo potvrdenie bolo stiahnuté"); }
+                  try { await exportReceipt(s, t); toast.success("potvrdenie bolo stiahnuté"); }
                   catch (e) { console.error(e); toast.error("Potvrdenie sa nepodarilo vytvoriť"); }
                   setShareOpen(false);
                 }}
               >
-                <Download className="size-6 text-detail-action" /> Stiahnuť demo potvrdenie (PDF)
+                <Download className="size-6 text-detail-action" /> Stiahnuť potvrdenie (PDF)
               </button>
             </div>
           </div>

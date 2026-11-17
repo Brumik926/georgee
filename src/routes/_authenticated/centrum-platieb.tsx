@@ -10,9 +10,9 @@ import { supabase } from "@/integrations/supabase/client";
 export const Route = createFileRoute("/_authenticated/centrum-platieb")({
   head: () => ({
     meta: [
-      { title: "Centrum platieb · George Demo" },
+      { title: "Centrum platieb · George" },
       { name: "description", content: "Uložení príjemcovia a šablóny platieb na opakovanie jedným ťuknutím." },
-      { property: "og:title", content: "Centrum platieb · George Demo" },
+      { property: "og:title", content: "Centrum platieb · George" },
       { property: "og:description", content: "Uložení príjemcovia a šablóny platieb na opakovanie jedným ťuknutím." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -315,7 +315,7 @@ function CentrumPlatieb() {
           {favorites.filter(match).length === 0 ? (
             <p className="py-3 text-sm text-muted-foreground">
               {favorites.length === 0
-                ? "Zatiaľ nemáte uložených obľúbených príjemcov. Pridajte si ich vo formulári demo platby."
+                ? "Zatiaľ nemáte uložených obľúbených príjemcov. Pridajte si ich vo formulári platby."
                 : "Žiadny obľúbený príjemca nezodpovedá vyhľadávaniu."}
             </p>
           ) : (
@@ -334,7 +334,7 @@ function CentrumPlatieb() {
                       <span className="block truncate text-sm font-semibold">{recipient.name}</span>
                       <span className="block truncate text-xs text-muted-foreground">{recipient.iban}</span>
                     </span>
-                    <span className="ml-auto shrink-0 text-xs font-semibold text-primary">Demo platba</span>
+                    <span className="ml-auto shrink-0 text-xs font-semibold text-primary">platba</span>
                   </button>
                   <button
                     type="button"
@@ -380,7 +380,7 @@ function CentrumPlatieb() {
                     <span className="block truncate text-[15px] font-semibold">{r.name}</span>
                     <span className="block truncate text-[12px] text-muted-foreground">{r.iban} · {r.count}×</span>
                   </span>
-                  <span className="ml-auto shrink-0 text-[13px] font-semibold text-primary">Použiť v demo platbe</span>
+                  <span className="ml-auto shrink-0 text-[13px] font-semibold text-primary">Použiť v platbe</span>
                 </button>
               </li>
             ))}

@@ -28,10 +28,10 @@ import { toast } from "sonner";
 export const Route = createFileRoute("/_authenticated/nova-platba")({
   head: () => ({
     meta: [
-      { title: "Nová platba · George Demo" },
-      { name: "description", content: "Vytvorte iba demo záznam prevodu. Aplikácia neposiela skutočné platby." },
-      { property: "og:title", content: "Nová platba · George Demo" },
-      { property: "og:description", content: "Vytvorte iba demo záznam prevodu. Aplikácia neposiela skutočné platby." },
+      { title: "Nová platba · George" },
+      { name: "description", content: "Zadanie príjemcu, sumy a údajov platby." },
+      { property: "og:title", content: "Nová platba · George" },
+      { property: "og:description", content: "Zadanie príjemcu, sumy a údajov platby." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -87,7 +87,7 @@ export default function NovaPlatba() {
 
     if (!name.trim() || name.trim().length > 100) return setError("Zadajte meno príjemcu do 100 znakov.");
     if (!amountValid) return setError("Zadajte kladnú sumu s najviac dvoma desatinnými miestami.");
-    if (value > 1_000_000) return setError("Maximálna suma demo transakcie je 1 000 000 €.");
+    if (value > 1_000_000) return setError("Maximálna suma transakcie je 1 000 000 €.");
     if (value > balance(s)) return setError("Nedostatočný zostatok na účte.");
     if (vs.trim() && !/^\d{1,10}$/.test(vs.trim())) return setError("Variabilný symbol môže obsahovať najviac 10 číslic.");
     if (note.length > 140) return setError("Správa pre príjemcu môže mať najviac 140 znakov.");
@@ -139,12 +139,12 @@ export default function NovaPlatba() {
       });
 
       setStep("form");
-      toast.success("Platba bola zaevidovaná v demo histórii.");
+      toast.success("Platba bola zaevidovaná v histórii.");
       navigate({ to: "/platby" });
     } catch (err) {
       console.error(err);
-      toast.error("Zaevidovanie demo platby zlyhalo.");
-      setPinError("Demo platbu sa nepodarilo zaevidovať. Skontrolujte pripojenie a skúste znova.");
+      toast.error("Zaevidovanie platby zlyhalo.");
+      setPinError("platbu sa nepodarilo zaevidovať. Skontrolujte pripojenie a skúste znova.");
     } finally {
       submissionRef.current = false;
       setBusy(false);
@@ -180,7 +180,7 @@ export default function NovaPlatba() {
       }
       await executePayment();
     } catch (error) {
-      console.error("Potvrdenie demo platby zlyhalo:", error);
+      console.error("Potvrdenie platby zlyhalo:", error);
       submissionRef.current = false;
       setBusy(false);
       setPinError("Potvrdenie sa nepodarilo. Skúste znova.");
@@ -202,7 +202,7 @@ export default function NovaPlatba() {
             >
               <ArrowLeft size={24} />
             </button>
-            <h1 className="text-[20px] font-bold text-foreground">Súhrn demo SEPA platby</h1>
+            <h1 className="text-[20px] font-bold text-foreground">Súhrn SEPA platby</h1>
           </div>
 
           <div className="space-y-3">
@@ -213,7 +213,7 @@ export default function NovaPlatba() {
                 <span className="text-[16px] font-bold text-foreground">{name}</span>
                 <CheckCircle2 className="size-6 text-emerald-600 fill-emerald-100 dark:fill-emerald-950" />
               </div>
-              <span className="text-[12px] text-muted-foreground mt-1 block">Údaje sú zobrazené iba v demo náhľade.</span>
+              
             </div>
 
             {/* IBAN */}
@@ -244,8 +244,8 @@ export default function NovaPlatba() {
 
             {/* Dátum splatnosti */}
             <div className="rounded-2xl bg-surface p-4 shadow-sm border border-border">
-              <span className="text-[12px] text-muted-foreground block">Modelovaný termín</span>
-              <span className="text-[15px] font-semibold text-foreground mt-1 block">Iba v demo náhľade</span>
+              <span className="text-[12px] text-muted-foreground block">Dátum záznamu</span>
+              <span className="text-[15px] font-semibold text-foreground mt-1 block">{new Date().toLocaleDateString("sk-SK")}</span>
             </div>
 
             {/* Okamžitá platba */}
@@ -253,11 +253,9 @@ export default function NovaPlatba() {
               <span className="text-[12px] text-muted-foreground block">Okamžitá platba</span>
               <div className="flex items-center gap-2 mt-1">
                 <Zap className="size-5 text-primary fill-primary/20" />
-                <span className="text-[15px] font-bold text-foreground">Demo režim</span>
+                <span className="text-[15px] font-bold text-foreground">Nedostupná</span>
               </div>
-              <p className="text-[12px] text-muted-foreground mt-1.5 leading-snug">
-                Toto je iba ukážka obrazovky. Žiadna SEPA platba sa nevykoná.
-              </p>
+              
             </div>
 
             {/* Doplňujúce informácie */}
@@ -276,14 +274,14 @@ export default function NovaPlatba() {
             </div>
           </div>
 
-          {/* Pokračovanie na demo potvrdenie */}
+          {/* Pokračovanie na potvrdenie */}
           <div className="mt-8 mb-12">
             <button
               type="button"
               onClick={() => setStep("confirm_card")}
               className="flex h-14 w-full items-center justify-center rounded-2xl bg-primary text-[16px] font-semibold text-primary-foreground shadow-lg hover:opacity-95 active:scale-95 transition-all"
             >
-              Pokračovať na demo potvrdenie
+              Pokračovať na potvrdenie
             </button>
           </div>
         </div>
@@ -304,21 +302,21 @@ export default function NovaPlatba() {
             >
               <ArrowLeft size={24} />
             </button>
-            <h1 className="text-[22px] font-bold text-foreground">Potvrdenie demo záznamu</h1>
+            <h1 className="text-[22px] font-bold text-foreground">Potvrdenie platby</h1>
           </div>
 
           {/* Biela informačná karta */}
           <div className="rounded-3xl bg-surface p-6 shadow-md border border-border space-y-5">
             <div>
               <span className="text-[12px] text-muted-foreground block">Akcia</span>
-              <span className="text-[16px] font-semibold text-foreground mt-0.5 block">Zaevidovať demo platbu</span>
+              <span className="text-[16px] font-semibold text-foreground mt-0.5 block">Zaevidovať platbu</span>
             </div>
 
             <div>
               <span className="text-[12px] text-muted-foreground block">Príjemca</span>
               <span className="text-[16px] font-semibold text-foreground mt-0.5 block">{name}</span>
               <span className="text-[13px] font-mono text-muted-foreground mt-0.5 block">{formatIban(iban)}</span>
-              <span className="text-[12px] text-emerald-600 font-medium mt-1 block">Údaje príjemcu sú zobrazené v demo náhľade.</span>
+              
             </div>
 
             <div>
@@ -333,7 +331,7 @@ export default function NovaPlatba() {
           </div>
 
           <p className="mt-4 px-2 text-[13px] text-muted-foreground leading-relaxed">
-            Potvrdením sa vytvorí iba demo záznam v histórii tejto aplikácie. Bankový prevod sa nevykoná.
+            Potvrdením sa uloží záznam platby. Aplikácia nevykonáva bankový prevod.
           </p>
 
           {pinError && <p className="mt-2 px-2 text-[13px] text-destructive">{pinError}</p>}
@@ -347,7 +345,7 @@ export default function NovaPlatba() {
               className="flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-primary text-[16px] font-semibold text-primary-foreground shadow-lg hover:opacity-95 active:scale-95 disabled:opacity-60 transition-all"
             >
               {bioSupported && isBiometricEnabled(user.id) ? <Fingerprint className="size-6" /> : <CheckCircle2 className="size-6" />}
-              <span>{busy ? "Spracúvam…" : "Potvrdiť demo platbu"}</span>
+              <span>{busy ? "Spracúvam…" : "Potvrdiť platbu"}</span>
             </button>
           </div>
         </div>
@@ -495,13 +493,13 @@ export default function NovaPlatba() {
             disabled={busy || s.loading || !!s.error}
             className="flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-primary text-[15px] font-semibold text-primary-foreground shadow-md transition-opacity hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            <span>{s.loading ? "Načítavam údaje účtu…" : s.error ? "Údaje účtu nie sú dostupné" : "Pokračovať na demo súhrn"}</span>
+            <span>{s.loading ? "Načítavam údaje účtu…" : s.error ? "Údaje účtu nie sú dostupné" : "Pokračovať na súhrn"}</span>
             <ArrowRight className="size-4" />
           </button>
 
           <p className="flex items-center justify-center gap-1.5 text-center text-[12px] text-muted-foreground">
             <ShieldCheck className="size-4 text-emerald-600" />
-            Simulácia · bez odoslania do banky
+            
           </p>
         </form>
       </div>
@@ -697,7 +695,7 @@ function QrScannerModal({
         <div className="flex items-center justify-between gap-3">
           <div>
             <h2 id="qr-scanner-title" className="text-lg font-bold">Skenovať platobný QR kód</h2>
-            <p className="mt-1 text-xs text-muted-foreground">Údaje sa iba predvyplnia do demo formulára.</p>
+            <p className="mt-1 text-xs text-muted-foreground">Údaje sa iba predvyplnia do formulára.</p>
           </div>
           <button type="button" onClick={onClose} aria-label="Zavrieť skener" className="grid size-10 shrink-0 place-items-center rounded-full bg-surface-2 text-lg">×</button>
         </div>

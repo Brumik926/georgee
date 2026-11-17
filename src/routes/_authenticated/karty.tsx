@@ -5,8 +5,12 @@ import { AppShell, BrandHeader } from "@/components/bank/AppShell";
 export const Route = createFileRoute("/_authenticated/karty")({
   head: () => ({
     meta: [
-      { title: "Moje karty | George Demo" },
-      { name: "description", content: "Karty zatiaľ nie sú pripojené k databáze demo simulácie; nezobrazujú sa vymyslené kartové údaje." },
+      { property: "og:title", content: "Moje karty | George" },
+      { property: "og:description", content: "Prehľad dostupných kariet." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+      { title: "Moje karty | George" },
+      { name: "description", content: "Prehľad dostupných kariet." },
     ],
   }),
   component: CardsPage,

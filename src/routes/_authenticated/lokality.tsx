@@ -4,8 +4,12 @@ import { ArrowLeft, MapPin, Search, Building2, Banknote, MapPinned, ExternalLink
 
 export const Route = createFileRoute("/_authenticated/lokality")({
   head: () => ({ meta: [
-    { title: "Vyhľadávanie miest · George Demo" },
-    { name: "description", content: "Externé vyhľadávanie pobočiek a bankomatov cez mapovú službu; George Demo nie je ich prevádzkovateľ." },
+      { property: "og:title", content: "Vyhľadávanie miest · George" },
+      { property: "og:description", content: "Externé vyhľadávanie pobočiek a bankomatov cez mapovú službu; George nie je ich prevádzkovateľ." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    { title: "Vyhľadávanie miest · George" },
+    { name: "description", content: "Externé vyhľadávanie pobočiek a bankomatov cez mapovú službu; George nie je ich prevádzkovateľ." },
   ] }),
   component: LokalityPage,
 });
@@ -31,9 +35,7 @@ function LokalityPage() {
   return (
     <main className="mx-auto min-h-screen w-full max-w-[430px] bg-background px-5 pb-28 text-foreground">
       <header className="pt-6 pb-5">
-        <span className="mb-4 inline-flex rounded-full border border-primary/20 bg-primary/5 px-2.5 py-1 text-[9px] font-bold tracking-[0.12em] text-primary">
-          DEMO · BANKOVÁ SIMULÁCIA
-        </span>
+        
         <Link to="/" className="mb-5 inline-flex items-center gap-2 text-sm text-muted-foreground">
           <ArrowLeft className="size-4" />
           Späť na prehľad
@@ -118,7 +120,7 @@ function LokalityPage() {
       </section>
 
       <p className="mt-5 text-center text-xs text-muted-foreground">
-        Demo funkcia · Údaje a dostupnosť si over priamo v mapovej službe.
+        Údaje a dostupnosť si over priamo v mapovej službe.
       </p>
     </main>
   );

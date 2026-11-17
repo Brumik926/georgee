@@ -16,10 +16,14 @@ import { exportStatement } from "@/lib/pdf-export";
 export const Route = createFileRoute("/_authenticated/vypisy")({
   head: () => ({
     meta: [
-      { title: "Výpisy a prehľady · George Demo" },
+      { property: "og:title", content: "Výpisy a prehľady · George" },
+      { property: "og:description", content: "Prehľad uložených transakcií a export prehľadu do PDF." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+      { title: "Výpisy a prehľady · George" },
       {
         name: "description",
-        content: "Prehľad uložených demo transakcií a export modelového výpisu do PDF.",
+        content: "Prehľad uložených transakcií a export prehľadu do PDF.",
       },
     ],
   }),
@@ -51,9 +55,9 @@ function VypisyPage() {
     setExporting(true);
     try {
       await exportStatement(s, transactions);
-      toast.success("Demo prehľad bol exportovaný do PDF.");
+      toast.success("prehľad bol exportovaný do PDF.");
     } catch (error) {
-      console.error("Export demo prehľadu zlyhal:", error);
+      console.error("Export prehľadu zlyhal:", error);
       toast.error("PDF sa nepodarilo vytvoriť. Skúste to znova.");
     } finally {
       setExporting(false);
@@ -64,18 +68,18 @@ function VypisyPage() {
     <AppShell>
       <BrandHeader
         title="Výpisy a prehľady"
-        subtitle="Uložené transakcie v demo účte"
+        subtitle="Uložené transakcie v účte"
         back
       />
 
       <div className="space-y-4 px-4 pb-28">
         <section className="rounded-3xl border border-border bg-surface p-5 shadow-sm">
           <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            Modelový zostatok
+            Zostatok
           </p>
           <p className="mt-2 text-3xl font-bold tabular-nums">{s.loading || s.error ? "—" : formatEur(balance(s))}</p>
           <p className="mt-1 text-xs text-muted-foreground">
-            Súčet evidovaných demo príjmov a výdavkov
+            Súčet evidovaných príjmov a výdavkov
           </p>
         </section>
 
@@ -138,11 +142,11 @@ function VypisyPage() {
           className="flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground shadow-sm transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
         >
           <Download className="size-4" />
-          {exporting ? "Pripravujem PDF…" : "Exportovať demo prehľad (PDF)"}
+          {exporting ? "Pripravujem PDF…" : "Exportovať prehľad (PDF)"}
         </button>
 
         <p className="rounded-2xl bg-muted/50 p-4 text-xs leading-5 text-muted-foreground">
-          PDF obsahuje iba údaje evidované v tejto simulácii. Nie je bankovým výpisom ani potvrdením
+          PDF obsahuje údaje evidované v aplikácii. Nie je bankovým výpisom ani potvrdením
           o skutočne vykonanej platbe.
         </p>
       </div>

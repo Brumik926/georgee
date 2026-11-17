@@ -50,10 +50,10 @@ import {
 export const Route = createFileRoute("/_authenticated/")({
   head: () => ({
     meta: [
-      { title: "Prehľad účtu · George Demo" },
-      { name: "description", content: "Prehľad osobných financií v samostatnej demo simulácii." },
-      { property: "og:title", content: "Prehľad účtu · George Demo" },
-      { property: "og:description", content: "Prehľad osobných financií v samostatnej demo simulácii." },
+      { title: "Prehľad účtu · George" },
+      { name: "description", content: "Prehľad účtu, zostatku, príjmov a výdavkov." },
+      { property: "og:title", content: "Prehľad účtu · George" },
+      { property: "og:description", content: "Prehľad účtu, zostatku, príjmov a výdavkov." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -144,9 +144,9 @@ function MerchantLogo({ counterparty, category }: { counterparty: string; catego
       <div className="w-10 h-10 rounded-full bg-white border border-slate-200 dark:border-white/10 flex flex-col items-center justify-center shrink-0 shadow-sm px-1">
         <span className="text-[#00539f] font-black text-[9px] tracking-tight leading-none">TESCO</span>
         <div className="flex gap-0.5 mt-0.5">
-          <span className="w-1.5 h-[2px] bg-[#ee1c25] rounded-full"></span>
-          <span className="w-1.5 h-[2px] bg-[#00539f] rounded-full"></span>
-          <span className="w-1.5 h-[2px] bg-[#ee1c25] rounded-full"></span>
+          
+          
+          
         </div>
       </div>
     );
@@ -240,7 +240,7 @@ function ListItem({ icon: Icon, title, subtitle, badge, isLast, onClick }: ListI
             {title}
           </div>
           {(subtitle || !onClick) && (
-            <div className="text-[12px] text-gray-400 dark:text-muted-foreground mt-0.5">{subtitle || "V demo verzii nie je dostupné"}</div>
+            <div className="text-[12px] text-gray-400 dark:text-muted-foreground mt-0.5">{subtitle || "Zatiaľ nedostupné"}</div>
           )}
         </div>
       </div>
@@ -380,14 +380,14 @@ export function GeorgePrehladModern() {
             <ListItem
               icon={ShoppingBag}
               title="Ponuky a odmeny"
-              subtitle="Ukážkové ponuky"
-              badge="Demo"
-              onClick={() => toast.info("Ukážková sekcia odmien zatiaľ nie je dostupná.")}
+              subtitle="Dostupné ponuky"
+              
+              onClick={() => toast.info("Odmeny zatiaľ nie sú dostupné.")}
             />
             <ListItem
               icon={Medal}
               title="Moja odmena"
-              onClick={() => toast.info("Ukážková sekcia odmien zatiaľ nie je dostupná.")}
+              onClick={() => toast.info("Odmeny zatiaľ nie sú dostupné.")}
             />
             <ListItem icon={Calculator} title="Menová kalkulačka" />
             <ListItem
@@ -399,9 +399,9 @@ export function GeorgePrehladModern() {
             <ListItem
               icon={TrendingUp}
               title="Ponuka investícií"
-              subtitle="Ukážkové portfóliá"
+              subtitle="Portfóliá"
               isLast={true}
-              onClick={() => toast.info("Ukážková sekcia investícií zatiaľ nie je dostupná.")}
+              onClick={() => toast.info("Investície zatiaľ nie sú dostupné.")}
             />
           </div>
         </div>
@@ -468,7 +468,7 @@ export function GeorgePrehladModern() {
             <ListItem
               icon={CreditCard}
               title="Digitálna peňaženka"
-              subtitle="V demo verzii nie je dostupná"
+              subtitle="Zatiaľ nedostupná"
               isLast={true}
             />
           </div>
@@ -478,7 +478,7 @@ export function GeorgePrehladModern() {
         <div className="text-center pb-8 flex flex-col items-center">
           <div className="flex items-center justify-center mb-4">
             <span className="font-bold text-[15px] tracking-tight text-[#111827] dark:text-white">
-              Banková simulácia
+              George
             </span>
           </div>
           <p className="text-[11px] text-muted-foreground mb-0.5">Prehľad účtu a financií</p>
@@ -500,7 +500,7 @@ export function GeorgePrehladModern() {
           {/* Modrá hlavička */}
           <div className="pt-6 pb-20 px-4 transition-colors duration-300 bg-[#196ee6] dark:bg-[#0e0e12] text-white rounded-b-3xl dark:rounded-none">
             <header className="flex items-center justify-between gap-2">
-              <span className="max-w-[170px] rounded-full border border-white/30 bg-white/10 px-2.5 py-1 text-[9px] font-bold leading-tight tracking-[0.08em] text-white">DEMO · BANKOVÁ SIMULÁCIA</span>
+              
               <div className="flex shrink-0 items-center gap-1">
                 <Link
                   to="/platby"

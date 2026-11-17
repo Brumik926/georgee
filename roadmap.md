@@ -1,4 +1,5 @@
 # Roadmap
+- [x] Odstrániť opakované označenia demo a cvičných platieb z obrazoviek a názvov aplikácie; zachovať pravdivé obmedzenia. Prihlásenie overené v náhľade, 13 súvisiacich testov prešlo; prihlásená kontrola nie je dostupná bez relácie používateľa.
 - [x] Importovať 27 chýbajúcich prihlásení z pôvodného CSV bez duplicít; najstarší dostupný záznam je z 2. novembra 2026, ďalší export nie je nahraný.
 - [x] Pridať blokovanie/odblokovanie v protokole, uzavretie bankingu a obrazovku s platobným odkazom; overené cez administrátorský aj zablokovaný účet a 20 testov.
 

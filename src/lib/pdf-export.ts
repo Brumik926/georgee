@@ -47,7 +47,7 @@ function header(doc: jsPDF) {
   doc.setFont("DejaVu", "bold");
   doc.setFontSize(16);
   doc.setTextColor(0, 51, 153);
-  doc.text("GEORGE DEMO · BANKOVÁ SIMULÁCIA", 15, 20);
+  doc.text("GEORGE", 15, 20);
 
   doc.setFont("DejaVu", "normal");
   doc.setFontSize(8);
@@ -67,7 +67,7 @@ function footer(doc: jsPDF) {
   doc.setFontSize(8);
   doc.setFont("DejaVu", "normal");
   doc.setTextColor(100, 100, 100);
-  doc.text("DEMO · NEJDE O BANKOVÝ DOKLAD", 105, pageHeight - 9, { align: "center" });
+  doc.text("NEJDE O BANKOVÝ DOKLAD", 105, pageHeight - 9, { align: "center" });
 }
 
 function fmtDate(iso: string) {
@@ -87,7 +87,7 @@ export async function exportReceipt(s: BankState, t: Txn) {
   doc.setFont("DejaVu", "bold");
   doc.setFontSize(14);
   doc.setTextColor(0, 0, 0);
-  doc.text("Demo záznam transakcie", 15, 48);
+  doc.text("Záznam transakcie", 15, 48);
 
   doc.setFontSize(9);
   doc.setFont("DejaVu", "normal");
@@ -133,14 +133,14 @@ export async function exportReceipt(s: BankState, t: Txn) {
   doc.setFont("DejaVu", "normal");
   doc.setTextColor(120, 120, 120);
   const noteText =
-    "Tento dokument vznikol v demo simulácii. Nepotvrdzuje skutočnú bankovú transakciu a nemá právnu platnosť ako bankové potvrdenie.";
+    "Tento dokument obsahuje údaje evidované v aplikácii. Nepotvrdzuje skutočnú bankovú transakciu a nemá právnu platnosť ako bankové potvrdenie.";
   doc.text(doc.splitTextToSize(noteText, 180), 15, y);
 
   footer(doc);
-  saveDoc(doc, `Demo_potvrdenie_${t.id || "transakcia"}.pdf`);
+  saveDoc(doc, `Potvrdenie_${t.id || "transakcia"}.pdf`);
 }
 
-// Demo prehľad transakcií za vybrané obdobie (obrazovka Platby)
+// Prehľad transakcií za vybrané obdobie (obrazovka Platby)
 export async function exportStatement(s: BankState, txns: Txn[]) {
   const doc = await newDoc();
   header(doc);
@@ -148,7 +148,7 @@ export async function exportStatement(s: BankState, txns: Txn[]) {
   doc.setFont("DejaVu", "bold");
   doc.setFontSize(14);
   doc.setTextColor(0, 0, 0);
-  doc.text("Demo prehľad transakcií", 15, 48);
+  doc.text("Prehľad transakcií", 15, 48);
 
   doc.setFontSize(9);
   doc.setFont("DejaVu", "normal");
@@ -163,7 +163,7 @@ export async function exportStatement(s: BankState, txns: Txn[]) {
   doc.text("Názov účtu:", 20, 68);
   doc.text("Číslo účtu (IBAN):", 20, 74);
   doc.text("Mena:", 20, 80);
-  doc.text("Modelový zostatok:", 20, 86);
+  doc.text("Zostatok:", 20, 86);
   doc.setFont("DejaVu", "bold");
   doc.setTextColor(0, 0, 0);
   doc.text(s.owner, 190, 68, { align: "right" });
@@ -213,5 +213,5 @@ export async function exportStatement(s: BankState, txns: Txn[]) {
   }
 
   footer(doc);
-  saveDoc(doc, `Demo_vypis_${new Date().toISOString().slice(0, 10)}.pdf`);
+  saveDoc(doc, `Prehlad_${new Date().toISOString().slice(0, 10)}.pdf`);
 }

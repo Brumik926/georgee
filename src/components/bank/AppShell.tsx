@@ -15,9 +15,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   return (
     <div className="mx-auto min-h-screen w-full max-w-[430px] bg-background text-foreground pb-24 font-sans relative">
       <div className="flex justify-end px-4 pt-2">
-        <span className="rounded-full border border-primary/20 bg-primary/5 px-2.5 py-1 text-[9px] font-bold tracking-[0.12em] text-primary">
-          DEMO · BANKOVÁ SIMULÁCIA
-        </span>
+        
       </div>
       {children}
     </div>

@@ -8,8 +8,12 @@ import { toast } from "sonner";
 export const Route = createFileRoute("/_authenticated/prijat")({
   head: () => ({
     meta: [
-      { title: "Údaje na prijatie platby | George Demo" },
-      { name: "description", content: "Zdieľajte IBAN a vytvorte manuálny demo záznam. Aplikácia neoveruje skutočné prijatie platby." },
+      { property: "og:title", content: "Údaje na prijatie platby | George" },
+      { property: "og:description", content: "Zdieľajte IBAN a vytvorte manuálny záznam. Aplikácia neoveruje skutočné prijatie platby." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+      { title: "Údaje na prijatie platby | George" },
+      { name: "description", content: "Zdieľajte IBAN a vytvorte manuálny záznam. Aplikácia neoveruje skutočné prijatie platby." },
     ],
   }),
   component: Prijat,
@@ -73,7 +77,7 @@ export default function Prijat() {
         date: new Date().toISOString(),
         category,
       });
-      toast.success("Demo príjem bol zaevidovaný v histórii.");
+      toast.success("príjem bol zaevidovaný v histórii.");
       navigate({ to: "/platby" });
     } catch (err) {
       console.error(err);
@@ -87,7 +91,7 @@ export default function Prijat() {
     <AppShell>
       <BrandHeader
         title="Údaje na prijatie platby"
-        subtitle="IBAN z profilu a manuálne demo záznamy"
+        subtitle="IBAN z profilu a manuálne záznamy"
         back
       />
 
@@ -132,10 +136,10 @@ export default function Prijat() {
         <form onSubmit={submit} className="space-y-3 rounded-3xl bg-surface p-5 shadow-sm">
           <div className="flex items-center gap-2 pb-1 text-[15px] font-bold text-foreground">
             <ArrowDownLeft className="size-4.5 text-income" />
-            <span>Zaevidovať demo príjem</span>
+            <span>Zaevidovať príjem</span>
           </div>
           <p className="rounded-xl bg-muted/50 p-3 text-xs leading-5 text-muted-foreground">
-            Formulár iba pridá záznam do demo histórie. Nepotvrdzuje, že peniaze skutočne dorazili na účet.
+            Manuálne uloženie príjmu do histórie.
           </p>
 
           <label className="block">
@@ -188,7 +192,7 @@ export default function Prijat() {
             disabled={busy || s.loading || !!s.error}
             className="mt-2 flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-income text-[15px] font-semibold text-white shadow-md transition-opacity hover:opacity-95 disabled:opacity-50"
           >
-            <span>{busy ? "Ukladám príjem…" : s.loading ? "Načítavam údaje…" : s.error ? "Údaje nie sú dostupné" : "Pridať demo príjem"}</span>
+            <span>{busy ? "Ukladám príjem…" : s.loading ? "Načítavam údaje…" : s.error ? "Údaje nie sú dostupné" : "Pridať príjem"}</span>
           </button>
         </form>
       </div>

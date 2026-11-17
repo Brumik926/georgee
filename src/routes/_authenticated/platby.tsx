@@ -33,8 +33,12 @@ export const Route = createFileRoute("/_authenticated/platby")({
   }),
   head: () => ({
     meta: [
-      { title: "Účet a transakcie · George Demo" },
-      { name: "description", content: "História transakcií a správa demo účtu." },
+      { property: "og:title", content: "Účet a transakcie · George" },
+      { property: "og:description", content: "História transakcií a správa účtu." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+      { title: "Účet a transakcie · George" },
+      { name: "description", content: "História transakcií a správa účtu." },
     ],
   }),
   component: UcetDetail,
@@ -145,9 +149,9 @@ function MerchantLogo({ counterparty, category }: { counterparty: string; catego
       <div className="w-10 h-10 rounded-full bg-white border border-slate-200 dark:border-white/10 flex flex-col items-center justify-center shrink-0 shadow-sm px-1">
         <span className="text-[#00539f] font-black text-[9px] tracking-tight leading-none">TESCO</span>
         <div className="flex gap-0.5 mt-0.5">
-          <span className="w-1.5 h-[2px] bg-[#ee1c25] rounded-full"></span>
-          <span className="w-1.5 h-[2px] bg-[#00539f] rounded-full"></span>
-          <span className="w-1.5 h-[2px] bg-[#ee1c25] rounded-full"></span>
+          
+          
+          
         </div>
       </div>
     );
@@ -770,7 +774,7 @@ export default function UcetDetail() {
                   { title: "Šablóny platieb", icon: RefreshCw, to: "/centrum-platieb" },
                   { title: "Výber z bankomatu mobilom", icon: Landmark },
                   { title: "Výpisy z účtu", icon: FileText, to: "/vypisy" },
-                  { title: "Limit pre okamžité platby (SEPA)", desc: "Nedostupné v demo simulácii", icon: Zap },
+                  { title: "Limit pre okamžité platby (SEPA)", desc: "Zatiaľ nedostupné", icon: Zap },
                   { title: "Súhlasy s inkasom", icon: ClipboardCheck },
                   { title: "Údaje na prijatie platby", icon: QrCode, to: "/prijat" },
                   { title: "Dobiť kredit", icon: Smartphone },
@@ -778,7 +782,7 @@ export default function UcetDetail() {
                   <button
                     key={f.title}
                     type="button"
-                    onClick={() => (f.to ? navigate({ to: f.to as "/" }) : toast.info(`${f.title} nie je dostupná v demo simulácii.`))}
+                    onClick={() => (f.to ? navigate({ to: f.to as "/" }) : toast.info(`${f.title} zatiaľ nie je dostupná.`))}
                     className="flex w-full items-center gap-4 px-5 py-5 text-left active:opacity-80"
                   >
                     <f.icon className="w-6 h-6 shrink-0 text-[#196ee6] dark:text-[#4f95ff]" strokeWidth={1.8} />
@@ -801,7 +805,7 @@ export default function UcetDetail() {
 
               <div>
                 <h3 className="px-1 pb-2 text-[15px] font-medium text-foreground">Zrušenia</h3>
-                <button type="button" onClick={() => toast.info("George Demo nevedie skutočný bankový účet, preto zrušenie bankového účtu nie je podporované.")} className="flex w-full items-center gap-4 rounded-3xl bg-detail-surface px-5 py-5 text-left">
+                <button type="button" onClick={() => toast.info("Zrušenie účtu zatiaľ nie je dostupné.")} className="flex w-full items-center gap-4 rounded-3xl bg-detail-surface px-5 py-5 text-left">
                   <X className="w-6 h-6 text-[#196ee6] dark:text-[#4f95ff]" strokeWidth={1.8} />
                   <span className="text-[16px] text-foreground">Zrušiť účet</span>
                 </button>
@@ -820,7 +824,7 @@ export default function UcetDetail() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-[13px] text-detail-muted">Virtuálna karta</p>
-                  <p className="text-[16px] font-bold text-foreground mt-0.5">Demo karta ···· 0001</p>
+                  <p className="text-[16px] font-bold text-foreground mt-0.5">Žiadna dostupná karta</p>
                 </div>
                 <CreditCard className="w-8 h-8 text-[#196ee6] dark:text-[#4f95ff]" />
               </div>
@@ -836,7 +840,7 @@ export default function UcetDetail() {
               </div>
               <div>
                 <p className="text-[12px] text-detail-muted">Názov účtu</p>
-                <p className="text-[15px] font-medium text-foreground">Demo účet</p>
+                <p className="text-[15px] font-medium text-foreground">Osobný účet</p>
               </div>
               <div className="flex items-center justify-between">
                 <div>

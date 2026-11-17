@@ -36,9 +36,9 @@ import {
 export const Route = createFileRoute("/_authenticated/nastavenia")({
   head: () => ({
     meta: [
-      { title: "Nastavenia · George Demo" },
+      { title: "Nastavenia · George" },
       { name: "description", content: "Nastavenia účtu, zabezpečenia a vzhľadu aplikácie." },
-      { property: "og:title", content: "Nastavenia · George Demo" },
+      { property: "og:title", content: "Nastavenia · George" },
       { property: "og:description", content: "Nastavenia účtu, zabezpečenia a vzhľadu aplikácie." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -119,7 +119,7 @@ function Nastavenia() {
         setBioUnlockOn(false);
         toast.success("Odomknutie biometriou bolo vypnuté");
       } else {
-        await enableBiometric(userId, "George Demo");
+        await enableBiometric(userId, "George");
         setBioUnlockOn(true);
         toast.success("Odomknutie biometriou bolo aktivované");
       }

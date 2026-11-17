@@ -57,7 +57,7 @@ export function markUnlocked(userId: string) {
   try {
     window.sessionStorage.setItem(UNLOCK_PREFIX + userId, "1");
   } catch {
-    // Nedostupné session úložisko nesmie zablokovať demo aplikáciu.
+    // Nedostupné session úložisko nesmie zablokovať aplikáciu.
   }
 }
 
@@ -76,7 +76,7 @@ export async function enableBiometric(userId: string, label: string): Promise<vo
   const credential = (await navigator.credentials.create({
     publicKey: {
       challenge: randomChallenge(),
-      rp: { name: "George Demo · Banková simulácia", id: window.location.hostname },
+      rp: { name: "George", id: window.location.hostname },
       user: {
         id: new TextEncoder().encode(userId),
         name: label || "George",

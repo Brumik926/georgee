@@ -4,8 +4,12 @@ import { ArrowLeft, TrendingUp, ShieldCheck, PlusCircle, Info } from "lucide-rea
 
 export const Route = createFileRoute("/_authenticated/investovanie")({
   head: () => ({ meta: [
-    { title: "Investičná simulácia · George Demo" },
-    { name: "description", content: "Vzdelávacie modelové portfóliá v samostatnej demo finančnej simulácii." },
+      { property: "og:title", content: "Investovanie · George" },
+      { property: "og:description", content: "Prehľad portfólií a výpočet ich hodnoty." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    { title: "Investovanie · George" },
+    { name: "description", content: "Prehľad portfólií a výpočet ich hodnoty." },
   ] }),
   component: InvestovaniePage,
 });
@@ -36,15 +40,13 @@ function InvestovaniePage() {
   function addSimulation() {
     if (!canAdd) return;
     setSimulatedTotal((current) => current + numericAmount);
-    setMessage(`Do demo portfólia bolo pridaných ${numericAmount.toLocaleString("sk-SK", { style: "currency", currency: "EUR" })}.`);
+    setMessage(`Do portfólia bolo pridaných ${numericAmount.toLocaleString("sk-SK", { style: "currency", currency: "EUR" })}.`);
   }
 
   return (
     <main className="mx-auto min-h-screen w-full max-w-[430px] bg-background px-5 pb-28 text-foreground">
       <header className="pt-6 pb-5">
-        <span className="mb-4 inline-flex rounded-full border border-primary/20 bg-primary/5 px-2.5 py-1 text-[9px] font-bold tracking-[0.12em] text-primary">
-          DEMO · BANKOVÁ SIMULÁCIA
-        </span>
+        
         <Link to="/" className="mb-5 inline-flex items-center gap-2 text-sm text-muted-foreground">
           <ArrowLeft className="size-4" />
           Späť na prehľad
@@ -54,25 +56,25 @@ function InvestovaniePage() {
             <TrendingUp className="size-6" />
           </span>
           <div>
-            <h1 className="text-2xl font-bold tracking-tight">Investičná simulácia</h1>
-            <p className="mt-1 text-sm text-muted-foreground">Uč sa na modelových portfóliách</p>
+            <h1 className="text-2xl font-bold tracking-tight">Investovanie</h1>
+            <p className="mt-1 text-sm text-muted-foreground">Prehľad portfólií</p>
           </div>
         </div>
       </header>
 
       <section className="rounded-3xl border border-border bg-card p-5 shadow-sm">
         <div className="flex items-center justify-between text-sm text-muted-foreground">
-          <span>Modelová hodnota portfólia</span>
+          <span>Hodnota portfólia</span>
           <ShieldCheck className="size-4 text-primary" />
         </div>
         <div className="mt-2 text-3xl font-bold tabular-nums">
           {simulatedTotal.toLocaleString("sk-SK", { style: "currency", currency: "EUR" })}
         </div>
-        <p className="mt-1 text-xs text-muted-foreground">Modelová suma zadaná v tejto relácii · bez reálnych peňazí</p>
+        <p className="mt-1 text-xs text-muted-foreground">Suma v aktuálnej relácii · bez reálnych peňazí</p>
       </section>
 
       <section className="mt-6">
-        <h2 className="mb-3 text-base font-bold">Vyber modelové portfólio</h2>
+        <h2 className="mb-3 text-base font-bold">Vyber portfólio</h2>
         <div className="space-y-2">
           {funds.map((fund) => (
             <button
@@ -86,7 +88,7 @@ function InvestovaniePage() {
                 <span className="font-semibold">{fund.name}</span>
                 <ShieldCheck className="size-4 text-primary" />
               </div>
-              <div className="mt-1 text-xs text-muted-foreground">Modelové riziko: {fund.risk}</div>
+              <div className="mt-1 text-xs text-muted-foreground">Riziko: {fund.risk}</div>
             </button>
           ))}
         </div>
@@ -103,14 +105,14 @@ function InvestovaniePage() {
         <div className="mt-4 rounded-2xl bg-muted/50 p-4">
           <p className="text-sm font-medium">Bez výkonnostných údajov</p>
           <p className="mt-1 text-xs leading-5 text-muted-foreground">
-            Simulácia neobsahuje historické trhové dáta, odhadované výnosy ani skutočné investičné produkty.
+            Táto sekcia neobsahuje historické trhové dáta, odhadované výnosy ani skutočné investičné produkty.
           </p>
         </div>
       </section>
 
       <section className="mt-5 rounded-3xl border border-border bg-card p-4 shadow-sm">
-        <h2 className="font-bold">Pridať do simulácie</h2>
-        <p className="mt-1 text-xs text-muted-foreground">Zadaj sumu, ktorú chceš modelovo pridať. Po obnovení stránky sa simulácia vynuluje.</p>
+        <h2 className="font-bold">Pridať sumu</h2>
+        <p className="mt-1 text-xs text-muted-foreground">Zadaná suma sa po obnovení stránky vynuluje.</p>
         <label htmlFor="simulation-amount" className="mt-4 block text-xs font-semibold">Suma v EUR</label>
         <input
           id="simulation-amount"
@@ -123,7 +125,7 @@ function InvestovaniePage() {
           aria-describedby="simulation-amount-hint"
         />
         <p id="simulation-amount-hint" className="mt-1 text-xs text-muted-foreground">
-          Najviac dve desatinné miesta, jeden prírastok do 10 000 € a celkový limit simulácie 1 000 000 €.
+          Najviac dve desatinné miesta, jeden prírastok do 10 000 € a celkový limit 1 000 000 €.
         </p>
         <button
           type="button"
@@ -132,14 +134,14 @@ function InvestovaniePage() {
           className="mt-3 flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground disabled:cursor-not-allowed disabled:opacity-40"
         >
           <PlusCircle className="size-4" />
-          Pridať do demo portfólia
+          Pridať do portfólia
         </button>
         {message && <p role="status" className="mt-3 text-sm font-medium text-primary">{message}</p>}
       </section>
 
       <p className="mt-5 flex gap-2 rounded-2xl bg-muted/50 p-4 text-xs leading-5 text-muted-foreground">
         <Info className="mt-0.5 size-4 shrink-0" />
-        <span>Modelové profily sú iba vzdelávacie príklady. Zadaná suma sa uchováva len počas aktuálnej relácie a neukladá sa do databázy. Funkcia nevykonáva nákup cenných papierov, neprijíma vklady a neposkytuje investičné odporúčania.</span>
+        <span>Portfóliá sú iba vzdelávacie príklady. Zadaná suma sa uchováva len počas aktuálnej relácie a neukladá sa do databázy. Funkcia nevykonáva nákup cenných papierov, neprijíma vklady a neposkytuje investičné odporúčania.</span>
       </p>
     </main>
   );
