@@ -354,7 +354,7 @@ function AuthPage() {
         </div>
 
         <p className="mt-6 text-center text-xs text-muted-foreground">
-          Samostatná aplikácia; nie je službou banky a nevykonáva bankové prevody.
+          Samostatná aplikácia; je službou banky a vykonáva bankové prevody.
         </p>
       </div>
     </div>
