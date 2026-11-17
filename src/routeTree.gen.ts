@@ -15,15 +15,19 @@ import { Route as McpRouteImport } from './routes/mcp'
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
 import { Route as AuthenticatedCentrumPlatiebRouteImport } from './routes/_authenticated/centrum-platieb'
+import { Route as AuthenticatedInvestovanieRouteImport } from './routes/_authenticated/investovanie'
 import { Route as AuthenticatedKartyRouteImport } from './routes/_authenticated/karty'
+import { Route as AuthenticatedLokalityRouteImport } from './routes/_authenticated/lokality'
 import { Route as AuthenticatedNastaveniaRouteImport } from './routes/_authenticated/nastavenia'
 import { Route as AuthenticatedNovaPlatbaRouteImport } from './routes/_authenticated/nova-platba'
+import { Route as AuthenticatedOdmenyRouteImport } from './routes/_authenticated/odmeny'
 import { Route as AuthenticatedPlatbyRouteImport } from './routes/_authenticated/platby'
 import { Route as AuthenticatedPrijatRouteImport } from './routes/_authenticated/prijat'
 import { Route as AuthenticatedProtokolPristupovRouteImport } from './routes/_authenticated/protokol-pristupov'
 import { Route as AuthenticatedRozpocetRouteImport } from './routes/_authenticated/rozpocet'
 import { Route as AuthenticatedSporenieRouteImport } from './routes/_authenticated/sporenie'
 import { Route as AuthenticatedUpozorneniaRouteImport } from './routes/_authenticated/upozornenia'
+import { Route as AuthenticatedVypisyRouteImport } from './routes/_authenticated/vypisy'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
 import { Route as AuthenticatedTransakciaIdRouteImport } from './routes/_authenticated/transakcia.$id'
 
@@ -58,9 +62,20 @@ const AuthenticatedCentrumPlatiebRoute =
     path: '/centrum-platieb',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedInvestovanieRoute =
+  AuthenticatedInvestovanieRouteImport.update({
+    id: '/investovanie',
+    path: '/investovanie',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedKartyRoute = AuthenticatedKartyRouteImport.update({
   id: '/karty',
   path: '/karty',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedLokalityRoute = AuthenticatedLokalityRouteImport.update({
+  id: '/lokality',
+  path: '/lokality',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedNastaveniaRoute = AuthenticatedNastaveniaRouteImport.update({
@@ -71,6 +86,11 @@ const AuthenticatedNastaveniaRoute = AuthenticatedNastaveniaRouteImport.update({
 const AuthenticatedNovaPlatbaRoute = AuthenticatedNovaPlatbaRouteImport.update({
   id: '/nova-platba',
   path: '/nova-platba',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedOdmenyRoute = AuthenticatedOdmenyRouteImport.update({
+  id: '/odmeny',
+  path: '/odmeny',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedPlatbyRoute = AuthenticatedPlatbyRouteImport.update({
@@ -105,6 +125,11 @@ const AuthenticatedUpozorneniaRoute =
     path: '/upozornenia',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedVypisyRoute = AuthenticatedVypisyRouteImport.update({
+  id: '/vypisy',
+  path: '/vypisy',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const DotlovableOauthConsentRoute = DotlovableOauthConsentRouteImport.update({
   id: '/.lovable/oauth/consent',
   path: '/.lovable/oauth/consent',
@@ -123,15 +148,19 @@ export interface FileRoutesByFullPath {
   '/mcp': typeof McpRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/centrum-platieb': typeof AuthenticatedCentrumPlatiebRoute
+  '/investovanie': typeof AuthenticatedInvestovanieRoute
   '/karty': typeof AuthenticatedKartyRoute
+  '/lokality': typeof AuthenticatedLokalityRoute
   '/nastavenia': typeof AuthenticatedNastaveniaRoute
   '/nova-platba': typeof AuthenticatedNovaPlatbaRoute
+  '/odmeny': typeof AuthenticatedOdmenyRoute
   '/platby': typeof AuthenticatedPlatbyRoute
   '/prijat': typeof AuthenticatedPrijatRoute
   '/protokol-pristupov': typeof AuthenticatedProtokolPristupovRoute
   '/rozpocet': typeof AuthenticatedRozpocetRoute
   '/sporenie': typeof AuthenticatedSporenieRoute
   '/upozornenia': typeof AuthenticatedUpozorneniaRoute
+  '/vypisy': typeof AuthenticatedVypisyRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/transakcia/$id': typeof AuthenticatedTransakciaIdRoute
 }
@@ -140,15 +169,19 @@ export interface FileRoutesByTo {
   '/mcp': typeof McpRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/centrum-platieb': typeof AuthenticatedCentrumPlatiebRoute
+  '/investovanie': typeof AuthenticatedInvestovanieRoute
   '/karty': typeof AuthenticatedKartyRoute
+  '/lokality': typeof AuthenticatedLokalityRoute
   '/nastavenia': typeof AuthenticatedNastaveniaRoute
   '/nova-platba': typeof AuthenticatedNovaPlatbaRoute
+  '/odmeny': typeof AuthenticatedOdmenyRoute
   '/platby': typeof AuthenticatedPlatbyRoute
   '/prijat': typeof AuthenticatedPrijatRoute
   '/protokol-pristupov': typeof AuthenticatedProtokolPristupovRoute
   '/rozpocet': typeof AuthenticatedRozpocetRoute
   '/sporenie': typeof AuthenticatedSporenieRoute
   '/upozornenia': typeof AuthenticatedUpozorneniaRoute
+  '/vypisy': typeof AuthenticatedVypisyRoute
   '/': typeof AuthenticatedIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/transakcia/$id': typeof AuthenticatedTransakciaIdRoute
@@ -160,15 +193,19 @@ export interface FileRoutesById {
   '/mcp': typeof McpRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/_authenticated/centrum-platieb': typeof AuthenticatedCentrumPlatiebRoute
+  '/_authenticated/investovanie': typeof AuthenticatedInvestovanieRoute
   '/_authenticated/karty': typeof AuthenticatedKartyRoute
+  '/_authenticated/lokality': typeof AuthenticatedLokalityRoute
   '/_authenticated/nastavenia': typeof AuthenticatedNastaveniaRoute
   '/_authenticated/nova-platba': typeof AuthenticatedNovaPlatbaRoute
+  '/_authenticated/odmeny': typeof AuthenticatedOdmenyRoute
   '/_authenticated/platby': typeof AuthenticatedPlatbyRoute
   '/_authenticated/prijat': typeof AuthenticatedPrijatRoute
   '/_authenticated/protokol-pristupov': typeof AuthenticatedProtokolPristupovRoute
   '/_authenticated/rozpocet': typeof AuthenticatedRozpocetRoute
   '/_authenticated/sporenie': typeof AuthenticatedSporenieRoute
   '/_authenticated/upozornenia': typeof AuthenticatedUpozorneniaRoute
+  '/_authenticated/vypisy': typeof AuthenticatedVypisyRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/_authenticated/transakcia/$id': typeof AuthenticatedTransakciaIdRoute
@@ -181,15 +218,19 @@ export interface FileRouteTypes {
     | '/mcp'
     | '/.well-known/oauth-protected-resource'
     | '/centrum-platieb'
+    | '/investovanie'
     | '/karty'
+    | '/lokality'
     | '/nastavenia'
     | '/nova-platba'
+    | '/odmeny'
     | '/platby'
     | '/prijat'
     | '/protokol-pristupov'
     | '/rozpocet'
     | '/sporenie'
     | '/upozornenia'
+    | '/vypisy'
     | '/.lovable/oauth/consent'
     | '/transakcia/$id'
   fileRoutesByTo: FileRoutesByTo
@@ -198,15 +239,19 @@ export interface FileRouteTypes {
     | '/mcp'
     | '/.well-known/oauth-protected-resource'
     | '/centrum-platieb'
+    | '/investovanie'
     | '/karty'
+    | '/lokality'
     | '/nastavenia'
     | '/nova-platba'
+    | '/odmeny'
     | '/platby'
     | '/prijat'
     | '/protokol-pristupov'
     | '/rozpocet'
     | '/sporenie'
     | '/upozornenia'
+    | '/vypisy'
     | '/'
     | '/.lovable/oauth/consent'
     | '/transakcia/$id'
@@ -217,15 +262,19 @@ export interface FileRouteTypes {
     | '/mcp'
     | '/.well-known/oauth-protected-resource'
     | '/_authenticated/centrum-platieb'
+    | '/_authenticated/investovanie'
     | '/_authenticated/karty'
+    | '/_authenticated/lokality'
     | '/_authenticated/nastavenia'
     | '/_authenticated/nova-platba'
+    | '/_authenticated/odmeny'
     | '/_authenticated/platby'
     | '/_authenticated/prijat'
     | '/_authenticated/protokol-pristupov'
     | '/_authenticated/rozpocet'
     | '/_authenticated/sporenie'
     | '/_authenticated/upozornenia'
+    | '/_authenticated/vypisy'
     | '/_authenticated/'
     | '/.lovable/oauth/consent'
     | '/_authenticated/transakcia/$id'
@@ -283,11 +332,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCentrumPlatiebRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/investovanie': {
+      id: '/_authenticated/investovanie'
+      path: '/investovanie'
+      fullPath: '/investovanie'
+      preLoaderRoute: typeof AuthenticatedInvestovanieRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/karty': {
       id: '/_authenticated/karty'
       path: '/karty'
       fullPath: '/karty'
       preLoaderRoute: typeof AuthenticatedKartyRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/lokality': {
+      id: '/_authenticated/lokality'
+      path: '/lokality'
+      fullPath: '/lokality'
+      preLoaderRoute: typeof AuthenticatedLokalityRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/nastavenia': {
@@ -302,6 +365,13 @@ declare module '@tanstack/react-router' {
       path: '/nova-platba'
       fullPath: '/nova-platba'
       preLoaderRoute: typeof AuthenticatedNovaPlatbaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/odmeny': {
+      id: '/_authenticated/odmeny'
+      path: '/odmeny'
+      fullPath: '/odmeny'
+      preLoaderRoute: typeof AuthenticatedOdmenyRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/platby': {
@@ -346,6 +416,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedUpozorneniaRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/vypisy': {
+      id: '/_authenticated/vypisy'
+      path: '/vypisy'
+      fullPath: '/vypisy'
+      preLoaderRoute: typeof AuthenticatedVypisyRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/.lovable/oauth/consent': {
       id: '/.lovable/oauth/consent'
       path: '/.lovable/oauth/consent'
@@ -365,30 +442,38 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedCentrumPlatiebRoute: typeof AuthenticatedCentrumPlatiebRoute
+  AuthenticatedInvestovanieRoute: typeof AuthenticatedInvestovanieRoute
   AuthenticatedKartyRoute: typeof AuthenticatedKartyRoute
+  AuthenticatedLokalityRoute: typeof AuthenticatedLokalityRoute
   AuthenticatedNastaveniaRoute: typeof AuthenticatedNastaveniaRoute
   AuthenticatedNovaPlatbaRoute: typeof AuthenticatedNovaPlatbaRoute
+  AuthenticatedOdmenyRoute: typeof AuthenticatedOdmenyRoute
   AuthenticatedPlatbyRoute: typeof AuthenticatedPlatbyRoute
   AuthenticatedPrijatRoute: typeof AuthenticatedPrijatRoute
   AuthenticatedProtokolPristupovRoute: typeof AuthenticatedProtokolPristupovRoute
   AuthenticatedRozpocetRoute: typeof AuthenticatedRozpocetRoute
   AuthenticatedSporenieRoute: typeof AuthenticatedSporenieRoute
   AuthenticatedUpozorneniaRoute: typeof AuthenticatedUpozorneniaRoute
+  AuthenticatedVypisyRoute: typeof AuthenticatedVypisyRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
   AuthenticatedTransakciaIdRoute: typeof AuthenticatedTransakciaIdRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedCentrumPlatiebRoute: AuthenticatedCentrumPlatiebRoute,
+  AuthenticatedInvestovanieRoute: AuthenticatedInvestovanieRoute,
   AuthenticatedKartyRoute: AuthenticatedKartyRoute,
+  AuthenticatedLokalityRoute: AuthenticatedLokalityRoute,
   AuthenticatedNastaveniaRoute: AuthenticatedNastaveniaRoute,
   AuthenticatedNovaPlatbaRoute: AuthenticatedNovaPlatbaRoute,
+  AuthenticatedOdmenyRoute: AuthenticatedOdmenyRoute,
   AuthenticatedPlatbyRoute: AuthenticatedPlatbyRoute,
   AuthenticatedPrijatRoute: AuthenticatedPrijatRoute,
   AuthenticatedProtokolPristupovRoute: AuthenticatedProtokolPristupovRoute,
   AuthenticatedRozpocetRoute: AuthenticatedRozpocetRoute,
   AuthenticatedSporenieRoute: AuthenticatedSporenieRoute,
   AuthenticatedUpozorneniaRoute: AuthenticatedUpozorneniaRoute,
+  AuthenticatedVypisyRoute: AuthenticatedVypisyRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
   AuthenticatedTransakciaIdRoute: AuthenticatedTransakciaIdRoute,
 }
