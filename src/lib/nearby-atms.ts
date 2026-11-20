@@ -52,7 +52,7 @@ export async function findNearbyPlaces(lat: number, lon: number, kind: PlaceKind
     OVERPASS_SERVERS.map(async (url, i) => {
       const timer = setTimeout(() => controllers[i]?.abort(), 25000);
       try {
-        const res = await fetch(url, { method: "POST", body: new URLSearchParams({ data: query }), signal: controllers[i]?.signal });
+        const res = await fetch(url, { method: "POST", body: new URLSearchParams({ data: query }), signal: controllers[i]?.signal ?? null });
         if (!res.ok) throw new Error(`Overpass ${res.status}`);
         const data = (await res.json()) as { elements: OverpassEl[] };
         controllers.forEach((c, j) => j !== i && c.abort());
