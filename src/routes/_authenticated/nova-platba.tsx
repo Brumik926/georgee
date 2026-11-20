@@ -24,6 +24,7 @@ import {
 } from "@/lib/bank-store";
 import { parsePaymentQr, type ParsedPaymentData } from "@/lib/qr-parser";
 import { toast } from "sonner";
+import { MTokenModal } from "@/components/bank/MTokenModal";
 
 export const Route = createFileRoute("/_authenticated/nova-platba")({
   head: () => ({
@@ -505,7 +506,7 @@ export default function NovaPlatba() {
       </div>
 
       <MTokenModal
-      import { MTokenModal } from "@/components/bank/MTokenModal";
+      
 
         isOpen={showMToken}
         onClose={() => setShowMToken(false)}
