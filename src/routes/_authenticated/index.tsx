@@ -402,12 +402,12 @@ export function GeorgePrehladModern() {
               title="Ponuky a odmeny"
               subtitle="Dostupné ponuky"
               
-              onClick={() => toast.info("Odmeny zatiaľ nie sú dostupné.")}
+              onClick={() => void navigate({ to: "/odmeny" })}
             />
             <ListItem
               icon={Medal}
               title="Moja odmena"
-              onClick={() => toast.info("Odmeny zatiaľ nie sú dostupné.")}
+              onClick={() => void navigate({ to: "/odmeny" })}
             />
             <ListItem icon={Calculator} title="Menová kalkulačka" />
             <ListItem
@@ -421,7 +421,7 @@ export function GeorgePrehladModern() {
               title="Ponuka investícií"
               subtitle="Portfóliá"
               isLast={true}
-              onClick={() => toast.info("Investície zatiaľ nie sú dostupné.")}
+              onClick={() => void navigate({ to: "/investovanie" })}
             />
           </div>
         </div>
@@ -444,7 +444,7 @@ export function GeorgePrehladModern() {
               onClick={() => navigate({ to: "/nastavenia" })}
             />
             <ListItem icon={FileText} title="Doklady totožnosti" />
-            <ListItem icon={Bell} title="Notifikácie" />
+            <ListItem icon={Bell} title="Notifikácie" onClick={() => void navigate({ to: "/upozornenia" })} />
             <ListItem icon={Users} title="Vaše klientske údaje" isLast={true} />
           </div>
         </div>
@@ -584,7 +584,7 @@ export function GeorgePrehladModern() {
               </Link>
               <button
                 type="button"
-                onClick={() => toast.info("Vyhľadávanie pobočiek a bankomatov zatiaľ nie je dostupné.")}
+                onClick={() => void navigate({ to: "/lokality" })}
                 className="flex min-w-0 flex-col items-center justify-center gap-2 rounded-2xl bg-surface px-2 py-3 text-center shadow-sm transition hover:bg-muted active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
                 <span className="grid size-10 place-items-center rounded-full bg-primary/10 text-primary"><MapPin size={19} /></span>
