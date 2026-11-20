@@ -509,19 +509,15 @@ export default function NovaPlatba() {
         onClose={() => setShowMToken(false)}
         onConfirm={async () => {
           setShowMToken(false);
-          setStep("sepa_summary"); // Prechod na existujúci flow alebo priamo execute
+          await executePayment(true);
         }}
         amount={`${amount} €`}
         recipient={name}
       />
-        onScanSuccess={(data) => {
-          if (data.recipientName) setName(data.recipientName);
-          if (data.iban) setIban(data.iban);
-          if (data.amount) setAmount(data.amount);
-          if (data.vs) setVs(data.vs);
-          if (data.note) setNote(data.note);
-        }}
-      />
+
+      <QrScannerModal
+        open={scannerOpen}
+        onClose={() => setScannerOpen(false)}
     </AppShell>
   );
 }
