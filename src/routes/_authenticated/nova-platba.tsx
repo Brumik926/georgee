@@ -67,8 +67,8 @@ export default function NovaPlatba() {
   const [scannerOpen, setScannerOpen] = useState(false);
   const submissionRef = useRef(false);
 
-  // Kroky formulára a potvrdenia simulovanej platby
-  const [step, setStep] = useState<"form" | "sepa_summary" | "confirm_card">("form");
+  const [showMToken, setShowMToken] = useState(false);
+  const [pendingPayment, setPendingPayment] = useState<any>(null);
 
   useEffect(() => {
     void isBiometricSupported().then(setBioSupported);
@@ -97,8 +97,8 @@ export default function NovaPlatba() {
       return setError(ibanCheck.error ?? "Neplatný IBAN príjemcu.");
     }
 
-    // Prechod na SEPA platba sumárnu obrazovku (obr. 1)
-    setStep("sepa_summary");
+    setPendingPayment({ name, iban, amount, category, vs, note });
+    setShowMToken(true);
   }
 
   async function executePayment(alreadyProcessing = false) {
@@ -504,9 +504,16 @@ export default function NovaPlatba() {
         </form>
       </div>
 
-      <QrScannerModal
-        open={scannerOpen}
-        onClose={() => setScannerOpen(false)}
+      <MTokenModal
+        isOpen={showMToken}
+        onClose={() => setShowMToken(false)}
+        onConfirm={async () => {
+          setShowMToken(false);
+          setStep("sepa_summary"); // Prechod na existujúci flow alebo priamo execute
+        }}
+        amount={`${amount} €`}
+        recipient={name}
+      />
         onScanSuccess={(data) => {
           if (data.recipientName) setName(data.recipientName);
           if (data.iban) setIban(data.iban);
