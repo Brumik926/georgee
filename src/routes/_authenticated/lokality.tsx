@@ -191,8 +191,7 @@ function LokalityPage() {
       <section className="mt-5 rounded-2xl border border-border bg-muted/40 p-4">
         <h2 className="text-sm font-semibold">Ako vyhľadávanie funguje</h2>
         <p className="mt-2 text-sm leading-6 text-muted-foreground">
-          Aplikácia otvorí externé mapy s vybraným typom miesta a zadanou lokalitou.
-          Zoznam, otváracie hodiny a navigáciu poskytuje mapová služba; pri vyhľadaní v okolí sa tvoja poloha použije len na nájdenie miest a neukladá sa.
+          Nájdi najbližší bankomat.
         </p>
       </section>
 
