@@ -387,11 +387,11 @@ export default function NovaPlatba() {
 
           {pinError && <p className="mt-2 px-2 text-[13px] text-destructive">{pinError}</p>}
 
-          {/* Spodné tlačidlo Potvrdiť s biometriou */}
+  // Spodné tlačidlo Potvrdiť s biometriou
           <div className="mt-8 mb-12">
             <button
               type="button"
-              onClick={confirmDemoPayment}
+              onClick={() => setStep("mtoken")}
               disabled={busy || s.loading || !!s.error}
               className="flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-primary text-[16px] font-semibold text-primary-foreground shadow-lg hover:opacity-95 active:scale-95 disabled:opacity-60 transition-all"
             >
@@ -400,6 +400,14 @@ export default function NovaPlatba() {
             </button>
           </div>
         </div>
+
+        <MTokenModal 
+          open={step === "mtoken"}
+          amount={amount}
+          recipient={name}
+          onConfirm={confirmDemoPayment}
+          onCancel={() => setStep("confirm_card")}
+        />
       </AppShell>
     );
   }
