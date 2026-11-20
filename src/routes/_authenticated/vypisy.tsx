@@ -146,8 +146,7 @@ function VypisyPage() {
         </button>
 
         <p className="rounded-2xl bg-muted/50 p-4 text-xs leading-5 text-muted-foreground">
-          PDF obsahuje údaje evidované v aplikácii. Nie je bankovým výpisom ani potvrdením
-          o skutočne vykonanej platbe.
+         
         </p>
       </div>
     </AppShell>
