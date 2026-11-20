@@ -505,6 +505,8 @@ export default function NovaPlatba() {
       </div>
 
       <MTokenModal
+      import { MTokenModal } from "@/components/bank/MTokenModal";
+
         isOpen={showMToken}
         onClose={() => setShowMToken(false)}
         onConfirm={async () => {
@@ -515,10 +517,10 @@ export default function NovaPlatba() {
         recipient={name}
       />
 
-      <QrScannerModal
-        open={scannerOpen}
-        onClose={() => setScannerOpen(false)}
-    </AppShell>
+      <<QrScannerModal
+  open={scannerOpen}
+  onClose={() => setScannerOpen(false)}
+</AppShell>
   );
 }
 
