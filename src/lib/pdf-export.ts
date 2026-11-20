@@ -47,13 +47,12 @@ function header(doc: jsPDF) {
   doc.setFont("DejaVu", "bold");
   doc.setFontSize(16);
   doc.setTextColor(0, 51, 153);
-  doc.text("GEORGE", 15, 20);
+  doc.text("Slovenská sporiteľňa a.s", 15, 20);
 
   doc.setFont("DejaVu", "normal");
   doc.setFontSize(8);
   doc.setTextColor(80, 80, 80);
-  doc.text("Ukážkový dokument · bez právnej platnosti", 15, 27);
-  doc.text("Nejde o účet ani službu skutočnej banky.", 15, 32);
+  doc.text("Platba bola zaúčtovana", 15, 27);
 
   doc.setDrawColor(200, 200, 200);
   doc.setLineWidth(0.5);
@@ -67,7 +66,6 @@ function footer(doc: jsPDF) {
   doc.setFontSize(8);
   doc.setFont("DejaVu", "normal");
   doc.setTextColor(100, 100, 100);
-  doc.text("NEJDE O BANKOVÝ DOKLAD", 105, pageHeight - 9, { align: "center" });
 }
 
 function fmtDate(iso: string) {
@@ -133,7 +131,7 @@ export async function exportReceipt(s: BankState, t: Txn) {
   doc.setFont("DejaVu", "normal");
   doc.setTextColor(120, 120, 120);
   const noteText =
-    "Tento dokument obsahuje údaje evidované v aplikácii. Nepotvrdzuje skutočnú bankovú transakciu a nemá právnu platnosť ako bankové potvrdenie.";
+    "Platba bola zaúčtovana.";
   doc.text(doc.splitTextToSize(noteText, 180), 15, y);
 
   footer(doc);
