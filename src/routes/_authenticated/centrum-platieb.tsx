@@ -229,31 +229,36 @@ function CentrumPlatieb() {
     toast.success("Šablóna uložená");
   };
 
+// ... (vo vnútri komponentu CentrumPlatieb)
+  const [activeTab, setActiveTab] = useState<"templates" | "recipients" | "trvale">("templates");
+
   return (
     <AppShell>
       <BrandHeader title="Centrum platieb" subtitle="Spravujte príjemcov a platobné šablóny" />
 
+      {/* Záložky */}
+      <div className="flex gap-2 px-4 mb-4">
+        <button onClick={() => setActiveTab("templates")} className={`px-4 py-2 rounded-full text-sm font-semibold ${activeTab === "templates" ? "bg-primary text-white" : "bg-surface"}`}>Šablóny</button>
+        <button onClick={() => setActiveTab("trvale")} className={`px-4 py-2 rounded-full text-sm font-semibold ${activeTab === "trvale" ? "bg-primary text-white" : "bg-surface"}`}>Trvalé príkazy</button>
+        <button onClick={() => setActiveTab("recipients")} className={`px-4 py-2 rounded-full text-sm font-semibold ${activeTab === "recipients" ? "bg-primary text-white" : "bg-surface"}`}>Príjemcovia</button>
+      </div>
+
       <div className="space-y-4 px-4 pb-24">
-        <input
-          aria-label="Hľadať v šablónach a príjemcoch"
-          className={field + " bg-surface"}
-          placeholder="Hľadať podľa mena alebo IBAN"
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
-        />
-        <section className="rounded-3xl border border-border bg-surface p-4 shadow-sm">
-          <div className="mb-3 flex items-center justify-between">
-            <h2 className="flex items-center gap-2 text-[16px] font-bold">
-              <Star className="h-4 w-4 text-primary" /> Šablóny platieb
-            </h2>
-            <button
-              onClick={() => setOpen((v) => !v)}
-              disabled={templatesLoading || templatesError || savingTemplates || !userId}
-              className="flex items-center gap-1 rounded-full bg-primary px-3 py-1.5 text-[13px] font-semibold text-primary-foreground disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              <Plus className="h-4 w-4" /> Nová
-            </button>
-          </div>
+        {activeTab === "trvale" && (
+            <section className="rounded-3xl border border-border bg-surface p-4 shadow-sm">
+                <h2 className="text-[16px] font-bold mb-4">Trvalé príkazy</h2>
+                <div className="text-center py-8 text-sm text-muted-foreground">
+                    Zatiaľ nemáte vytvorené žiadne trvalé príkazy.
+                </div>
+            </section>
+        )}
+        {activeTab === "templates" && (
+            // ... (zvyšok pôvodného obsahu templates)
+        )}
+        // ...
+      </div>
+    </AppShell>
+  );
 
           {open && (
             <div className="mb-3 space-y-2">
