@@ -314,7 +314,7 @@ function Nastavenia() {
                 </div>
                 <div>
                   <p className="text-[15px] font-semibold">Odomknutie biometriou</p>
-                  <p className="text-[12px] text-muted-foreground">Lokálne odomknutie zariadenia. Nenahrádza bankovú autorizáciu ani nepotvrdzuje skutočnú platbu.</p>
+                  <p className="text-[12px] text-muted-foreground">Lokálne odomknutie zariadenia.</p>
                 </div>
               </div>
 
