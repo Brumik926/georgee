@@ -1,94 +1,149 @@
-import { jsPDF } from "jspdf";
-import type { BankState, Txn } from "@/lib/bank-store";
-import { formatEur } from "@/lib/bank-store";
-import fontUrl from "@/assets/DejaVuSans.ttf?url";
-
-// Helper na prevod fontu na base64
-async function getFontData() {
-  const res = await fetch(fontUrl);
-  const buf = await res.arrayBuffer();
-  return btoa(String.fromCharCode(...new Uint8Array(buf)));
-}
-
-async function createBaseDoc() {
-  const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
-  try {
-    const font = await getFontData();
-    doc.addFileToVFS("DejaVuSans.ttf", font);
-    doc.addFont("DejaVuSans.ttf", "DejaVu", "normal");
-    doc.addFont("DejaVuSans.ttf", "DejaVu", "bold");
-    doc.setFont("DejaVu", "normal");
-  } catch (e) {
-    console.warn("Font sa nepodarilo načítať, používam default.");
-    doc.setFont("helvetica");
-  }
-  return doc;
-}
-
-function saveDoc(doc: jsPDF, filename: string) {
-  const blob = doc.output("blob");
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-}
-
-export async function exportStatement(s: BankState, txns: Txn[]) {
-  const doc = await createBaseDoc();
-  
-  // Hlavička
-  doc.setFontSize(18);
-  doc.setTextColor(0, 51, 153);
-  doc.text("George - Výpis z účtu", 15, 20);
-  
-  doc.setFontSize(10);
-  doc.setTextColor(50);
-  doc.text(`Majiteľ: ${s.owner}`, 15, 30);
-  doc.text(`IBAN: ${s.iban}`, 15, 36);
-  doc.text(`Dátum: ${new Date().toLocaleDateString("sk-SK")}`, 150, 30);
-
-  // Tabuľka
-  doc.setDrawColor(200);
-  doc.line(15, 42, 195, 42);
-  
-  doc.setFontSize(9);
-  doc.text("Dátum", 15, 48);
-  doc.text("Popis transakcie", 40, 48);
-  doc.text("Suma", 150, 48, { align: "right" });
-  doc.line(15, 52, 195, 52);
-
-  let y = 60;
-  for (const t of txns) {
-    if (y > 280) { doc.addPage(); y = 20; }
-    
-    doc.text(new Date(t.date).toLocaleDateString("sk-SK"), 15, y);
-    doc.text(t.counterparty.substring(0, 35), 40, y);
-    
-    const amount = (t.type === "in" ? "+" : "-") + formatEur(t.amount);
-    doc.setTextColor(t.type === "in" ? 0 : 200, 0, 0);
-    doc.text(amount, 150, y, { align: "right" });
-    doc.setTextColor(0);
-    
-    y += 8;
-  }
-
-  saveDoc(doc, `Vypis_Uctu_${new Date().getTime()}.pdf`);
-}
 
 export async function exportReceipt(s: BankState, t: Txn) {
   const doc = await createBaseDoc();
-  
-  doc.setFontSize(16);
-  doc.text("Potvrdenie o transakcii", 15, 20);
-  
+
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const left = 15;
+  const right = pageWidth - 15;
+  const contentWidth = right - left;
+
+  const date = new Date(t.date).toLocaleDateString("sk-SK");
+  const amount =
+    (t.type === "in" ? "+" : "−") + formatEur(t.amount);
+
+  const line = (y: number) => {
+    doc.setDrawColor(205, 208, 212);
+    doc.setLineWidth(0.25);
+    doc.line(left, y, right, y);
+  };
+
+  const row = (
+    label: string,
+    value: string,
+    y: number
+  ) => {
+    doc.setFontSize(10);
+    doc.setTextColor(45, 45, 45);
+    doc.text(label, left + 2, y);
+
+    doc.setTextColor(20, 20, 20);
+
+    const valueLines = doc.splitTextToSize(
+      value,
+      contentWidth * 0.58
+    );
+
+    doc.text(valueLines, left + 65, y);
+
+    const rowHeight = Math.max(11, valueLines.length * 5);
+    line(y + 7 + (valueLines.length - 1) * 5);
+
+    return y + rowHeight;
+  };
+
+  // Hlavička
+  doc.setFontSize(19);
+  doc.setTextColor(20, 35, 65);
+  doc.text("Slovenská sporiteľňa", left, 19);
+
+  doc.setFontSize(8);
+  doc.setTextColor(100, 100, 100);
+  doc.text(
+    "",
+    left,
+    25
+  );
+
+  doc.setFontSize(9);
+  doc.setTextColor(100, 100, 100);
+  doc.text(
+    "",
+    left,
+    30
+  );
+
+  // Názov dokumentu
+  doc.setFontSize(15);
+  doc.setTextColor(25, 25, 25);
+  doc.text("Záznam transakcie", left, 47);
+
+  // Základné informácie a suma
   doc.setFontSize(10);
-  doc.text(`Dátum: ${new Date(t.date).toLocaleDateString("sk-SK")}`, 15, 30);
-  doc.text(`Príjemca: ${t.counterparty}`, 15, 36);
-  doc.text(`Suma: ${formatEur(t.amount)}`, 15, 42);
-  doc.text(`Kategória: ${t.category}`, 15, 48);
-  
+  doc.text(s.owner, left, 58);
+
+  doc.setFontSize(9);
+  doc.setTextColor(85, 85, 85);
+  doc.text("Transakcia", left, 64);
+
+  doc.setFontSize(17);
+  doc.setTextColor(
+    t.type === "in" ? 0 : 35,
+    t.type === "in" ? 125 : 35,
+    t.type === "in" ? 65 : 35
+  );
+
+  doc.text(amount, right, 63, { align: "right" });
+
+  line(70);
+
+  // Bankové údaje
+  let y = 80;
+
+  y = row("IBAN účtu", s.iban, y);
+  y = row("Partner", t.counterparty, y);
+  y = row("Popis transakcie", t.category, y);
+  y = row("Dátum transakcie", date, y);
+  y = row(
+    "Typ transakcie",
+    t.type === "in" ? "Prichádzajúca" : "Odchádzajúca",
+    y
+  );
+
+  // Dátum vyhotovenia
+  y += 12;
+
+  doc.setFontSize(9);
+  doc.setTextColor(90, 90, 90);
+  doc.text(
+    `Dátum vyhotovenia: ${new Date().toLocaleDateString("sk-SK")}`,
+    left,
+    y
+  );
+
+  // Upozornenie
+  y += 22;
+  line(y);
+
+  doc.setFontSize(9);
+  doc.setTextColor(75, 75, 75);
+  doc.text(
+    "Tento dokument obsahuje údaje evidované v SLSP.",
+    left,
+    y + 10
+  );
+
+  doc.text(
+    "Potvrdzuje bankovú transakciu",
+    left,
+    y + 16
+  );
+
+  doc.text(
+    "",
+    left,
+    y + 22
+  );
+
+  // Spodná poznámka
+  doc.setFontSize(9);
+  doc.setTextColor(160, 45, 45);
+  doc.text(
+    "Plaba bola zaúčtovaná",
+    pageWidth / 2,
+    285,
+    { align: "center" }
+  );
+
   saveDoc(doc, `Potvrdenie_${t.id}.pdf`);
 }
+
