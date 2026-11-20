@@ -49,17 +49,9 @@ export async function exportReceipt(s: BankState, t: Txn) {
   doc.setFontSize(8);
   doc.setTextColor(100, 100, 100);
   doc.text(
-    "",
+    "Platba bola zaúčtovaná",
     left,
     25
-  );
-
-  doc.setFontSize(9);
-  doc.setTextColor(100, 100, 100);
-  doc.text(
-    "",
-    left,
-    30
   );
 
   // Názov dokumentu
@@ -117,7 +109,7 @@ export async function exportReceipt(s: BankState, t: Txn) {
   doc.setFontSize(9);
   doc.setTextColor(75, 75, 75);
   doc.text(
-    "Tento dokument obsahuje údaje evidované v SLSP.",
+    "Tento dokument obsahuje údaje evidované v aplikácii George.",
     left,
     y + 10
   );
@@ -128,22 +120,5 @@ export async function exportReceipt(s: BankState, t: Txn) {
     y + 16
   );
 
-  doc.text(
-    "",
-    left,
-    y + 22
-  );
-
-  // Spodná poznámka
-  doc.setFontSize(9);
-  doc.setTextColor(160, 45, 45);
-  doc.text(
-    "Plaba bola zaúčtovaná",
-    pageWidth / 2,
-    285,
-    { align: "center" }
-  );
-
   saveDoc(doc, `Potvrdenie_${t.id}.pdf`);
 }
-
