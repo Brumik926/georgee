@@ -24,7 +24,6 @@ import {
 } from "@/lib/bank-store";
 import { parsePaymentQr, type ParsedPaymentData } from "@/lib/qr-parser";
 import { toast } from "sonner";
-import { MTokenModal } from "@/components/bank/MTokenModal";
 
 export const Route = createFileRoute("/_authenticated/nova-platba")({
   head: () => ({
@@ -68,8 +67,8 @@ export default function NovaPlatba() {
   const [scannerOpen, setScannerOpen] = useState(false);
   const submissionRef = useRef(false);
 
-  const [showMToken, setShowMToken] = useState(false);
-  const [pendingPayment, setPendingPayment] = useState<any>(null);
+  // Kroky formulára a potvrdenia simulovanej platby
+  const [step, setStep] = useState<"form" | "sepa_summary" | "confirm_card">("form");
 
   useEffect(() => {
     void isBiometricSupported().then(setBioSupported);
@@ -98,8 +97,8 @@ export default function NovaPlatba() {
       return setError(ibanCheck.error ?? "Neplatný IBAN príjemcu.");
     }
 
-    setPendingPayment({ name, iban, amount, category, vs, note });
-    setShowMToken(true);
+    // Prechod na SEPA platba sumárnu obrazovku (obr. 1)
+    setStep("sepa_summary");
   }
 
   async function executePayment(alreadyProcessing = false) {
@@ -505,23 +504,18 @@ export default function NovaPlatba() {
         </form>
       </div>
 
-      <MTokenModal
-      
-
-        isOpen={showMToken}
-        onClose={() => setShowMToken(false)}
-        onConfirm={async () => {
-          setShowMToken(false);
-          await executePayment(true);
+      <QrScannerModal
+        open={scannerOpen}
+        onClose={() => setScannerOpen(false)}
+        onScanSuccess={(data) => {
+          if (data.recipientName) setName(data.recipientName);
+          if (data.iban) setIban(data.iban);
+          if (data.amount) setAmount(data.amount);
+          if (data.vs) setVs(data.vs);
+          if (data.note) setNote(data.note);
         }}
-        amount={`${amount} €`}
-        recipient={name}
       />
-
-      <<QrScannerModal
-  open={scannerOpen}
-  onClose={() => setScannerOpen(false)}
-</AppShell>
+    </AppShell>
   );
 }
 
