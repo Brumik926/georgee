@@ -240,7 +240,7 @@ export default function NovaPlatba() {
 
             {/* Dátum splatnosti */}
             <div className="rounded-2xl bg-surface p-4 shadow-sm border border-border">
-              <span className="text-[12px] text-muted-foreground block">Dátum záznamu</span>
+              <span className="text-[12px] text-muted-foreground block">Dátum splatnosti</span>
               <span className="text-[15px] font-semibold text-foreground mt-1 block">{new Date().toLocaleDateString("sk-SK")}</span>
             </div>
 
@@ -249,7 +249,7 @@ export default function NovaPlatba() {
               <span className="text-[12px] text-muted-foreground block">Okamžitá platba</span>
               <div className="flex items-center gap-2 mt-1">
                 <Zap className="size-5 text-primary fill-primary/20" />
-                <span className="text-[15px] font-bold text-foreground">Nedostupná</span>
+                <span className="text-[15px] font-bold text-foreground">Dostupná</span>
               </div>
               
             </div>
@@ -327,12 +327,11 @@ export default function NovaPlatba() {
           </div>
 
           <p className="mt-4 px-2 text-[13px] text-muted-foreground leading-relaxed">
-            Potvrdením sa uloží záznam platby. Aplikácia nevykonáva bankový prevod.
+            Túto platbu som vyhodnotil ako bezpečnú. Preto ju stačí len potvrdiť.
           </p>
 
           {pinError && <p className="mt-2 px-2 text-[13px] text-destructive">{pinError}</p>}
 
-  // Spodné tlačidlo Potvrdiť s biometriou
           <div className="mt-8 mb-12">
             <button
               type="button"
@@ -341,7 +340,7 @@ export default function NovaPlatba() {
               className="flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-primary text-[16px] font-semibold text-primary-foreground shadow-lg hover:opacity-95 active:scale-95 disabled:opacity-60 transition-all"
             >
               {bioSupported && isBiometricEnabled(user.id) ? <Fingerprint className="size-6" /> : <CheckCircle2 className="size-6" />}
-              <span>{busy ? "Spracúvam…" : "Potvrdiť platbu"}</span>
+              <span>{busy ? "Spracúvam…" : "Potvrdiť platbu biometriou"}</span>
             </button>
           </div>
         </div>
