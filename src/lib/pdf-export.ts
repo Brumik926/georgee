@@ -147,14 +147,18 @@ export async function exportReceipt(s: BankState, t: Txn) {
   }
   if (george) doc.addImage(george, "PNG", right - 11, 10, 11, 13.2);
 
-  // Názov dokumentu
+  // Hlavička: vľavo meno príjemcu, pod ním meno odosielateľa
+  const recipient = t.type === "in" ? s.owner : t.counterparty;
+  const sender = t.type === "in" ? t.counterparty : s.owner;
+
   doc.setFontSize(15);
   doc.setTextColor(25, 25, 25);
-  doc.text(s.owner, left, 47);
+  doc.text(recipient || "—", left, 47);
 
   // Základné informácie a suma
   doc.setFontSize(10);
-  doc.text(s.owner, left, 58);
+  doc.setTextColor(60, 60, 60);
+  doc.text(sender || "—", left, 58);
 
   doc.setFontSize(9);
   doc.setTextColor(85, 85, 85);
