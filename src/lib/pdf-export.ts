@@ -129,7 +129,7 @@ export async function exportReceipt(s: BankState, t: Txn) {
   doc.setFontSize(8);
   doc.setTextColor(100, 100, 100);
   doc.text(
-    "Platba bola zaúčtovaná",
+    "",
     left,
     25
   );
@@ -137,7 +137,7 @@ export async function exportReceipt(s: BankState, t: Txn) {
   // Názov dokumentu
   doc.setFontSize(15);
   doc.setTextColor(25, 25, 25);
-  doc.text("Záznam transakcie", left, 47);
+  doc.text(s.owner, left, 47);
 
   // Základné informácie a suma
   doc.setFontSize(10);
@@ -145,7 +145,7 @@ export async function exportReceipt(s: BankState, t: Txn) {
 
   doc.setFontSize(9);
   doc.setTextColor(85, 85, 85);
-  doc.text("Transakcia", left, 64);
+  doc.text("Platobný príkaz na úhradu /FIT 2.0 (EB)", left, 64);
 
   doc.setFontSize(17);
   doc.setTextColor(
@@ -161,15 +161,11 @@ export async function exportReceipt(s: BankState, t: Txn) {
   // Bankové údaje
   let y = 80;
 
-  y = row("IBAN účtu", s.iban, y);
+  y = row("IBAN", s.iban, y);
   y = row("Partner", t.counterparty, y);
   y = row("Popis transakcie", t.category, y);
-  y = row("Dátum transakcie", date, y);
-  y = row(
-    "Typ transakcie",
-    t.type === "in" ? "Prichádzajúca" : "Odchádzajúca",
-    y
-  );
+  y = row("Dátum splatnosti", date, y);
+  y = row("Dátum valuty", date, y);
 
   // Dátum vyhotovenia
   y += 12;
@@ -177,7 +173,7 @@ export async function exportReceipt(s: BankState, t: Txn) {
   doc.setFontSize(9);
   doc.setTextColor(90, 90, 90);
   doc.text(
-    `Dátum vyhotovenia: ${new Date().toLocaleDateString("sk-SK")}`,
+    `Platba bola zaučtovaná: ${new Date().toLocaleDateString("sk-SK")}`,
     left,
     y
   );
