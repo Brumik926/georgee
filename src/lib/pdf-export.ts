@@ -147,22 +147,16 @@ export async function exportReceipt(s: BankState, t: Txn) {
   }
   if (george) doc.addImage(george, "PNG", right - 11, 10, 11, 13.2);
 
-  // Hlavička: vľavo meno príjemcu, pod ním meno odosielateľa
+  // Hlavička podľa vzoru: meno príjemcu a hneď pod ním názov platby so sumou
   const recipient = t.type === "in" ? s.owner : t.counterparty;
-  const sender = t.type === "in" ? t.counterparty : s.owner;
 
   doc.setFontSize(15);
   doc.setTextColor(25, 25, 25);
   doc.text(recipient || "—", left, 47);
 
-  // Základné informácie a suma
-  doc.setFontSize(10);
-  doc.setTextColor(60, 60, 60);
-  doc.text(sender || "—", left, 58);
-
-  doc.setFontSize(9);
-  doc.setTextColor(85, 85, 85);
-  doc.text("Platobný príkaz na úhradu /FIT 2.0 (EB)", left, 64);
+  doc.setFontSize(10.5);
+  doc.setTextColor(45, 45, 45);
+  doc.text("Platobný príkaz na úhradu / FIT 2.0 (EB)", left, 55);
 
   doc.setFontSize(17);
   doc.setTextColor(
@@ -171,15 +165,16 @@ export async function exportReceipt(s: BankState, t: Txn) {
     t.type === "in" ? 65 : 35
   );
 
-  doc.text(amount, right, 63, { align: "right" });
+  doc.text(amount, right, 55, { align: "right" });
 
-  line(70);
+  line(62);
 
   // Bankové údaje
-  let y = 80;
+  let y = 72;
 
   y = row("IBAN", s.iban, y);
   y = row("Partner", t.counterparty, y);
+  if (t.iban) y = row("IBAN", t.iban, y);
   y = row("Popis transakcie", t.category, y);
   y = row("Dátum splatnosti", date, y);
   y = row("Dátum valuty", date, y);
