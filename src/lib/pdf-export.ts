@@ -2,6 +2,22 @@ import { jsPDF } from "jspdf";
 import type { BankState, Txn } from "@/lib/bank-store";
 import { formatEur } from "@/lib/bank-store";
 import fontUrl from "@/assets/DejaVuSans.ttf?url";
+import slspLogo from "@/assets/slsp-logo.png.asset.json";
+import georgeLogo from "@/assets/george-logo.png.asset.json";
+
+async function loadImage(url: string): Promise<string | null> {
+  try {
+    const blob = await (await fetch(url)).blob();
+    return await new Promise((res) => {
+      const r = new FileReader();
+      r.onload = () => res(r.result as string);
+      r.onerror = () => res(null);
+      r.readAsDataURL(blob);
+    });
+  } catch {
+    return null;
+  }
+}
 
 // Helper na prevod fontu na base64
 async function getFontData() {
@@ -121,18 +137,15 @@ export async function exportReceipt(s: BankState, t: Txn) {
     return y + rowHeight;
   };
 
-  // Hlavička
-  doc.setFontSize(19);
-  doc.setTextColor(20, 35, 65);
-  doc.text("Slovenská sporiteľňa", left, 19);
-
-  doc.setFontSize(8);
-  doc.setTextColor(100, 100, 100);
-  doc.text(
-    "",
-    left,
-    25
-  );
+  // Hlavička: logo Slovenská sporiteľňa vľavo, symbol George vpravo
+  const [slsp, george] = await Promise.all([loadImage(slspLogo.url), loadImage(georgeLogo.url)]);
+  if (slsp) doc.addImage(slsp, "PNG", left, 10, 44, 13.5);
+  else {
+    doc.setFontSize(19);
+    doc.setTextColor(20, 35, 65);
+    doc.text("Slovenská sporiteľňa", left, 19);
+  }
+  if (george) doc.addImage(george, "PNG", right - 11, 10, 11, 13.2);
 
   // Názov dokumentu
   doc.setFontSize(15);
