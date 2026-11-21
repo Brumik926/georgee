@@ -448,6 +448,7 @@ export default function UcetDetail() {
   const [isSearching, setIsSearching] = useState(search.searchOpen === "1" || Boolean(search.q));
   const [searchQuery, setSearchQuery] = useState(search.q ?? "");
   const [transactionFilter, setTransactionFilter] = useState<"all" | "in" | "out">(search.filter ?? "all");
+  const [categoryFilter, setCategoryFilter] = useState<string>("all");
 
   // Reálny zostatok
   const currentBalance = balance(s);
@@ -466,6 +467,9 @@ export default function UcetDetail() {
 
     if (transactionFilter !== "all") {
       sorted = sorted.filter((t) => t.type === transactionFilter);
+    }
+    if (categoryFilter !== "all") {
+      sorted = sorted.filter((t) => t.category === categoryFilter);
     }
 
     if (searchQuery.trim()) {
@@ -498,7 +502,7 @@ export default function UcetDetail() {
       .sort((a, b) => b.localeCompare(a))
       .map((k) => groups[k])
       .filter((g): g is { label: string; items: Txn[] } => Boolean(g));
-  }, [s.transactions, searchQuery, transactionFilter]);
+  }, [s.transactions, searchQuery, transactionFilter, categoryFilter]);
 
   const visibleTransactionCount = groupedTransactions.reduce(
     (count, group) => count + group.items.length,
@@ -640,26 +644,58 @@ export default function UcetDetail() {
                 </div>
               )}
 
-              <div className="flex gap-2 overflow-x-auto pb-1" role="group" aria-label="Filter transakcií">
-                {([
-                  { value: "all", label: "Všetky" },
-                  { value: "in", label: "Prijaté" },
-                  { value: "out", label: "Odoslané" },
-                ] as const).map((filter) => (
+              <div className="space-y-2">
+                <div className="flex gap-2 overflow-x-auto pb-1" role="group" aria-label="Filter transakcií">
+                  {([
+                    { value: "all", label: "Všetky" },
+                    { value: "in", label: "Prijaté" },
+                    { value: "out", label: "Odoslané" },
+                  ] as const).map((filter) => (
+                    <button
+                      key={filter.value}
+                      type="button"
+                      aria-pressed={transactionFilter === filter.value}
+                      onClick={() => setTransactionFilter(filter.value)}
+                      className={`shrink-0 rounded-full border px-4 py-2 text-[13px] font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-detail-action ${
+                        transactionFilter === filter.value
+                          ? "border-primary bg-primary text-primary-foreground"
+                          : "border-detail-action-surface bg-detail-surface text-detail-muted hover:text-foreground"
+                      }`}
+                    >
+                      {filter.label}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="flex gap-1.5 overflow-x-auto pb-1" role="group" aria-label="Filter kategórií">
                   <button
-                    key={filter.value}
                     type="button"
-                    aria-pressed={transactionFilter === filter.value}
-                    onClick={() => setTransactionFilter(filter.value)}
-                    className={`shrink-0 rounded-full border px-4 py-2 text-[13px] font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-detail-action ${
-                      transactionFilter === filter.value
-                        ? "border-primary bg-primary text-primary-foreground"
-                        : "border-detail-action-surface bg-detail-surface text-detail-muted hover:text-foreground"
+                    aria-pressed={categoryFilter === "all"}
+                    onClick={() => setCategoryFilter("all")}
+                    className={`shrink-0 rounded-full border px-3 py-1.5 text-[12px] font-semibold transition ${
+                      categoryFilter === "all"
+                        ? "border-primary/50 bg-primary/20 text-primary"
+                        : "border-detail-action-surface bg-detail-surface text-detail-muted"
                     }`}
                   >
-                    {filter.label}
+                    Všetky kategórie
                   </button>
-                ))}
+                  {["Potraviny", "Bývanie", "Doprava", "Zábava", "Zdravie", "Poplatky", "Mzda", "Sporenie"].map((cat) => (
+                    <button
+                      key={cat}
+                      type="button"
+                      aria-pressed={categoryFilter === cat}
+                      onClick={() => setCategoryFilter(cat)}
+                      className={`shrink-0 rounded-full border px-3 py-1.5 text-[12px] font-semibold transition ${
+                        categoryFilter === cat
+                          ? "border-primary/50 bg-primary/20 text-primary"
+                          : "border-detail-action-surface bg-detail-surface text-detail-muted"
+                      }`}
+                    >
+                      {cat}
+                    </button>
+                  ))}
+                </div>
               </div>
 
               {/* Platobné príkazy a rezervácie */}
