@@ -178,23 +178,5 @@ export async function exportReceipt(s: BankState, t: Txn) {
     y
   );
 
-  // Upozornenie
-  y += 22;
-  line(y);
-
-  doc.setFontSize(9);
-  doc.setTextColor(75, 75, 75);
-  doc.text(
-    "Tento dokument obsahuje údaje evidované v aplikácii George.",
-    left,
-    y + 10
-  );
-
-  doc.text(
-    "Potvrdzuje bankovú transakciu",
-    left,
-    y + 16
-  );
-
   saveDoc(doc, `Potvrdenie_${t.id}.pdf`);
 }
