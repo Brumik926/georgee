@@ -24,6 +24,7 @@ import {
 } from "@/lib/bank-store";
 import { parsePaymentQr, type ParsedPaymentData } from "@/lib/qr-parser";
 import { toast } from "sonner";
+import { MTokenModal } from "@/components/bank/MTokenModal";
 
 export const Route = createFileRoute("/_authenticated/nova-platba")({
   head: () => ({
@@ -66,64 +67,8 @@ export default function NovaPlatba() {
   const [pinError, setPinError] = useState("");
   const [scannerOpen, setScannerOpen] = useState(false);
   const submissionRef = useRef(false);
-
-import { MTokenModal } from "@/components/bank/MTokenModal";
-// ... (ostatné importy)
-
-export default function NovaPlatba() {
-  const s = useBank();
-  const navigate = useNavigate();
-  const { user } = Route.useRouteContext();
-
-  const prefill = Route.useSearch();
-  const [name, setName] = useState(prefill.name ?? "");
-  const [iban, setIban] = useState(prefill.iban ?? "");
-  const [amount, setAmount] = useState(prefill.amount ?? "");
-  const [category, setCategory] = useState("Prevod");
-  const [note, setNote] = useState("");
-  const [vs, setVs] = useState(prefill.vs ?? "");
-  const [error, setError] = useState("");
-  const [busy, setBusy] = useState(false);
-  const [bioSupported, setBioSupported] = useState(false);
-  const [pinError, setPinError] = useState("");
-  const [scannerOpen, setScannerOpen] = useState(false);
-  const submissionRef = useRef(false);
-
   // Kroky formulára a potvrdenia simulovanej platby
   const [step, setStep] = useState<"form" | "sepa_summary" | "confirm_card" | "mtoken">("form");
-
-  // ... (vnútri komponentu)
-
-  // 2. OBRAZOVKA: POTVRDENIE INFO KARTA (Zodpovedá 12875.jpg)
-  if (step === "confirm_card") {
-    return (
-      <AppShell>
-        <div className="min-h-screen bg-background pb-20 px-4 pt-4 text-foreground font-sans">
-          {/* ... (predchádzajúci kód) */}
-          {/* Spodné tlačidlo Potvrdiť s biometriou */}
-          <div className="mt-8 mb-12">
-            <button
-              type="button"
-              onClick={() => setStep("mtoken")}
-              disabled={busy || s.loading || !!s.error}
-              className="flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-primary text-[16px] font-semibold text-primary-foreground shadow-lg hover:opacity-95 active:scale-95 disabled:opacity-60 transition-all"
-            >
-              {bioSupported && isBiometricEnabled(user.id) ? <Fingerprint className="size-6" /> : <CheckCircle2 className="size-6" />}
-              <span>{busy ? "Spracúvam…" : "Potvrdiť platbu"}</span>
-            </button>
-          </div>
-        </div>
-
-        <MTokenModal 
-          open={step === "mtoken"}
-          amount={amount}
-          recipient={name}
-          onConfirm={confirmDemoPayment}
-          onCancel={() => setStep("confirm_card")}
-        />
-      </AppShell>
-    );
-  }
 
   const normalizedAmount = amount.trim().replace(",", ".");
   const value = Number(normalizedAmount);
@@ -341,7 +286,7 @@ export default function NovaPlatba() {
   }
 
   // 2. OBRAZOVKA: POTVRDENIE INFO KARTA (Zodpovedá 12875.jpg)
-  if (step === "confirm_card") {
+  if (step === "confirm_card" || step === "mtoken") {
     return (
       <AppShell>
         <div className="min-h-screen bg-background pb-20 px-4 pt-4 text-foreground font-sans">
